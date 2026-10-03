@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import Loading from "../components/Loading.jsx";
@@ -8,7 +9,6 @@ const Messages = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
 
-  // Check for prefilled recipient from query params (?to=id&name=Name)
   const prefilledTo = searchParams.get("to");
   const prefilledName = searchParams.get("name");
 
@@ -21,14 +21,13 @@ const Messages = () => {
 
   const [selectedMessage, setSelectedMessage] = useState(null);
 
-  // Compose state
   const [usersList, setUsersList] = useState([]);
   const [adminContact, setAdminContact] = useState(null);
-  const [recipientOptions, setRecipientOptions] = useState([]); // for attendee dropdown
+  const [recipientOptions, setRecipientOptions] = useState([]);
   const [composeData, setComposeData] = useState({
     receiver: prefilledTo || "",
     subject: "",
-    body: ""
+    body: "",
   });
   const [sending, setSending] = useState(false);
 
@@ -37,12 +36,12 @@ const Messages = () => {
       setLoading(true);
       const [inboxRes, sentRes] = await Promise.all([
         api.get("/messages/inbox"),
-        api.get("/messages/sent")
+        api.get("/messages/sent"),
       ]);
       setInbox(inboxRes.data);
       setSent(sentRes.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load messages");
+      setError(err.userMessage || err.response?.data?.message || "Failed to load messages");
     } finally {
       setLoading(false);
     }
@@ -57,14 +56,12 @@ const Messages = () => {
         const res = await api.get("/messages/admin-contact");
         setAdminContact(res.data);
 
-        // Build attendee dropdown: admin + any prefilled recipient
-        const options = [{ _id: res.data._id, label: `${res.data.name} (Admin)` }];
+        const options = [{ _id: res.data._id, label: `${res.data.name} (Organizer)` }];
         if (prefilledTo && prefilledTo !== res.data._id) {
           options.push({ _id: prefilledTo, label: prefilledName || "Exhibitor" });
         }
         setRecipientOptions(options);
 
-        // Default to prefilled or admin
         if (!prefilledTo) {
           setComposeData((prev) => ({ ...prev, receiver: res.data._id }));
         }
@@ -99,24 +96,20 @@ const Messages = () => {
     setError("");
     setSuccess("");
 
-    if (!composeData.receiver) {
-      return setError("Please select a recipient.");
-    }
-    if (!composeData.body.trim()) {
-      return setError("Message body is required.");
-    }
+    if (!composeData.receiver) return setError("Please select a recipient.");
+    if (!composeData.body.trim()) return setError("Message body is required.");
 
     setSending(true);
 
     try {
       await api.post("/messages", composeData);
-      setSuccess("Message sent successfully!");
+      setSuccess("Message dispatched successfully!");
       const defaultReceiver = adminContact ? adminContact._id : "";
       setComposeData({ receiver: defaultReceiver, subject: "", body: "" });
       setActiveTab("sent");
       fetchMessages();
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to send message");
+      setError(err.userMessage || err.response?.data?.message || "Failed to send message");
     } finally {
       setSending(false);
     }
@@ -127,138 +120,307 @@ const Messages = () => {
     setComposeData({
       receiver: replyReceiver,
       subject: msg.subject.startsWith("Re:") ? msg.subject : `Re: ${msg.subject}`,
-      body: ""
+      body: "",
     });
     setSelectedMessage(null);
     setActiveTab("compose");
   };
 
+  const unreadCount = inbox.filter((m) => !m.read).length;
+
   return (
-    <div className="dashboard-container">
-      <h2>Messages & Communication</h2>
+    <div style={{ display: "flex", flexDirection: "column", gap: 28, padding: "10px 0" }}>
+      {/* Header */}
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          border: "3px solid var(--color-dark, #231e25)",
+          boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
+          padding: "24px 28px",
+        }}
+      >
+        <span style={{ backgroundColor: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
+          [ REAL-TIME COMMUNICATION ]
+        </span>
+        <h1 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(36px, 5vw, 48px)", color: "var(--color-dark, #231e25)", lineHeight: 0.9, margin: "6px 0 0 0" }}>
+          MESSAGES & INBOX
+        </h1>
+      </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      {error && (
+        <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
+          ⚠️ {error}
+        </div>
+      )}
+      {success && (
+        <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
+          ✓ {success}
+        </div>
+      )}
 
-      {/* Tabs */}
-      <div className="tab-bar" style={{ margin: "1rem 0" }}>
-        <button
-          className={`tab-btn ${activeTab === "inbox" ? "active" : ""}`}
-          onClick={() => { setActiveTab("inbox"); setSelectedMessage(null); }}
-        >
-          Inbox ({inbox.filter((m) => !m.read).length} Unread)
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "sent" ? "active" : ""}`}
-          onClick={() => { setActiveTab("sent"); setSelectedMessage(null); }}
-        >
-          Sent Messages
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "compose" ? "active" : ""}`}
-          onClick={() => { setActiveTab("compose"); setSelectedMessage(null); }}
-        >
-          + Compose Message
-        </button>
+      {/* Tabs Bar */}
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        {[
+          { id: "inbox", label: `INBOX (${unreadCount} UNREAD)`, icon: "📥" },
+          { id: "sent", label: `SENT ARCHIVE (${sent.length})`, icon: "📤" },
+          { id: "compose", label: "+ COMPOSE MESSAGE", icon: "✍️" },
+        ].map((t) => {
+          const isActive = activeTab === t.id && !selectedMessage;
+
+          return (
+            <motion.button
+              key={t.id}
+              onClick={() => {
+                setActiveTab(t.id);
+                setSelectedMessage(null);
+              }}
+              whileHover={{ y: -2 }}
+              whileTap={{ y: 1 }}
+              style={{
+                padding: "10px 20px",
+                borderRadius: 4,
+                backgroundColor: isActive ? "var(--color-dark, #231e25)" : "var(--color-light, #fff8eb)",
+                color: isActive ? "var(--color-light, #fff8eb)" : "var(--color-dark, #231e25)",
+                border: "2px solid var(--color-dark, #231e25)",
+                boxShadow: isActive ? "4px 4px 0px var(--color-primary, #ff3e33)" : "2px 2px 0px var(--color-dark, #231e25)",
+                fontFamily: "var(--font-display)",
+                fontSize: 18,
+                letterSpacing: 0.5,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <span>{t.icon}</span>
+              <span>{t.label}</span>
+            </motion.button>
+          );
+        })}
       </div>
 
       {loading ? (
-        <Loading message="Loading messages..." />
+        <Loading message="Synchronizing messages..." />
       ) : (
         <>
-          {/* Inbox Tab */}
+          {/* INBOX TAB */}
           {activeTab === "inbox" && !selectedMessage && (
-            <div className="messages-list">
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                border: "3px solid var(--color-dark, #231e25)",
+                boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
+                padding: "24px",
+              }}
+            >
               {inbox.length === 0 ? (
-                <div className="empty-state">Your inbox is empty.</div>
+                <div style={{ padding: 32, textAlign: "center", fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
+                  Your inbox is clean. No incoming messages.
+                </div>
               ) : (
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr><th>Sender</th><th>Subject</th><th>Date</th><th>Action</th></tr>
-                    </thead>
-                    <tbody>
-                      {inbox.map((msg) => (
-                        <tr
-                          key={msg._id}
-                          style={{ fontWeight: msg.read ? "normal" : "bold", cursor: "pointer" }}
-                          onClick={() => handleOpenMessage(msg, true)}
-                        >
-                          <td>{msg.sender?.name} <span className="text-muted">({msg.sender?.role})</span></td>
-                          <td>{msg.subject}</td>
-                          <td>{new Date(msg.createdAt).toLocaleString()}</td>
-                          <td>
-                            <button onClick={(e) => { e.stopPropagation(); handleOpenMessage(msg, true); }} className="btn-sm btn-info">View</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {inbox.map((msg) => (
+                    <motion.div
+                      key={msg._id}
+                      onClick={() => handleOpenMessage(msg, true)}
+                      whileHover={{ x: 4 }}
+                      style={{
+                        backgroundColor: msg.read ? "#ffffff" : "var(--color-light, #fff8eb)",
+                        border: "2px solid var(--color-dark, #231e25)",
+                        borderLeft: msg.read ? "2px solid var(--color-dark, #231e25)" : "6px solid var(--color-primary, #ff3e33)",
+                        boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
+                        padding: "16px 20px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        gap: 16,
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <strong style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16 }}>
+                            {msg.sender?.name || "User"}
+                          </strong>
+                          <span style={{ fontSize: 11, backgroundColor: "#f3f4f6", border: "1px solid #000", padding: "1px 6px", borderRadius: 2, textTransform: "uppercase", fontWeight: 700 }}>
+                            {msg.sender?.role || "Member"}
+                          </span>
+                        </div>
+                        <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: msg.read ? 500 : 800, color: "var(--color-dark)", margin: "4px 0 0 0" }}>
+                          {msg.subject || "(No Subject)"}
+                        </p>
+                      </div>
+
+                      <div style={{ textAlign: "right" }}>
+                        <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
+                          {new Date(msg.createdAt).toLocaleDateString()}
+                        </span>
+                        <div>
+                          <span style={{ color: "var(--color-primary, #ff3e33)", fontSize: 12, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>
+                            Read →
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </div>
           )}
 
-          {/* Sent Tab */}
+          {/* SENT TAB */}
           {activeTab === "sent" && !selectedMessage && (
-            <div className="messages-list">
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                border: "3px solid var(--color-dark, #231e25)",
+                boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
+                padding: "24px",
+              }}
+            >
               {sent.length === 0 ? (
-                <div className="empty-state">No sent messages.</div>
+                <div style={{ padding: 32, textAlign: "center", fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
+                  No dispatched sent messages.
+                </div>
               ) : (
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr><th>Recipient</th><th>Subject</th><th>Date</th><th>Action</th></tr>
-                    </thead>
-                    <tbody>
-                      {sent.map((msg) => (
-                        <tr key={msg._id} style={{ cursor: "pointer" }} onClick={() => handleOpenMessage(msg, false)}>
-                          <td>{msg.receiver?.name} <span className="text-muted">({msg.receiver?.role})</span></td>
-                          <td>{msg.subject}</td>
-                          <td>{new Date(msg.createdAt).toLocaleString()}</td>
-                          <td>
-                            <button onClick={(e) => { e.stopPropagation(); handleOpenMessage(msg, false); }} className="btn-sm btn-info">View</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {sent.map((msg) => (
+                    <motion.div
+                      key={msg._id}
+                      onClick={() => handleOpenMessage(msg, false)}
+                      whileHover={{ x: 4 }}
+                      style={{
+                        backgroundColor: "#ffffff",
+                        border: "2px solid var(--color-dark, #231e25)",
+                        boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
+                        padding: "16px 20px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        gap: 16,
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 700 }}>To:</span>
+                          <strong style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16 }}>
+                            {msg.receiver?.name || "Recipient"}
+                          </strong>
+                          <span style={{ fontSize: 11, backgroundColor: "#f3f4f6", border: "1px solid #000", padding: "1px 6px", borderRadius: 2, textTransform: "uppercase", fontWeight: 700 }}>
+                            {msg.receiver?.role || "Member"}
+                          </span>
+                        </div>
+                        <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: 600, color: "var(--color-dark)", margin: "4px 0 0 0" }}>
+                          {msg.subject || "(No Subject)"}
+                        </p>
+                      </div>
+
+                      <div style={{ textAlign: "right" }}>
+                        <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
+                          {new Date(msg.createdAt).toLocaleDateString()}
+                        </span>
+                        <div>
+                          <span style={{ color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>
+                            View Details →
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </div>
           )}
 
-          {/* Detail View */}
+          {/* MESSAGE DETAIL VIEW */}
           {selectedMessage && (
-            <div className="form-card" style={{ marginTop: "1rem" }}>
-              <button className="btn-link" onClick={() => setSelectedMessage(null)} style={{ marginBottom: "1rem", display: "inline-block" }}>
-                &larr; Back to messages list
-              </button>
-              <h3>{selectedMessage.subject}</h3>
-              <p className="text-muted" style={{ marginBottom: "1rem" }}>
-                From: {selectedMessage.sender?.name} ({selectedMessage.sender?.role}) | To:{" "}
-                {selectedMessage.receiver?.name} ({selectedMessage.receiver?.role}) | Date:{" "}
-                {new Date(selectedMessage.createdAt).toLocaleString()}
-              </p>
-              <div style={{ background: "#f9fafb", padding: "1rem", borderRadius: "0.375rem", whiteSpace: "pre-wrap", marginBottom: "1rem" }}>
+            <div
+              style={{
+                backgroundColor: "var(--color-light, #fff8eb)",
+                border: "3px solid var(--color-dark, #231e25)",
+                boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
+                padding: "28px 32px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 20,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <button
+                  onClick={() => setSelectedMessage(null)}
+                  style={{ background: "#ffffff", border: "2px solid #000", padding: "6px 14px", borderRadius: 4, cursor: "pointer", fontFamily: "'Satoshi', sans-serif", fontWeight: 800, fontSize: 13 }}
+                >
+                  ← Back to Messages List
+                </button>
+                <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, color: "#6b7280" }}>
+                  📅 {new Date(selectedMessage.createdAt).toLocaleString()}
+                </span>
+              </div>
+
+              <div>
+                <h3 style={{ fontFamily: "var(--font-display)", fontSize: 32, margin: "0 0 8px 0" }}>
+                  {selectedMessage.subject || "(No Subject)"}
+                </h3>
+                <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, fontFamily: "'Satoshi', sans-serif" }}>
+                  <span><strong>From:</strong> {selectedMessage.sender?.name} ({selectedMessage.sender?.role})</span>
+                  <span><strong>To:</strong> {selectedMessage.receiver?.name} ({selectedMessage.receiver?.role})</span>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: "#ffffff",
+                  border: "2px solid var(--color-dark, #231e25)",
+                  padding: "20px",
+                  borderRadius: 4,
+                  fontFamily: "'Satoshi', sans-serif",
+                  fontSize: 15,
+                  lineHeight: 1.6,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
                 {selectedMessage.body}
               </div>
+
               {selectedMessage.sender?._id !== user._id && (
-                <button onClick={() => handleReply(selectedMessage)} className="btn btn-primary btn-sm">Reply</button>
+                <div>
+                  <button
+                    onClick={() => handleReply(selectedMessage)}
+                    style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", border: "2px solid #000", boxShadow: "2px 2px 0px #000", padding: "10px 22px", fontFamily: "var(--font-display)", fontSize: 20, cursor: "pointer" }}
+                  >
+                    Reply to Message →
+                  </button>
+                </div>
               )}
             </div>
           )}
 
-          {/* Compose Tab */}
-          {activeTab === "compose" && (
-            <form onSubmit={handleSendMessage} className="form-card">
-              <h3>Compose Message</h3>
-              <div className="form-group" style={{ marginTop: "1rem" }}>
-                <label>To (Recipient) *</label>
+          {/* COMPOSE TAB */}
+          {activeTab === "compose" && !selectedMessage && (
+            <form
+              onSubmit={handleSendMessage}
+              style={{
+                backgroundColor: "#ffffff",
+                border: "3px solid var(--color-dark, #231e25)",
+                boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
+                padding: "28px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+              }}
+            >
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: 28, margin: 0 }}>
+                COMPOSE NEW TRANSMISSION
+              </h3>
+
+              <div>
+                <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>To (Recipient) *</label>
                 {user?.role === "admin" ? (
                   <select
                     value={composeData.receiver}
                     onChange={(e) => setComposeData({ ...composeData, receiver: e.target.value })}
+                    style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, marginTop: 4, backgroundColor: "var(--color-light, #fff8eb)" }}
                   >
                     <option value="">-- Select Recipient --</option>
                     {usersList.map((u) => (
@@ -268,10 +430,10 @@ const Messages = () => {
                     ))}
                   </select>
                 ) : recipientOptions.length > 1 ? (
-                  /* Attendee with prefilled + admin */
                   <select
                     value={composeData.receiver}
                     onChange={(e) => setComposeData({ ...composeData, receiver: e.target.value })}
+                    style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, marginTop: 4, backgroundColor: "var(--color-light, #fff8eb)" }}
                   >
                     {recipientOptions.map((opt) => (
                       <option key={opt._id} value={opt._id}>{opt.label}</option>
@@ -281,34 +443,52 @@ const Messages = () => {
                   <input
                     type="text"
                     disabled
-                    value={adminContact ? `${adminContact.name} (Admin)` : "Loading Admin Contact..."}
+                    value={adminContact ? `${adminContact.name} (Organizer Direct Desk)` : "Loading Organizer Contact..."}
+                    style={{ width: "100%", padding: "10px", border: "2px solid #ccc", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, marginTop: 4, backgroundColor: "#f3f4f6" }}
                   />
                 )}
               </div>
 
-              <div className="form-group">
-                <label>Subject</label>
+              <div>
+                <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Subject</label>
                 <input
                   type="text"
                   value={composeData.subject}
                   onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
-                  placeholder="Message subject"
+                  placeholder="Inquiry topic / booth question"
+                  style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4 }}
                 />
               </div>
 
-              <div className="form-group">
-                <label>Message Body *</label>
+              <div>
+                <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Message Body *</label>
                 <textarea
                   rows="5"
                   value={composeData.body}
                   onChange={(e) => setComposeData({ ...composeData, body: e.target.value })}
-                  placeholder="Type your message here..."
+                  placeholder="Type your message or inquiry here..."
+                  style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4 }}
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary" disabled={sending}>
-                {sending ? "Sending..." : "Send Message"}
-              </button>
+              <motion.button
+                type="submit"
+                disabled={sending}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                style={{
+                  backgroundColor: "var(--color-primary, #ff3e33)",
+                  color: "#ffffff",
+                  border: "2px solid #000",
+                  boxShadow: "3px 3px 0px #000",
+                  padding: "12px",
+                  fontFamily: "var(--font-display)",
+                  fontSize: 22,
+                  cursor: sending ? "not-allowed" : "pointer",
+                }}
+              >
+                {sending ? "SENDING..." : "DISPATCH MESSAGE →"}
+              </motion.button>
             </form>
           )}
         </>

@@ -3,7 +3,9 @@ import http from "http";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 import connectDB from "./config/db.js";
+import dbCheck from "./middleware/dbCheck.js";
 import { initSocket } from "./utils/socket.js";
 import { startReminders } from "./utils/reminders.js";
 
@@ -30,17 +32,22 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 initSocket(server);
 
-// Connect to MongoDB & start background timers
-connectDB().then(() => {
-  startReminders();
-});
-
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Serve uploads folder statically
 app.use("/uploads", express.static(path.resolve("uploads")));
+
+// Health check remains available while the database is unavailable.
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+  });
+});
+
+app.use("/api", dbCheck);
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -57,12 +64,39 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack || err);
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  const status = err.status || 500;
+  const message =
+    process.env.NODE_ENV === "production" && status >= 500
+      ? "Something went wrong on the server."
+      : err.message || "Internal server error";
+
+  return res.status(status).json({ message });
 });
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+let remindersStarted = false;
+connectDB()
+  .then(() => {
+    if (!remindersStarted) {
+      startReminders();
+      remindersStarted = true;
+    }
+  })
+  .catch((error) => {
+    console.error("MongoDB connection retry loop stopped unexpectedly:", error);
+  });
