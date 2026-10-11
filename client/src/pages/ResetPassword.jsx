@@ -36,7 +36,7 @@ const ResetPassword = () => {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Password reset failed. Invalid or expired token.");
+      setError(err.userMessage || err.response?.data?.message || "Password reset failed. Invalid or expired token.");
     } finally {
       setSubmitting(false);
     }

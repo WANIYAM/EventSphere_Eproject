@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import api from "../../services/api.js";
 import Loading from "../../components/Loading.jsx";
 
@@ -19,7 +20,7 @@ const AdminExpos = () => {
     endDate: "",
     boothCount: 20,
     boothPrice: 500,
-    boothSize: "3x3 m"
+    boothSize: "3x3 m",
   });
 
   const fetchExpos = async () => {
@@ -28,7 +29,7 @@ const AdminExpos = () => {
       const res = await api.get("/expos");
       setExpos(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load expos");
+      setError(err.userMessage || err.response?.data?.message || "Failed to load expos");
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ const AdminExpos = () => {
       endDate: "",
       boothCount: 20,
       boothPrice: 500,
-      boothSize: "3x3 m"
+      boothSize: "3x3 m",
     });
   };
 
@@ -62,16 +63,9 @@ const AdminExpos = () => {
     setError("");
     setSuccess("");
 
-    if (!formData.title.trim()) {
-      return setError("Expo Title is required.");
-    }
-    if (!formData.startDate) {
-      return setError("Start date is required.");
-    }
-    if (!formData.endDate) {
-      return setError("End date is required.");
-    }
-
+    if (!formData.title.trim()) return setError("Expo Title is required.");
+    if (!formData.startDate) return setError("Start date is required.");
+    if (!formData.endDate) return setError("End date is required.");
     if (new Date(formData.endDate) < new Date(formData.startDate)) {
       return setError("End date cannot be before start date.");
     }
@@ -82,12 +76,12 @@ const AdminExpos = () => {
         setSuccess("Expo updated successfully!");
       } else {
         await api.post("/expos", formData);
-        setSuccess("Expo and booths created successfully!");
+        setSuccess("Expo and interactive booths created successfully!");
       }
       resetForm();
       fetchExpos();
     } catch (err) {
-      setError(err.response?.data?.message || "Operation failed");
+      setError(err.userMessage || err.response?.data?.message || "Operation failed");
     }
   };
 
@@ -102,7 +96,7 @@ const AdminExpos = () => {
       endDate: expo.endDate ? expo.endDate.split("T")[0] : "",
       boothCount: 20,
       boothPrice: 500,
-      boothSize: "3x3 m"
+      boothSize: "3x3 m",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -116,123 +110,173 @@ const AdminExpos = () => {
         setSuccess("Expo deleted successfully!");
         fetchExpos();
       } catch (err) {
-        setError(err.response?.data?.message || "Failed to delete expo");
+        setError(err.userMessage || err.response?.data?.message || "Failed to delete expo");
       }
     }
   };
 
   return (
-    <div className="admin-page-container">
-      <h2>Manage Expos</h2>
+    <div style={{ display: "flex", flexDirection: "column", gap: 32, padding: "10px 0" }}>
+      {/* Header */}
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          border: "3px solid var(--color-dark, #231e25)",
+          boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
+          padding: "24px 28px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 16,
+        }}
+      >
+        <div>
+          <span style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
+            [ EXPO CONFIGURATION ]
+          </span>
+          <h1 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(36px, 5vw, 48px)", color: "var(--color-dark, #231e25)", lineHeight: 0.9, margin: "6px 0 0 0" }}>
+            EXPO EVENT MANAGER
+          </h1>
+        </div>
+      </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      {error && (
+        <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
+          ⚠️ {error}
+        </div>
+      )}
+      {success && (
+        <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
+          ✓ {success}
+        </div>
+      )}
 
-      {/* Form section */}
-      <div className="form-card" style={{ marginBottom: "2rem" }}>
-        <h3>{editingId ? "Edit Expo" : "Create New Expo"}</h3>
-        <form onSubmit={handleSubmit} className="form-grid">
-          <div className="form-group">
-            <label>Title *</label>
+      {/* Creator / Editor Form Card */}
+      <div
+        style={{
+          backgroundColor: "var(--color-light, #fff8eb)",
+          border: "3px solid var(--color-dark, #231e25)",
+          boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
+          padding: "28px",
+        }}
+      >
+        <h3 style={{ fontFamily: "var(--font-display)", fontSize: 28, margin: "0 0 20px 0" }}>
+          {editingId ? "EDIT EXPO EVENT" : "+ CREATE NEW EXPO & AUTO-GENERATE BOOTHS"}
+        </h3>
+
+        <form onSubmit={handleSubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+          <div>
+            <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Expo Title *</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="Expo Title"
+              placeholder="e.g. Asia Tech Innovation Expo 2025"
+              style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
             />
           </div>
-          <div className="form-group">
-            <label>Theme</label>
+
+          <div>
+            <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Theme / Industry</label>
             <input
               type="text"
               name="theme"
               value={formData.theme}
               onChange={handleChange}
-              placeholder="e.g. Technology & Innovation"
+              placeholder="e.g. AI & Robotics"
+              style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
             />
           </div>
-          <div className="form-group">
-            <label>Location</label>
+
+          <div>
+            <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Convention Center / Location</label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="Hall / Convention Center"
+              placeholder="e.g. KOMCA DPS 1, Penang"
+              style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
             />
           </div>
-          <div className="form-group">
-            <label>Start Date *</label>
+
+          <div>
+            <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Start Date *</label>
             <input
               type="date"
               name="startDate"
               value={formData.startDate}
               onChange={handleChange}
+              style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
             />
           </div>
-          <div className="form-group">
-            <label>End Date *</label>
+
+          <div>
+            <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>End Date *</label>
             <input
               type="date"
               name="endDate"
               value={formData.endDate}
               onChange={handleChange}
+              style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
             />
           </div>
 
           {!editingId && (
             <>
-              <div className="form-group">
-                <label>Booth Count</label>
+              <div>
+                <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Booth Count</label>
                 <input
                   type="number"
                   name="boothCount"
                   min="1"
                   value={formData.boothCount}
                   onChange={handleChange}
+                  style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
                 />
               </div>
-              <div className="form-group">
-                <label>Booth Price ($)</label>
+
+              <div>
+                <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Base Price ($)</label>
                 <input
                   type="number"
                   name="boothPrice"
                   min="0"
                   value={formData.boothPrice}
                   onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Booth Size</label>
-                <input
-                  type="text"
-                  name="boothSize"
-                  value={formData.boothSize}
-                  onChange={handleChange}
-                  placeholder="e.g. 3x3 m"
+                  style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
                 />
               </div>
             </>
           )}
 
-          <div className="form-group full-width">
-            <label>Description</label>
+          <div style={{ gridColumn: "1 / -1" }}>
+            <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Description & Guidelines</label>
             <textarea
               name="description"
               rows="3"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Expo details and guidelines"
+              placeholder="Expo scope, exhibitor criteria, and attendee instructions"
+              style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
             />
           </div>
 
-          <div className="form-actions full-width">
-            <button type="submit" className="btn btn-primary">
-              {editingId ? "Update Expo" : "Create Expo & Generate Booths"}
+          <div style={{ gridColumn: "1 / -1", display: "flex", gap: 12, marginTop: 8 }}>
+            <button
+              type="submit"
+              style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", border: "2px solid #000", boxShadow: "3px 3px 0px #000", padding: "12px 24px", fontFamily: "var(--font-display)", fontSize: 20, cursor: "pointer" }}
+            >
+              {editingId ? "Update Expo Event" : "Create Expo & Generate Booths →"}
             </button>
             {editingId && (
-              <button type="button" className="btn btn-secondary" onClick={resetForm}>
+              <button
+                type="button"
+                onClick={resetForm}
+                style={{ backgroundColor: "#e5e7eb", color: "#000", border: "2px solid #000", padding: "12px 20px", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, cursor: "pointer" }}
+              >
                 Cancel
               </button>
             )}
@@ -240,56 +284,82 @@ const AdminExpos = () => {
         </form>
       </div>
 
-      {/* Expos Table */}
-      <h3>Existing Expos</h3>
-      {loading ? (
-        <Loading message="Loading expos..." />
-      ) : expos.length === 0 ? (
-        <div className="empty-state">No expos created yet.</div>
-      ) : (
-        <div className="table-responsive">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Dates</th>
-                <th>Location</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expos.map((expo) => (
-                <tr key={expo._id}>
-                  <td>
-                    <strong>{expo.title}</strong>
-                    {expo.theme && <div className="text-muted">{expo.theme}</div>}
-                  </td>
-                  <td>
-                    {new Date(expo.startDate).toLocaleDateString()} - {new Date(expo.endDate).toLocaleDateString()}
-                  </td>
-                  <td>{expo.location || "TBA"}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <Link to={`/admin/expos/${expo._id}/booths`} className="btn-sm btn-info">
-                        Manage Booths
-                      </Link>
-                      <Link to={`/admin/expos/${expo._id}/sessions`} className="btn-sm btn-secondary">
-                        Sessions
-                      </Link>
-                      <button onClick={() => handleEdit(expo)} className="btn-sm btn-warning">
-                        Edit
-                      </button>
-                      <button onClick={() => handleDelete(expo._id)} className="btn-sm btn-danger">
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+      {/* Existing Expos Table */}
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          border: "3px solid var(--color-dark, #231e25)",
+          boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
+          padding: "24px",
+        }}
+      >
+        <h3 style={{ fontFamily: "var(--font-display)", fontSize: 28, margin: "0 0 16px 0" }}>
+          REGISTERED EXPO SCHEDULES ({expos.length})
+        </h3>
+
+        {loading ? (
+          <Loading message="Loading expos..." />
+        ) : expos.length === 0 ? (
+          <div style={{ padding: 24, textAlign: "center", fontFamily: "'Satoshi', sans-serif" }}>No expos created yet.</div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
+              <thead>
+                <tr style={{ backgroundColor: "var(--color-dark, #231e25)", color: "#ffffff", textAlign: "left" }}>
+                  <th style={{ padding: "12px 14px", border: "1.5px solid #000" }}>EXPO TITLE</th>
+                  <th style={{ padding: "12px 14px", border: "1.5px solid #000" }}>DATES</th>
+                  <th style={{ padding: "12px 14px", border: "1.5px solid #000" }}>LOCATION</th>
+                  <th style={{ padding: "12px 14px", border: "1.5px solid #000" }}>OPERATIONS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {expos.map((expo) => (
+                  <tr key={expo._id} style={{ borderBottom: "1.5px solid #e5e7eb" }}>
+                    <td style={{ padding: "12px 14px", border: "1.5px solid var(--color-dark)" }}>
+                      <strong>{expo.title}</strong>
+                      {expo.theme && <div style={{ fontSize: 12, color: "#6b7280" }}>{expo.theme}</div>}
+                    </td>
+                    <td style={{ padding: "12px 14px", border: "1.5px solid var(--color-dark)", fontWeight: 600 }}>
+                      {new Date(expo.startDate).toLocaleDateString()} - {new Date(expo.endDate).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: "12px 14px", border: "1.5px solid var(--color-dark)", fontWeight: 600 }}>
+                      {expo.location || "TBA"}
+                    </td>
+                    <td style={{ padding: "12px 14px", border: "1.5px solid var(--color-dark)" }}>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        <Link
+                          to={`/admin/expos/${expo._id}/booths`}
+                          style={{ backgroundColor: "var(--color-cerulean, #14a6ea)", color: "#fff", border: "1.5px solid #000", padding: "4px 10px", borderRadius: 3, textDecoration: "none", fontSize: 12, fontWeight: 700 }}
+                        >
+                          Booths
+                        </Link>
+                        <Link
+                          to={`/admin/expos/${expo._id}/sessions`}
+                          style={{ backgroundColor: "var(--color-purple-mimosa, #a67eff)", color: "#fff", border: "1.5px solid #000", padding: "4px 10px", borderRadius: 3, textDecoration: "none", fontSize: 12, fontWeight: 700 }}
+                        >
+                          Sessions
+                        </Link>
+                        <button
+                          onClick={() => handleEdit(expo)}
+                          style={{ backgroundColor: "var(--color-selective-yellow, #feb804)", color: "#000", border: "1.5px solid #000", padding: "4px 10px", borderRadius: 3, cursor: "pointer", fontSize: 12, fontWeight: 700 }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(expo._id)}
+                          style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", padding: "4px 10px", borderRadius: 3, cursor: "pointer", fontSize: 12, fontWeight: 700 }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,0 +1,74 @@
+.style-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--size-display);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.style-p1 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--size-p1);
+  line-height: 1.25;
+}
+
+.style-p2 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--size-p2);
+  line-height: 1.2;
+}
+
+.style-p3 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--size-p3);
+  line-height: 1.35;
+}
+
+.style-p3b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--size-p3b);
+  line-height: 1;
+}
+
+.style-p4 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--size-p4);
+  line-height: 1.4;
+}
+
+.style-p5 {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--size-p5);
+  line-height: 1.5;
+}
+
+.style-p6 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--size-p6);
+  line-height: 1.3;
+}
+
+/* Neo-brutalist shadow utility */
+.brutal-shadow {
+  border: 2px solid var(--color-dark);
+  box-shadow: 4px 4px 0px var(--color-dark);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.brutal-shadow:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--color-dark);
+}
+
+/* Scanline effect for retro TV */
+.scanlines {
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 3px, 6px 100%;
+}
