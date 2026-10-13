@@ -35,7 +35,7 @@ import Messages from "./pages/Messages.jsx";
 
 // Phase 5 & 6 Pages
 import AttendeeExpos from "./pages/attendee/AttendeeExpos.jsx";
-import ExpoDetails from "./pages/attendee/ExpoDetails.jsx";
+import ExpoDetails from "./pages/ExpoDetails.jsx";
 import ExhibitorProfileView from "./pages/attendee/ExhibitorProfileView.jsx";
 import MySchedule from "./pages/attendee/MySchedule.jsx";
 import Feedback from "./pages/Feedback.jsx";

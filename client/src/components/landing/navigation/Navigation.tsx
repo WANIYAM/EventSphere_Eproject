@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext.jsx";
 
 // Interactive Retro TV with Channel Switcher
 const RetroTvLogo: React.FC = () => {
@@ -73,21 +74,21 @@ const RetroTvLogo: React.FC = () => {
         width: 48,
         height: 46,
         borderRadius: 10,
-        backgroundColor: "var(--color-cerulean)",
-        border: "2px solid var(--color-dark)",
+        backgroundColor: "var(--color-cerulean, #14a6ea)",
+        border: "2px solid var(--color-dark, #231e25)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        boxShadow: "2px 2px 0px var(--color-dark)",
+        boxShadow: "2px 2px 0px var(--color-dark, #231e25)",
         position: "relative",
         flexShrink: 0,
         cursor: "pointer",
         padding: 0,
       }}
     >
-      <div style={{ position: "absolute", top: -8, left: 14, width: 2, height: 9, backgroundColor: "var(--color-dark)", transform: "rotate(-25deg)" }} />
-      <div style={{ position: "absolute", top: -8, right: 14, width: 2, height: 9, backgroundColor: "var(--color-dark)", transform: "rotate(25deg)" }} />
-      <canvas ref={canvasRef} width={28} height={22} style={{ borderRadius: 3, backgroundColor: "#000", border: "1px solid var(--color-dark)" }} />
+      <div style={{ position: "absolute", top: -8, left: 14, width: 2, height: 9, backgroundColor: "var(--color-dark, #231e25)", transform: "rotate(-25deg)" }} />
+      <div style={{ position: "absolute", top: -8, right: 14, width: 2, height: 9, backgroundColor: "var(--color-dark, #231e25)", transform: "rotate(25deg)" }} />
+      <canvas ref={canvasRef} width={28} height={22} style={{ borderRadius: 3, backgroundColor: "#000", border: "1px solid var(--color-dark, #231e25)" }} />
     </motion.button>
   );
 };
@@ -111,10 +112,10 @@ const NavButton: React.FC<{
       onMouseLeave={() => setIsHovered(false)}
       whileTap={{ scale: 0.96 }}
       animate={{
-        x: isHovered ? -10 : 0,
+        x: isHovered ? -8 : 0,
         boxShadow: isHovered
-          ? "5px 5px 0px var(--color-dark)"
-          : "3px 3px 0px var(--color-dark)",
+          ? "5px 5px 0px var(--color-dark, #231e25)"
+          : "3px 3px 0px var(--color-dark, #231e25)",
       }}
       transition={{ type: "spring", stiffness: 450, damping: 26 }}
       style={{
@@ -122,14 +123,14 @@ const NavButton: React.FC<{
         alignItems: "center",
         justifyContent: "center",
         gap: 10,
-        padding: "11px 28px",
+        padding: "10px 24px",
         borderRadius: 9999,
-        backgroundColor: isActive ? "var(--color-dark)" : bg,
-        color: isActive ? "var(--color-light)" : textColor,
+        backgroundColor: isActive ? "var(--color-dark, #231e25)" : bg,
+        color: isActive ? "var(--color-light, #fff8eb)" : textColor,
         textDecoration: "none",
-        border: "2px solid var(--color-dark)",
+        border: "2px solid var(--color-dark, #231e25)",
         fontFamily: "'Satoshi', sans-serif",
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 700,
         letterSpacing: "-0.015em",
         cursor: "pointer",
@@ -146,7 +147,7 @@ const NavButton: React.FC<{
             transition={{ duration: 0.18, ease: "easeOut" }}
             style={{ display: "inline-flex", alignItems: "center", overflow: "hidden" }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
@@ -157,7 +158,7 @@ const NavButton: React.FC<{
       <span>{name}</span>
 
       {isActive && (
-        <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--color-kiwi)" }} />
+        <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--color-kiwi, #abf139)" }} />
       )}
     </motion.a>
   );
@@ -165,6 +166,8 @@ const NavButton: React.FC<{
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeNavId, setActiveNavId] = useState<string>("home");
 
@@ -173,67 +176,89 @@ export const Navigation: React.FC = () => {
   const navOpacity = useTransform(scrollY, [80, 220], [1, 0]);
   const pointerEvents = useTransform(navOpacity, (val) => (val > 0.05 ? "auto" : "none"));
 
-  // Navigation Items
-  // Inside Navigation.tsx, update navItems to:
-const navItems = [
-  { id: "login", name: "Portal Login ↗", bg: "var(--color-primary)", textColor: "#ffffff", href: "/login", isRoute: true },
-  { id: "expos", name: "Upcoming Expos", bg: "var(--color-light)", textColor: "var(--color-dark)", href: "#expos" },
-  { id: "agenda", name: "Schedule", bg: "var(--color-light)", textColor: "var(--color-dark)", href: "#agenda" },
-  { id: "floorplan", name: "Floor Plan", bg: "var(--color-selective-yellow)", textColor: "var(--color-dark)", href: "#floorplan" },
-  { id: "exhibitors", name: "Exhibitors", bg: "var(--color-light-salmon)", textColor: "var(--color-light)", href: "#exhibitors" },
-  { id: "tickets", name: "Passes", bg: "var(--color-kiwi)", textColor: "var(--color-dark)", href: "#tickets" },
-];
-  // Click Handler for both Anchor Scrolls and Page Routes
+  const getDashboardPath = () => {
+    if (!user) return "/login";
+    if (user.role === "admin") return "/admin";
+    if (user.role === "exhibitor") return "/exhibitor";
+    return "/attendee";
+  };
+
+  // ONLY 4 NAV ITEMS: Login, About, Expos, Contact
+  const navItems = [
+    {
+      id: "login",
+      name: user ? `${user.role.toUpperCase()} PORTAL ↗` : "Login ↗",
+      bg: "var(--color-primary, #ff3e33)",
+      textColor: "#ffffff",
+      href: user ? getDashboardPath() : "/login",
+      isRoute: true,
+    },
+    {
+      id: "about",
+      name: "About",
+      bg: "var(--color-light, #fff8eb)",
+      textColor: "var(--color-dark, #231e25)",
+      href: "#about",
+      isRoute: false,
+    },
+    {
+      id: "expos",
+      name: "Expos",
+      bg: "var(--color-selective-yellow, #feb804)",
+      textColor: "var(--color-dark, #231e25)",
+      href: "/expos",
+      isRoute: true,
+    },
+    {
+      id: "contact",
+      name: "Contact",
+      bg: "var(--color-kiwi, #abf139)",
+      textColor: "var(--color-dark, #231e25)",
+      href: "#footer",
+      isRoute: false,
+    },
+  ];
+
   const handleItemClick = (e: React.MouseEvent<HTMLAnchorElement>, item: typeof navItems[0]) => {
     e.preventDefault();
+    setMobileOpen(false);
+
     if (item.isRoute) {
       navigate(item.href);
-      setMobileOpen(false);
     } else if (item.href.startsWith("#")) {
-      const targetId = item.href.replace("#", "");
-      const targetEl = document.getElementById(targetId);
-      if (targetEl) {
-        targetEl.scrollIntoView({ behavior: "smooth" });
+      if (location.pathname !== "/") {
+        navigate(`/${item.href}`);
+      } else {
+        const targetId = item.href.replace("#", "");
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: "smooth" });
+        }
       }
-      setMobileOpen(false);
     }
   };
 
-  // Synchronized scroll-spy tracking DOM order
   useEffect(() => {
+    if (location.pathname !== "/") return;
+
     const handleScroll = () => {
-      const sectionOrder = [
-        { domId: "hero", navId: "home" },
-        { domId: "gallery", navId: "gallery" },
-        { domId: "about", navId: "about" },
-        { domId: "speakers", navId: "about" },
-        { domId: "agenda", navId: "agenda" },
-        { domId: "sponsors", navId: "gallery" },
-        { domId: "testimonials", navId: "about" },
-        { domId: "tickets", navId: "agenda" },
-        { domId: "recordings", navId: "recordings" },
-        { domId: "faq", navId: "about" },
-        { domId: "footer", navId: "footer" },
-      ];
-
       const scrollPos = window.scrollY + window.innerHeight * 0.35;
+      const aboutEl = document.getElementById("about");
+      const footerEl = document.getElementById("footer");
 
-      for (let i = sectionOrder.length - 1; i >= 0; i--) {
-        const item = sectionOrder[i];
-        const el = document.getElementById(item.domId);
-        if (el && scrollPos >= el.offsetTop) {
-          setActiveNavId(item.navId);
-          return;
-        }
+      if (footerEl && scrollPos >= footerEl.offsetTop) {
+        setActiveNavId("contact");
+      } else if (aboutEl && scrollPos >= aboutEl.offsetTop) {
+        setActiveNavId("about");
+      } else {
+        setActiveNavId("home");
       }
-
-      setActiveNavId("home");
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [location.pathname]);
 
   return (
     <motion.header
@@ -243,7 +268,7 @@ const navItems = [
         left: 0,
         right: 0,
         zIndex: 100,
-        padding: "24px 36px",
+        padding: "20px clamp(16px, 3.5vw, 36px)",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "flex-start",
@@ -252,14 +277,14 @@ const navItems = [
         opacity: navOpacity,
       }}
     >
-      {/* TOP LEFT: Retro TV & Bracket Ticker */}
+      {/* Brand & Retro TV Ticker */}
       <motion.div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 14,
+          gap: 12,
           pointerEvents,
-          backgroundColor: "rgba(35, 30, 37, 0.55)",
+          backgroundColor: "rgba(35, 30, 37, 0.7)",
           padding: "6px 16px 6px 6px",
           borderRadius: 34,
           backdropFilter: "blur(12px)",
@@ -268,55 +293,85 @@ const navItems = [
           boxShadow: "3px 3px 0px rgba(0,0,0,0.3)",
         }}
       >
-        <RetroTvLogo />
+        <Link to="/" style={{ textDecoration: "none", display: "inline-flex" }}>
+          <RetroTvLogo />
+        </Link>
         <div style={{
           display: "flex",
           alignItems: "center",
           color: "#fff",
           fontFamily: "'Satoshi', sans-serif",
-          fontSize: 15,
+          fontSize: 14,
           fontWeight: 600,
           whiteSpace: "nowrap",
           overflow: "hidden",
-          maxWidth: "clamp(220px, 32vw, 400px)",
+          maxWidth: "clamp(200px, 30vw, 380px)",
         }}>
-          <span style={{ fontSize: 20, marginRight: 8, opacity: 0.9, color: "var(--color-kiwi)" }}>&#91;</span>
+          <span style={{ fontSize: 18, marginRight: 6, opacity: 0.9, color: "var(--color-kiwi, #abf139)" }}>&#91;</span>
           <div style={{ overflow: "hidden", display: "inline-flex" }}>
             <div className="marquee-track" style={{ animationDuration: "14s" }}>
               <span style={{ marginRight: 24 }}>
-                &#123; EventSphere Management &nbsp; Modern Expo & Trade Show Operating System &#125;
+                &#123; EventSphere Management &nbsp; Expo & Trade Show Operating System &#125;
               </span>
               <span style={{ marginRight: 24 }}>
-                &#123; EventSphere Management &nbsp; Modern Expo & Trade Show Operating System &#125;
+                &#123; EventSphere Management &nbsp; Expo & Trade Show Operating System &#125;
               </span>
             </div>
           </div>
-          <span style={{ fontSize: 20, marginLeft: 8, opacity: 0.9, color: "var(--color-kiwi)" }}>&#93;</span>
+          <span style={{ fontSize: 18, marginLeft: 6, opacity: 0.9, color: "var(--color-kiwi, #abf139)" }}>&#93;</span>
         </div>
       </motion.div>
 
-      {/* TOP RIGHT: Vertical Navigation Pills (Includes Login at Top) */}
+      {/* TOP RIGHT: Nav Pills (Login, About, Expos, Contact) */}
       <motion.nav
         className="desktop-menu-column"
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
-          gap: 12,
+          gap: 10,
           pointerEvents,
         }}
       >
-        {navItems.map((item) => (
-          <NavButton
-            key={item.name}
-            name={item.name}
-            href={item.href}
-            bg={item.bg}
-            textColor={item.textColor}
-            isActive={!item.isRoute && activeNavId === item.id}
-            onClick={(e) => handleItemClick(e, item)}
-          />
-        ))}
+        {navItems.map((item) => {
+          const isRouteActive = item.isRoute && location.pathname === item.href;
+          const isAnchorActive = !item.isRoute && location.pathname === "/" && activeNavId === item.id;
+          return (
+            <NavButton
+              key={item.id}
+              name={item.name}
+              href={item.href}
+              bg={item.bg}
+              textColor={item.textColor}
+              isActive={isRouteActive || isAnchorActive}
+              onClick={(e) => handleItemClick(e, item)}
+            />
+          );
+        })}
+
+        {user && (
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+            style={{
+              padding: "6px 18px",
+              borderRadius: 9999,
+              backgroundColor: "var(--color-dark, #231e25)",
+              color: "var(--color-light, #fff8eb)",
+              border: "1.5px solid rgba(255,255,255,0.4)",
+              fontFamily: "'Satoshi', sans-serif",
+              fontSize: 13,
+              fontWeight: 800,
+              cursor: "pointer",
+            }}
+          >
+            LOGOUT ✕
+          </motion.button>
+        )}
       </motion.nav>
 
       {/* Mobile Toggle Button */}
@@ -328,9 +383,9 @@ const navItems = [
           width: 48,
           height: 48,
           borderRadius: 12,
-          backgroundColor: mobileOpen ? "var(--color-primary)" : "var(--color-light)",
-          border: "2px solid var(--color-dark)",
-          boxShadow: "3px 3px 0px var(--color-dark)",
+          backgroundColor: mobileOpen ? "var(--color-primary, #ff3e33)" : "var(--color-light, #fff8eb)",
+          border: "2px solid var(--color-dark, #231e25)",
+          boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
           cursor: "pointer",
           display: "none",
           flexDirection: "column",
@@ -340,8 +395,8 @@ const navItems = [
           pointerEvents,
         }}
       >
-        <span style={{ width: 24, height: 3, backgroundColor: mobileOpen ? "#fff" : "#000", transform: mobileOpen ? "rotate(45deg) translate(4px, 4px)" : "none", transition: "0.2s" }} />
-        <span style={{ width: 24, height: 3, backgroundColor: mobileOpen ? "#fff" : "#000", transform: mobileOpen ? "rotate(-45deg) translate(3px, -3px)" : "none", transition: "0.2s" }} />
+        <span style={{ width: 22, height: 3, backgroundColor: mobileOpen ? "#fff" : "#000", transform: mobileOpen ? "rotate(45deg) translate(4px, 4px)" : "none", transition: "0.2s" }} />
+        <span style={{ width: 22, height: 3, backgroundColor: mobileOpen ? "#fff" : "#000", transform: mobileOpen ? "rotate(-45deg) translate(3px, -3px)" : "none", transition: "0.2s" }} />
       </motion.button>
 
       {/* Mobile Drawer */}
@@ -353,47 +408,70 @@ const navItems = [
             exit={{ opacity: 0, y: -15 }}
             style={{
               position: "fixed",
-              top: 88,
+              top: 84,
               left: 20,
               right: 20,
-              backgroundColor: "var(--color-light)",
-              border: "3px solid var(--color-dark)",
-              boxShadow: "6px 6px 0px var(--color-dark)",
+              backgroundColor: "var(--color-light, #fff8eb)",
+              border: "3px solid var(--color-dark, #231e25)",
+              boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
               padding: "24px",
               display: "flex",
               flexDirection: "column",
-              gap: 14,
+              gap: 12,
               pointerEvents: "auto",
               zIndex: 150,
             }}
           >
             {navItems.map((item) => (
               <a
-                key={item.name}
+                key={item.id}
                 href={item.href}
                 onClick={(e) => handleItemClick(e, item)}
-                className="style-p2"
                 style={{
-                  color: item.isRoute ? "var(--color-primary)" : "var(--color-dark)",
+                  color: item.id === "login" ? "var(--color-primary, #ff3e33)" : "var(--color-dark, #231e25)",
                   textDecoration: "none",
                   padding: "10px 0",
-                  fontSize: 22,
-                  borderBottom: "1.5px dashed var(--color-dark)",
+                  fontSize: 20,
+                  borderBottom: "1.5px dashed var(--color-dark, #231e25)",
                   display: "flex",
                   justifyContent: "space-between",
-                  fontWeight: 700,
+                  fontFamily: "'Satoshi', sans-serif",
+                  fontWeight: 800,
                 }}
               >
                 <span>{item.name}</span>
                 <span>→</span>
               </a>
             ))}
+
+            {user && (
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  logout();
+                  navigate("/login");
+                }}
+                style={{
+                  marginTop: 10,
+                  padding: "10px",
+                  backgroundColor: "var(--color-dark, #231e25)",
+                  color: "#fff",
+                  border: "none",
+                  fontFamily: "'Satoshi', sans-serif",
+                  fontSize: 16,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                LOGOUT
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
       <style>{`
-        @media (max-width: 810px) {
+        @media (max-width: 860px) {
           .desktop-menu-column { display: none !important; }
           .mobile-toggle-btn { display: flex !important; }
         }
