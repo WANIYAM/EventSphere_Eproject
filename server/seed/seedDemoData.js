@@ -13,530 +13,581 @@ import Notification from "../models/Notification.js";
 
 dotenv.config();
 
+if (process.env.NODE_ENV === "production") {
+  console.error("Refusing to seed demo data when NODE_ENV=production.");
+  process.exit(1);
+}
+
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/eventsphere";
+const DEMO_PASSWORD = "Demo@123";
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+
+// Seeded random generator: the same data is produced on every run.
+function mulberry32(seed) {
+  let a = seed;
+  return function () {
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rng = mulberry32(20261013);
+const rand = () => rng();
+const randInt = (min, max) => Math.floor(rand() * (max - min + 1)) + min;
+const pick = (arr) => arr[Math.floor(rand() * arr.length)];
+const chance = (p) => rand() < p;
+const sample = (arr, n) => {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, Math.min(n, copy.length));
+};
+
+// Dates are relative to today, so expos always show as upcoming (or past) correctly.
+const atUTC = (dayOffset, hour = 9, minute = 0) => {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + dayOffset);
+  d.setUTCHours(hour, minute, 0, 0);
+  return d;
+};
+const randomPast = (maxDays) => new Date(Date.now() - randInt(1, maxDays * 24) * 3600000);
+
+// Creates documents in small parallel batches. Keeps going if one fails.
+// The returned array lines up with `docs` (null where a document failed).
+const createMany = async (Model, docs, label, chunkSize = 20) => {
+  const out = [];
+  let failed = 0;
+  let firstError = null;
+  for (let i = 0; i < docs.length; i += chunkSize) {
+    const results = await Promise.allSettled(docs.slice(i, i + chunkSize).map((d) => Model.create(d)));
+    for (const r of results) {
+      if (r.status === "fulfilled") {
+        out.push(r.value);
+      } else {
+        out.push(null);
+        failed++;
+        if (!firstError) firstError = r.reason;
+      }
+    }
+  }
+  if (failed) {
+    console.warn(`  ! ${label}: ${failed} of ${docs.length} could not be created. First error: ${firstError?.message}`);
+    if (firstError?.code === 11000) {
+      console.warn("    (duplicate key: check the unique indexes on this collection, see the notes in the chat)");
+    }
+  }
+  return out;
+};
+
+const rotateIndex = (offset, k, length) => (offset + k) % length;
+
+/* ------------------------------------------------------------------ */
+/* Static data                                                         */
+/* ------------------------------------------------------------------ */
+
+const EXHIBITORS = [
+  { company: "Bush Babe Displays", email: "bushbabe@demo.com", category: "Exhibition Technology", website: "https://bushbabe-displays.com", description: "Their packaging design for our ziplock bags and adorable print collaterals have our customers falling in love!", products: "Modular trade show booths and RFID-enabled badges" },
+  { company: "Wilder Ness Digital", email: "wilderness@demo.com", category: "Smart Signage", website: "https://wilderness-digital.com", description: "BYOOOOOB breathed life into Wilderness! From brand identity to iSUP surfboards and packaging design!", products: "Digital wayfinding totems and synchronized LED screens" },
+  { company: "EPYC Systems", email: "epyc@demo.com", category: "Cloud Infrastructure", website: "https://epyc-systems.com", description: "They are fast & affordable for a growing business. Would continue to work with them as long as possible!", products: "High-throughput cloud registration nodes with 99.9% uptime" },
+  { company: "SpeckLes IoT", email: "speckles@demo.com", category: "Smart IoT & Packaging", website: "https://speckles-iot.com", description: "Super professional bunch, sticks to timelines! My go-to team for all our packaging design.", products: "Smart IoT touch surfaces and real-time booth lead scanners" },
+  { company: "Orchid Foods Sdn Bhd", email: "orchid@demo.com", category: "Food & Beverage", website: "https://orchidfoods.com.my", description: "Premium Malaysian snacks and ready-to-drink beverages crafted from local ingredients.", products: "Artisan snacks, sambal sauces, and cold-brew white coffee" },
+  { company: "Batik Bloom Atelier", email: "batikbloom@demo.com", category: "Fashion & Textiles", website: "https://batikbloom.my", description: "Contemporary batik and songket fashion designed for the modern wardrobe.", products: "Batik apparel, scarves, and accessories" },
+  { company: "VitaCare Wellness", email: "vitacare@demo.com", category: "Health & Wellness", website: "https://vitacare-wellness.com", description: "Preventive health screening and wellness products for families.", products: "Health screening kiosks and herbal supplements" },
+  { company: "BrightPath Academy", email: "brightpath@demo.com", category: "Education & Training", website: "https://brightpath-academy.edu.my", description: "Skills training and certification programmes for working professionals.", products: "Digital skills courses and corporate training packages" },
+  { company: "VoltDrive Motors", email: "voltdrive@demo.com", category: "Automotive & EV", website: "https://voltdrive-motors.com", description: "Electric mobility solutions and public charging infrastructure.", products: "EV chargers, electric scooters, and fleet conversion kits" },
+  { company: "SolarNest Energy", email: "solarnest@demo.com", category: "Renewable Energy", website: "https://solarnest-energy.com", description: "Rooftop solar and battery storage for homes and factories.", products: "Solar panels, inverters, and battery storage systems" },
+  { company: "SwiftHaul Logistics", email: "swifthaul@demo.com", category: "Logistics & Supply Chain", website: "https://swifthaul-logistics.com", description: "End-to-end freight, warehousing, and last-mile delivery across ASEAN.", products: "Freight forwarding, warehousing, and a delivery tracking platform" },
+  { company: "Langkawi Escapes", email: "langkawi@demo.com", category: "Hospitality & Travel", website: "https://langkawi-escapes.com", description: "Boutique island resorts and curated travel experiences.", products: "Resort packages and guided adventure tours" },
+  { company: "PayNimbus", email: "paynimbus@demo.com", category: "Fintech", website: "https://paynimbus.io", description: "Payments and invoicing tools built for small merchants.", products: "QR payment terminals and merchant dashboards" },
+  { company: "GreenHarvest Agritech", email: "greenharvest@demo.com", category: "Agritech", website: "https://greenharvest-agritech.com", description: "Smart farming sensors and farm-to-market platforms.", products: "Soil sensors, drone mapping, and crop analytics" },
+  { company: "PrintPeak Studio", email: "printpeak@demo.com", category: "Print & Packaging", website: "https://printpeak-studio.com", description: "Custom packaging, large-format printing, and branded merchandise.", products: "Eco packaging, banners, and branded merchandise" },
+  { company: "StageCraft Events", email: "stagecraft@demo.com", category: "Event Services", website: "https://stagecraft-events.com", description: "Staging, lighting, and AV production for exhibitions and conferences.", products: "Stage builds, LED walls, and sound systems" },
+  { company: "CloudBridge Networks", email: "cloudbridge@demo.com", category: "Cloud Infrastructure", website: "https://cloudbridge-networks.com", description: "Managed cloud hosting and connectivity for growing businesses.", products: "Managed hosting, VPN, and disaster recovery" },
+  { company: "PixelForge Interactive", email: "pixelforge@demo.com", category: "Exhibition Technology", website: "https://pixelforge-interactive.com", description: "AR and VR experiences for product demos and brand activations.", products: "AR product demos and VR showrooms" },
+  { company: "AquaPure Systems", email: "aquapure@demo.com", category: "Water & Environment", website: "https://aquapure-systems.com", description: "Water purification and wastewater treatment systems.", products: "Filtration units and water quality monitors" },
+  { company: "Kopi Kita Roasters", email: "kopikita@demo.com", category: "Food & Beverage", website: "https://kopikita-roasters.com", description: "Single-origin coffee roasted in small batches in Sabah.", products: "Roasted beans, drip bags, and cafe equipment" },
+  { company: "SafeGate Security", email: "safegate@demo.com", category: "Cybersecurity", website: "https://safegate-security.com", description: "Cybersecurity consulting and managed detection services.", products: "Security audits, endpoint protection, and 24/7 monitoring" },
+  { company: "TerraBuild Materials", email: "terrabuild@demo.com", category: "Construction & Materials", website: "https://terrabuild-materials.com", description: "Sustainable building materials and prefab solutions.", products: "Eco bricks, prefab panels, and insulation" },
+  { company: "LuminaRetail Tech", email: "luminaretail@demo.com", category: "Retail Technology", website: "https://luminaretail.tech", description: "Smart shelves, point of sale, and in-store analytics.", products: "POS systems, smart shelf labels, and footfall analytics" },
+  { company: "NusaCraft Collective", email: "nusacraft@demo.com", category: "Handicrafts & Design", website: "https://nusacraft-collective.com", description: "Handmade crafts and design pieces from Borneo artisans.", products: "Wood carvings, woven goods, and home decor" },
+];
+
+const ATTENDEE_NAMES = [
+  "Aisha Khan", "Daniel Tan", "Nur Aisyah", "Rahul Mehta", "Mei Ling", "Hassan Raza", "Farah Ibrahim", "Jason Lee",
+  "Zainab Ali", "Amir Hamzah", "Priya Sharma", "Ben Ong", "Sara Ahmed", "Kevin Lau", "Nadia Yusof", "Omar Farooq",
+  "Chloe Wong", "Imran Sheikh", "Lina Abdullah", "Ravi Chandran", "Hira Malik", "Adam Yeoh", "Alya Rashid", "Tariq Mahmood",
+  "Sophie Lim", "Yusuf Karim", "Mariam Qureshi", "Eric Chan", "Dina Salleh", "Bilal Ahmad", "Joanne Teo", "Faisal Nawaz",
+  "Hana Othman", "Vikram Singh", "Elena Tay", "Usman Ghani", "Nabila Rosli", "Calvin Goh", "Rida Fatima", "Syed Hamdan",
+];
+
+const EMPLOYERS = [
+  "Self-employed", "Nexus Retail Group", "Horizon Telecom", "Penang Tech Hub", "Sunrise Trading", "Meridian Hotels",
+  "Apex Manufacturing", "BlueWave Consulting", "Harmony Logistics", "Campus Ventures", "Independent consultant", "Crescent Foods",
+];
+
+const SPEAKERS = [
+  "Sofia Rahman (Lead Organizer)", "Noah Islam (Booth Strategist)", "Ethan Karim (Platform Architect)", "Arian Malik (Experience Director)",
+  "Dr. Aisha Tan (Event Economist)", "Daniel Lim (Retail Technologist)", "Priya Nair (Sustainability Lead)", "Hafiz Abdullah (Logistics Director)",
+  "Mei Ling Chong (Fintech Analyst)", "Farah Zainal (Marketing Strategist)", "Rajesh Kumar (Supply Chain Expert)", "Siti Aminah (Tourism Board Advisor)",
+  "Jason Wong (Cybersecurity Consultant)", "Nurul Huda (Startup Mentor)", "Marcus Lee (Robotics Engineer)", "Aliyah Hassan (Hospitality Consultant)",
+];
+
+const STAFF_POOL = [
+  { name: "Ahmad Faiz", role: "Sales Lead" }, { name: "Lim Wei Jie", role: "Product Specialist" },
+  { name: "Nurul Izzah", role: "Customer Success" }, { name: "Ravi Menon", role: "Technical Support" },
+  { name: "Tan Mei Xin", role: "Marketing Executive" }, { name: "Hakim Zulkifli", role: "Account Manager" },
+  { name: "Sarah Lee", role: "Booth Coordinator" }, { name: "Kumar Pillai", role: "Business Development" },
+];
+
+const TIERS = {
+  A: { size: "6x6 m", price: 1200 },
+  B: { size: "3x6 m", price: 800 },
+  C: { size: "3x3 m", price: 500 },
+};
+
+// Four sessions a day. Different locations, so nothing overlaps in the same room.
+const SLOTS = [
+  { hour: 4, minute: 0, duration: 90, location: "Main Auditorium" },
+  { hour: 6, minute: 0, duration: 120, location: "Exhibit Hall 1" },
+  { hour: 9, minute: 0, duration: 120, location: "Conference Room B" },
+  { hour: 12, minute: 0, duration: 150, location: "Executive Lounge" },
+];
+
+// Each expo needs (days x 4) session titles.
+const EXPOS = [
+  {
+    title: "EventSphere Asia Summit 2026",
+    theme: "Reinventing Trade Shows for Asia",
+    location: "Putrajaya International Convention Centre, Putrajaya, Malaysia",
+    description: "A three-day summit on smart venues, exhibitor onboarding at scale, and real-time analytics for organizers. This edition has already taken place.",
+    startOffset: -45, days: 3, boothCount: 24, speakerOffset: 0,
+    offset: 6, counts: { booked: 10, reserved: 0, approved: 0, pending: 0, rejected: 2 },
+    sessions: [
+      ["Opening Keynote: Reinventing Trade Shows for Asia", "Event Industry"], ["Showcase: Smart Venue Technology", "Venue Tech"],
+      ["Panel: Government and Industry Partnerships", "Public-Private"], ["Delegates' Welcome Reception", "Networking"],
+      ["Workshop: Exhibitor Onboarding That Scales", "Operations"], ["Talk: Real-Time Analytics for Organizers", "Analytics"],
+      ["Panel: Accessibility and Inclusion at Events", "Inclusion"], ["Sponsor Showcase Session", "Sponsorship"],
+      ["Keynote: Generative AI in Event Planning", "Applied AI"], ["Workshop: Crisis Management for Live Events", "Risk"],
+      ["Panel: The Next Decade of Expos", "Future Trends"], ["Closing Ceremony & Summit Awards", "Awards"],
+    ],
+  },
+  {
+    title: "EventSphere Expo 2025",
+    theme: "Next-Gen Trade Shows & Digital Floor Plans",
+    location: "KOMCA DPS 1, Penang, Malaysia",
+    description: "Overcoming traditional trade show hurdles through automated registration, interactive floor plans, and real-time analytics across 150,000 sq ft.",
+    startOffset: 2, days: 3, boothCount: 30, speakerOffset: 0,
+    prefix: [{ i: 0, state: "booked" }, { i: 1, state: "reserved" }, { i: 2, state: "booked" }, { i: 3, state: "booked" }],
+    offset: 4, counts: { booked: 8, reserved: 2, approved: 2, pending: 4, rejected: 1 },
+    sessions: [
+      ["Opening Keynote & EventSphere Platform Unveiling", "Trade Show Modernization"], ["Exhibitor Product Showcases & Interactive Floor Walk", "Floor Plan Navigation"],
+      ["Panel: Scalable Architecture for Global Expos", "Enterprise Concurrency"], ["B2B Matchmaking Gala & Exhibitor Awards", "Executive Networking"],
+      ["Keynote: The Future of Hybrid Trade Shows", "Event Technology Trends"], ["Workshop: Designing a Booth That Converts", "Booth Design"],
+      ["Panel: Data-Driven Lead Generation", "Analytics & Leads"], ["Sponsor Roundtable: Measuring Expo ROI", "Sponsorship & ROI"],
+      ["Keynote: Sustainability in Large-Scale Events", "Green Events"], ["Live Demo: RFID Badges and Smart Check-in", "Attendee Experience"],
+      ["Fireside Chat: Building Exhibitor Communities", "Community & Networking"], ["Closing Ceremony & Best Booth Awards", "Awards"],
+    ],
+  },
+  {
+    title: "Malaysia Digital Commerce Expo",
+    theme: "Selling Smarter Across ASEAN",
+    location: "Kuala Lumpur Convention Centre, Kuala Lumpur, Malaysia",
+    description: "E-commerce platforms, payment providers, and logistics partners meet online merchants to talk cross-border selling, social commerce, and AI-driven retail.",
+    startOffset: 21, days: 3, boothCount: 30, speakerOffset: 3,
+    offset: 8, counts: { booked: 9, reserved: 3, approved: 2, pending: 4, rejected: 2 },
+    sessions: [
+      ["Keynote: Malaysia's Digital Economy Roadmap", "Digital Economy"], ["Showcase: E-commerce Platforms and Payment Gateways", "E-commerce"],
+      ["Panel: Cross-Border Selling in ASEAN", "Cross-Border Trade"], ["Fintech Networking Evening", "Fintech"],
+      ["Workshop: Conversion Rate Optimization", "Growth Marketing"], ["Talk: Social Commerce and Live Selling", "Social Commerce"],
+      ["Panel: Cybersecurity for Online Merchants", "Cybersecurity"], ["Startup Pitch Session", "Startups"],
+      ["Keynote: AI in Retail Personalization", "Applied AI"], ["Workshop: Last-Mile Delivery Optimization", "Logistics"],
+      ["Panel: Women in Tech and Commerce", "Leadership"], ["Closing Keynote & Digital Commerce Awards", "Awards"],
+    ],
+  },
+  {
+    title: "Borneo Green Energy & Agritech Expo",
+    theme: "Powering and Feeding a Sustainable Borneo",
+    location: "Borneo Convention Centre Kuching, Sarawak, Malaysia",
+    description: "Renewable energy providers, agritech innovators, and sustainability advocates show practical solutions for farms, factories, and rural communities.",
+    startOffset: 45, days: 2, boothCount: 24, speakerOffset: 6,
+    offset: 14, counts: { booked: 6, reserved: 2, approved: 1, pending: 3, rejected: 1 },
+    sessions: [
+      ["Opening Keynote: Powering Borneo with Renewables", "Renewable Energy"], ["Showcase: Solar, Hydro and Biomass Solutions", "Clean Tech"],
+      ["Panel: Financing the Green Transition", "Green Finance"], ["Networking Dinner with Agri Innovators", "Networking"],
+      ["Workshop: Smart Farming with IoT Sensors", "Agritech"], ["Talk: Sustainable Palm Oil and Forest Conservation", "Sustainability"],
+      ["Panel: Electric Mobility for Rural Communities", "EV"], ["Closing Keynote & Innovation Awards", "Awards"],
+    ],
+  },
+  {
+    title: "Southern Gateway Logistics & Manufacturing Expo",
+    theme: "Building ASEAN's Industrial Supply Chain",
+    location: "Persada Johor International Convention Centre, Johor Bahru, Malaysia",
+    description: "Manufacturers, freight operators, and automation vendors meet to discuss Industry 4.0, cold chain, and export readiness for SMEs.",
+    startOffset: 70, days: 3, boothCount: 30, speakerOffset: 9,
+    offset: 3, counts: { booked: 8, reserved: 3, approved: 2, pending: 3, rejected: 2 },
+    sessions: [
+      ["Keynote: Johor as ASEAN's Logistics Hub", "Supply Chain"], ["Showcase: Warehouse Automation and Robotics", "Automation"],
+      ["Panel: Industry 4.0 in Manufacturing", "Industry 4.0"], ["Manufacturers' Networking Evening", "Networking"],
+      ["Workshop: Cold Chain Management", "Cold Chain"], ["Talk: Port Operations and Customs Digitalization", "Trade Facilitation"],
+      ["Panel: Reskilling the Industrial Workforce", "Workforce"], ["Supplier Speed-Matching Session", "B2B Matching"],
+      ["Keynote: Green Logistics and Carbon Reporting", "Sustainability"], ["Live Demo: Fleet Tracking and Route Optimization", "Fleet Tech"],
+      ["Panel: SME Export Readiness", "Exports"], ["Closing Keynote & Excellence Awards", "Awards"],
+    ],
+  },
+  {
+    title: "Sabah Tourism & Hospitality Expo",
+    theme: "Growing Sabah's Visitor Economy",
+    location: "Sabah International Convention Centre, Kota Kinabalu, Malaysia",
+    description: "Resorts, tour operators, and tourism boards share strategies for eco-tourism, guest experience, and digital marketing for hotels and homestays.",
+    startOffset: 100, days: 2, boothCount: 24, speakerOffset: 12,
+    offset: 18, counts: { booked: 5, reserved: 2, approved: 1, pending: 3, rejected: 1 },
+    sessions: [
+      ["Opening Keynote: Sabah's Tourism Recovery and Growth", "Tourism Strategy"], ["Showcase: Eco-Resorts and Adventure Operators", "Eco-Tourism"],
+      ["Panel: Digital Marketing for Hotels and Homestays", "Hospitality Marketing"], ["Chefs' Showcase & Networking Evening", "Culinary Tourism"],
+      ["Workshop: Guest Experience and Service Design", "Guest Experience"], ["Talk: Marine Conservation and Dive Tourism", "Conservation"],
+      ["Panel: Sustainable Tourism Certification", "Sustainability"], ["Closing Keynote & Hospitality Awards", "Awards"],
+    ],
+  },
+];
+
+const INQUIRIES = [
+  { subject: "Question about your products", body: (c) => `Hello ${c} team, I'll be visiting the expo and would like to know more about your product range. Do you offer live demos at your booth?` },
+  { subject: "Partnership enquiry", body: (c) => `Hi ${c}, we run a small business and are looking for suppliers. Could someone from your team meet me during the expo?` },
+  { subject: "Booth visit appointment", body: (c) => `Good day, I would like to book a short appointment at the ${c} booth. Which time slot is best for you?` },
+  { subject: "Pricing and brochure request", body: (c) => `Hello, could ${c} share a brochure and indicative pricing before the event? Thank you.` },
+  { subject: "Sample request", body: (c) => `Hi ${c}, do you plan to give out samples at the expo? I am interested in trying your products.` },
+  { subject: "Do you offer bulk discounts?", body: (c) => `Dear ${c}, my company is planning a bulk order. Are there special rates for orders placed at the expo?` },
+];
+const INQUIRY_REPLIES = [
+  "Thanks for your interest! Yes, we run live demos at our booth every two hours. Please drop by.",
+  "Happy to help. We will have our sales team at the booth on all expo days. Looking forward to meeting you.",
+  "Thank you for reaching out. Please come by in the afternoon, when we will have more time for a proper discussion.",
+  "We will bring brochures and a price list to the booth. See you there!",
+];
+const EXHIBITOR_TO_ADMIN = [
+  { subject: "Booth setup time", body: "Hello, could you confirm what time exhibitors can start setting up the day before the expo?" },
+  { subject: "Extra power sockets", body: "Our demo needs two additional power sockets at the booth. Is it possible to arrange this?" },
+  { subject: "Application status question", body: "We submitted our application a few days ago. When can we expect a decision?" },
+  { subject: "Logo and listing update", body: "We updated our company logo and description. Please let us know if it appears correctly on the exhibitor list." },
+  { subject: "Booth upgrade request", body: "Is it possible to move to a larger booth if one becomes available?" },
+  { subject: "Wi-Fi access for demos", body: "Will there be dedicated Wi-Fi at the booths? Our product demo needs a stable connection." },
+  { subject: "Staff badges", body: "How many exhibitor badges are included with our booth, and can we request extra ones?" },
+];
+const ADMIN_REPLIES = [
+  "Setup opens at 8:00 AM the day before the expo. Please bring your booth confirmation with you.",
+  "We have noted your request and will confirm shortly.",
+  "Your application is under review and you will be notified as soon as it is processed.",
+  "Thanks for the update. The listing now shows your latest details.",
+  "We will check availability and get back to you within two working days.",
+];
+const SUGGESTIONS = [
+  "The floor plan is easy to use. It would be great to filter booths by price.",
+  "Please add a dark mode option for the dashboard.",
+  "A downloadable PDF schedule would help attendees plan their day.",
+  "Add the ability to export bookmarked sessions to my calendar.",
+  "More filters on the exhibitor search, such as category and location, would be useful.",
+  "Email reminders before sessions would be a helpful addition.",
+  "It would help to see booth photos on exhibitor profiles.",
+  "Please add a venue map that shows where each session room is.",
+  "A mobile app would make this even better.",
+  "Add a QR code for quick check-in at the venue entrance.",
+  "Show ratings or reviews from previous expos on exhibitor profiles.",
+  "Let attendees message several exhibitors at once.",
+  "A short walkthrough for first-time users would be great.",
+  "Add a live crowd indicator for popular sessions.",
+  "Allow exhibitors to pin an announcement on their profile.",
+  "Consider adding multiple languages for international visitors.",
+  "A checklist of what to bring on setup day would help exhibitors.",
+  "Let attendees follow their favourite exhibitors for updates.",
+  "Show the number of seats left for each session.",
+  "Add a networking page where attendees can find each other.",
+];
+const ISSUES = [
+  "The schedule page loaded slowly on my phone.",
+  "I had trouble uploading a PNG logo on the profile page.",
+  "The password reset link took a long time to arrive.",
+  "The booth grid was hard to use on a small screen.",
+  "The notification badge did not clear after I read my messages.",
+  "The session time looked different from the time on the poster.",
+  "One exhibitor appeared twice in the search results.",
+  "The register button stayed disabled for a moment after I logged in.",
+  "The page needed a refresh to show my latest booth status.",
+  "Some table columns were cut off on my laptop screen.",
+];
+
+/* ------------------------------------------------------------------ */
+/* Plan builder: which exhibitor applies to an expo, with what state    */
+/* ------------------------------------------------------------------ */
+
+const buildPlan = (offset, counts) => {
+  const order = [];
+  Object.entries({
+    booked: counts.booked, reserved: counts.reserved, approved: counts.approved,
+    pending: counts.pending, rejected: counts.rejected,
+  }).forEach(([state, n]) => {
+    for (let k = 0; k < n; k++) order.push(state);
+  });
+  return order.map((state, k) => ({ i: rotateIndex(offset, k, EXHIBITORS.length), state }));
+};
+
+/* ------------------------------------------------------------------ */
+/* Seed                                                                */
+/* ------------------------------------------------------------------ */
 
 const seedDemoData = async () => {
   try {
     console.log("Connecting to MongoDB...");
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 15000 });
     console.log("Database connected successfully.");
 
-    // Clear existing data (keep admin user if exists)
+    /* ---- Clean ---- */
     console.log("Cleaning collections...");
-    await Expo.deleteMany({});
-    await Booth.deleteMany({});
-    await Application.deleteMany({});
-    await Session.deleteMany({});
-    await Registration.deleteMany({});
-    await Message.deleteMany({});
-    await Feedback.deleteMany({});
-    await Notification.deleteMany({});
-    await User.deleteMany({ role: { $ne: "admin" } });
+    await Promise.all([
+      Expo.deleteMany({}), Booth.deleteMany({}), Application.deleteMany({}), Session.deleteMany({}),
+      Registration.deleteMany({}), Message.deleteMany({}), Feedback.deleteMany({}), Notification.deleteMany({}),
+      User.deleteMany({ role: { $ne: "admin" } }),
+    ]);
 
-    // Ensure Admin account exists
+    /* ---- Admin ---- */
     let admin = await User.findOne({ role: "admin" });
     if (!admin) {
       admin = await User.create({
-        name: "Super Admin",
-        email: "admin@eventsphere.com",
-        password: "Admin@123",
-        role: "admin",
-        phone: "+1 555-0100"
+        name: "Super Admin", email: "admin@eventsphere.com", password: "Admin@123", role: "admin", phone: "+60 4-653 8888",
       });
-      console.log("Admin account created: admin@eventsphere.com");
-    } else {
-      console.log("Preserved existing Admin account: admin@eventsphere.com");
+      console.log("Admin created: admin@eventsphere.com / Admin@123");
     }
 
-    // 1. Create Exhibitors
-    console.log("Seeding exhibitors...");
-    const exhibitorData = [
-      {
-        name: "TechCorp Solutions",
-        email: "exhibitor1@demo.com",
-        password: "Demo@123",
-        role: "exhibitor",
-        company: "TechCorp Inc.",
-        category: "Technology",
-        phone: "+1 555-0101",
-        website: "https://techcorp-example.com",
-        description: "Leading innovator in AI, IoT and enterprise cloud software solutions."
-      },
-      {
-        name: "Gourmet Delights",
-        email: "exhibitor2@demo.com",
-        password: "Demo@123",
-        role: "exhibitor",
-        company: "Gourmet Foods Ltd.",
-        category: "Food & Beverage",
-        phone: "+1 555-0102",
-        website: "https://gourmet-example.com",
-        description: "Artisanal organic products and sustainable culinary innovations."
-      },
-      {
-        name: "Vogue Apparel",
-        email: "exhibitor3@demo.com",
-        password: "Demo@123",
-        role: "exhibitor",
-        company: "Vogue Fashion House",
-        category: "Fashion",
-        phone: "+1 555-0103",
-        website: "https://vogue-example.com",
-        description: "Eco-friendly sustainable apparel and contemporary fashion designs."
-      },
-      {
-        name: "EduSphere Learning",
-        email: "exhibitor4@demo.com",
-        password: "Demo@123",
-        role: "exhibitor",
-        company: "EduSphere Global",
-        category: "Education",
-        phone: "+1 555-0104",
-        website: "https://edusphere-example.com",
-        description: "Next-generation interactive EdTech tools and virtual classrooms."
-      },
-      {
-        name: "BioHealth Innovations",
-        email: "exhibitor5@demo.com",
-        password: "Demo@123",
-        role: "exhibitor",
-        company: "BioHealth Sciences",
-        category: "Health",
-        phone: "+1 555-0105",
-        website: "https://biohealth-example.com",
-        description: "Medical devices, wearable diagnostics, and wellness systems."
-      },
-      {
-        name: "AutoDrive Dynamics",
-        email: "exhibitor6@demo.com",
-        password: "Demo@123",
-        role: "exhibitor",
-        company: "AutoDrive Motors",
-        category: "Automotive",
-        phone: "+1 555-0106",
-        website: "https://autodrive-example.com",
-        description: "Electric mobility solutions and autonomous driving technologies."
-      }
-    ];
+    /* ---- Exhibitors ---- */
+    console.log(`Seeding ${EXHIBITORS.length} exhibitors...`);
+    const exhibitorUsers = await createMany(
+      User,
+      EXHIBITORS.map((e, idx) => ({
+        name: e.company, email: e.email, password: DEMO_PASSWORD, role: "exhibitor",
+        company: e.company, category: e.category, website: e.website, description: e.description,
+        phone: `+60 12-345 ${String(idx + 1).padStart(4, "0")}`,
+      })),
+      "exhibitors"
+    );
 
-    const exhibitors = [];
-    for (const ex of exhibitorData) {
-      const userDoc = await User.create(ex);
-      exhibitors.push(userDoc);
-    }
+    /* ---- Attendees ---- */
+    console.log(`Seeding ${ATTENDEE_NAMES.length} attendees...`);
+    const attendeeUsers = (await createMany(
+      User,
+      ATTENDEE_NAMES.map((name, idx) => ({
+        name, email: `attendee${idx + 1}@demo.com`, password: DEMO_PASSWORD, role: "attendee",
+        phone: `+60 12-555 ${String(100 + idx + 1).padStart(4, "0")}`,
+        company: EMPLOYERS[idx % EMPLOYERS.length],
+      })),
+      "attendees"
+    )).filter(Boolean);
 
-    // 2. Create Attendees
-    console.log("Seeding attendees...");
-    const attendees = [];
-    for (let i = 1; i <= 8; i++) {
-      const att = await User.create({
-        name: `Attendee User ${i}`,
-        email: `attendee${i}@demo.com`,
-        password: "Demo@123",
-        role: "attendee",
-        phone: `+1 555-020${i}`
+    /* ---- Expos, booths, applications, sessions ---- */
+    const createdExpos = []; // { doc, cfg }
+    const sessionsByExpo = {};
+    const applicationRecords = []; // used for notifications
+
+    for (const cfg of EXPOS) {
+      console.log(`Seeding expo: ${cfg.title}`);
+      const expo = await Expo.create({
+        title: cfg.title, theme: cfg.theme, location: cfg.location, description: cfg.description,
+        startDate: atUTC(cfg.startOffset, 4, 0),
+        endDate: atUTC(cfg.startOffset + cfg.days - 1, 14, 0),
+        createdBy: admin._id,
       });
-      attendees.push(att);
-    }
+      createdExpos.push({ doc: expo, cfg });
 
-    // 3. Create Expos
-    console.log("Seeding expos & generating booth layouts...");
-    const today = new Date();
-    const addDays = (d, days) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000);
+      // Plan: which exhibitors apply, and which of them hold a booth
+      const rawPlan = [...(cfg.prefix || []), ...buildPlan(cfg.offset, cfg.counts)].filter((p) => exhibitorUsers[p.i]);
+      let nextBooth = 0;
+      const entries = rawPlan.map((p) => ({
+        ...p,
+        boothIndex: p.state === "booked" || p.state === "reserved" ? nextBooth++ : null,
+      }));
 
-    const exposData = [
-      {
-        title: "Global Tech Summit 2026",
-        theme: "Artificial Intelligence & Beyond",
-        location: "Convention Center Hall A, San Francisco",
-        description: "The largest gathering of tech visionaries, startups, and enterprise innovators.",
-        startDate: addDays(today, 15),
-        endDate: addDays(today, 18)
-      },
-      {
-        title: "International Food & Culinary Expo",
-        theme: "Sustainable Flavors & Hospitality",
-        location: "Grand Exhibition Pavilion, Chicago",
-        description: "Showcasing global culinary trends, organic farming, and food technology.",
-        startDate: addDays(today, 45),
-        endDate: addDays(today, 48)
-      },
-      {
-        title: "Healthcare & MedTech Expo 2026",
-        theme: "Innovations in Digital Medicine",
-        location: "Metropolitan Expo Center, Boston",
-        description: "Connecting healthcare leaders, medical researchers, and health tech pioneers.",
-        startDate: addDays(today, 75),
-        endDate: addDays(today, 78)
-      }
-    ];
-
-    const createdExpos = [];
-    const allBooths = [];
-
-    for (const expoDef of exposData) {
-      const expo = await Expo.create(expoDef);
-      createdExpos.push(expo);
-
-      // Generate 20 booths A1-A20
-      const expoBooths = [];
-      for (let b = 1; b <= 20; b++) {
-        const boothNumber = `A${b}`;
-        const price = b <= 5 ? 1200 : b <= 12 ? 800 : 500;
-        const size = b <= 5 ? "6x6 m" : "3x3 m";
-        const booth = await Booth.create({
-          expo: expo._id,
-          boothNumber,
-          size,
-          price,
-          status: "available"
+      // Booths (A, B, C zones of 10). Booths held by exhibitors are filled in here.
+      const boothDocs = Array.from({ length: cfg.boothCount }, (_, i) => {
+        const zone = ["A", "B", "C"][Math.floor(i / 10)];
+        return {
+          expo: expo._id, boothNumber: `${zone}${(i % 10) + 1}`,
+          size: TIERS[zone].size, price: TIERS[zone].price, status: "available",
+        };
+      });
+      for (const en of entries) {
+        if (en.boothIndex === null) continue;
+        Object.assign(boothDocs[en.boothIndex], {
+          status: en.state === "booked" ? "booked" : "reserved",
+          exhibitor: exhibitorUsers[en.i]._id,
+          details: `${EXHIBITORS[en.i].company}: ${EXHIBITORS[en.i].products}`,
+          staff: sample(STAFF_POOL, 2),
         });
-        expoBooths.push(booth);
-        allBooths.push(booth);
       }
-    }
+      const createdBooths = await createMany(Booth, boothDocs, `booths (${cfg.title})`);
 
-    // 4. Create Applications & Link Booths
-    console.log("Seeding applications & booth bookings...");
-
-    // Expo 1 Applications:
-    // Exhibitor 1 (TechCorp) -> Approved & Booked Booth A1
-    const app1 = await Application.create({
-      expo: createdExpos[0]._id,
-      exhibitor: exhibitors[0]._id,
-      companyName: exhibitors[0].company,
-      products: "Enterprise AI Platform & Cloud Suite",
-      status: "approved"
-    });
-    const boothA1 = allBooths.find(
-      (b) => b.expo.toString() === createdExpos[0]._id.toString() && b.boothNumber === "A1"
-    );
-    boothA1.status = "booked";
-    boothA1.exhibitor = exhibitors[0]._id;
-    await boothA1.save();
-    app1.booth = boothA1._id;
-    await app1.save();
-
-    // Exhibitor 4 (EduSphere) -> Approved & Reserved Booth A2
-    const app2 = await Application.create({
-      expo: createdExpos[0]._id,
-      exhibitor: exhibitors[3]._id,
-      companyName: exhibitors[3].company,
-      products: "Virtual Classroom AI Software",
-      status: "approved"
-    });
-    const boothA2 = allBooths.find(
-      (b) => b.expo.toString() === createdExpos[0]._id.toString() && b.boothNumber === "A2"
-    );
-    boothA2.status = "reserved";
-    boothA2.exhibitor = exhibitors[3]._id;
-    await boothA2.save();
-    app2.booth = boothA2._id;
-    await app2.save();
-
-    // Exhibitor 6 (AutoDrive) -> Pending
-    await Application.create({
-      expo: createdExpos[0]._id,
-      exhibitor: exhibitors[5]._id,
-      companyName: exhibitors[5].company,
-      products: "Autonomous Navigation Hardware",
-      status: "pending"
-    });
-
-    // Expo 2 Applications:
-    // Exhibitor 2 (Gourmet) -> Approved & Booked Booth A1
-    const app3 = await Application.create({
-      expo: createdExpos[1]._id,
-      exhibitor: exhibitors[1]._id,
-      companyName: exhibitors[1].company,
-      products: "Organic Artisan Cheeses & Wines",
-      status: "approved"
-    });
-    const boothExp2A1 = allBooths.find(
-      (b) => b.expo.toString() === createdExpos[1]._id.toString() && b.boothNumber === "A1"
-    );
-    boothExp2A1.status = "booked";
-    boothExp2A1.exhibitor = exhibitors[1]._id;
-    await boothExp2A1.save();
-    app3.booth = boothExp2A1._id;
-    await app3.save();
-
-    // Exhibitor 3 (Vogue) -> Rejected
-    await Application.create({
-      expo: createdExpos[1]._id,
-      exhibitor: exhibitors[2]._id,
-      companyName: exhibitors[2].company,
-      products: "Organic Cotton Chef Aprons",
-      status: "rejected"
-    });
-
-    // Expo 3 Applications:
-    // Exhibitor 5 (BioHealth) -> Approved & Booked Booth A1
-    const app4 = await Application.create({
-      expo: createdExpos[2]._id,
-      exhibitor: exhibitors[4]._id,
-      companyName: exhibitors[4].company,
-      products: "Smart Glucose Monitors & Bio-sensors",
-      status: "approved"
-    });
-    const boothExp3A1 = allBooths.find(
-      (b) => b.expo.toString() === createdExpos[2]._id.toString() && b.boothNumber === "A1"
-    );
-    boothExp3A1.status = "booked";
-    boothExp3A1.exhibitor = exhibitors[4]._id;
-    await boothExp3A1.save();
-    app4.booth = boothExp3A1._id;
-    await app4.save();
-
-    // 5. Create Sessions
-    console.log("Seeding sessions...");
-    const createdSessions = [];
-
-    // Expo 1 Sessions (5 sessions)
-    const expo1Start = createdExpos[0].startDate;
-    const sessionsExpo1 = [
-      {
-        expo: createdExpos[0]._id,
-        title: "Opening Keynote: Future of Generative AI",
-        speaker: "Dr. Sarah Lin (Chief Scientist, TechCorp)",
-        topic: "Artificial Intelligence",
-        location: "Main Auditorium",
-        startTime: new Date(expo1Start.getTime() + 9 * 3600000),
-        endTime: new Date(expo1Start.getTime() + 10.5 * 3600000)
-      },
-      {
-        expo: createdExpos[0]._id,
-        title: "Building Scalable Cloud Microservices",
-        speaker: "Marcus Vance (Principal Architect)",
-        topic: "Cloud Architecture",
-        location: "Room 101",
-        startTime: new Date(expo1Start.getTime() + 11 * 3600000),
-        endTime: new Date(expo1Start.getTime() + 12 * 3600000)
-      },
-      {
-        expo: createdExpos[0]._id,
-        title: "Cybersecurity in the Quantum Era",
-        speaker: "Elena Rostova (Security Director)",
-        topic: "Cybersecurity",
-        location: "Room 102",
-        startTime: new Date(expo1Start.getTime() + 13 * 3600000),
-        endTime: new Date(expo1Start.getTime() + 14 * 3600000)
-      },
-      {
-        expo: createdExpos[0]._id,
-        title: "EdTech: Transforming K-12 Classrooms",
-        speaker: "Prof. James Miller",
-        topic: "Educational Tech",
-        location: "Room 101",
-        startTime: new Date(expo1Start.getTime() + 14.5 * 3600000),
-        endTime: new Date(expo1Start.getTime() + 15.5 * 3600000)
-      },
-      {
-        expo: createdExpos[0]._id,
-        title: "Autonomous Vehicles & Smart Cities",
-        speaker: "David Kim (VP Robotics)",
-        topic: "Automotive Tech",
-        location: "Main Auditorium",
-        startTime: new Date(expo1Start.getTime() + 16 * 3600000),
-        endTime: new Date(expo1Start.getTime() + 17 * 3600000)
-      }
-    ];
-
-    for (const s of sessionsExpo1) {
-      const sessDoc = await Session.create(s);
-      createdSessions.push(sessDoc);
-    }
-
-    // Expo 2 Sessions (5 sessions)
-    const expo2Start = createdExpos[1].startDate;
-    const sessionsExpo2 = [
-      {
-        expo: createdExpos[1]._id,
-        title: "Farm to Table: Sustainable Food Systems",
-        speaker: "Chef Anita Roy",
-        topic: "Sustainability",
-        location: "Culinary Stage",
-        startTime: new Date(expo2Start.getTime() + 10 * 3600000),
-        endTime: new Date(expo2Start.getTime() + 11.5 * 3600000)
-      },
-      {
-        expo: createdExpos[1]._id,
-        title: "Plant-Based Protein Innovations",
-        speaker: "Dr. Kevin Zhang",
-        topic: "Food Science",
-        location: "Seminar Room B",
-        startTime: new Date(expo2Start.getTime() + 13 * 3600000),
-        endTime: new Date(expo2Start.getTime() + 14 * 3600000)
-      },
-      {
-        expo: createdExpos[1]._id,
-        title: "Wine & Cheese Pairing Masterclass",
-        speaker: "Sommelier Jean-Luc",
-        topic: "Gastronomy",
-        location: "Culinary Stage",
-        startTime: new Date(expo2Start.getTime() + 15 * 3600000),
-        endTime: new Date(expo2Start.getTime() + 16.5 * 3600000)
-      }
-    ];
-
-    for (const s of sessionsExpo2) {
-      const sessDoc = await Session.create(s);
-      createdSessions.push(sessDoc);
-    }
-
-    // 6. Create Registrations
-    console.log("Seeding attendee registrations and bookmarks...");
-    // Register attendees for Expo 1
-    for (let i = 0; i < 5; i++) {
-      await Registration.create({
-        user: attendees[i]._id,
-        expo: createdExpos[0]._id,
-        type: "expo",
-        registered: true
+      // Applications
+      const appDocs = entries.map((en) => ({
+        expo: expo._id,
+        exhibitor: exhibitorUsers[en.i]._id,
+        companyName: EXHIBITORS[en.i].company,
+        products: EXHIBITORS[en.i].products,
+        status: en.state === "pending" ? "pending" : en.state === "rejected" ? "rejected" : "approved",
+        booth: en.boothIndex !== null && createdBooths[en.boothIndex] ? createdBooths[en.boothIndex]._id : undefined,
+        createdAt: randomPast(30),
+      }));
+      await createMany(Application, appDocs, `applications (${cfg.title})`);
+      entries.forEach((en) => {
+        applicationRecords.push({
+          user: exhibitorUsers[en.i], expoTitle: cfg.title, state: en.state,
+          boothNumber: en.boothIndex !== null ? boothDocs[en.boothIndex].boothNumber : null,
+        });
       });
 
-      // Register for first session
-      await Registration.create({
-        user: attendees[i]._id,
-        expo: createdExpos[0]._id,
-        session: createdSessions[0]._id,
-        type: "session",
-        registered: true
-      });
+      // Sessions
+      const sessionDocs = [];
+      let n = 0;
+      for (let d = 0; d < cfg.days; d++) {
+        for (const slot of SLOTS) {
+          const [title, topic] = cfg.sessions[n];
+          const start = atUTC(cfg.startOffset + d, slot.hour, slot.minute);
+          sessionDocs.push({
+            expo: expo._id, title, topic, location: slot.location,
+            speaker: SPEAKERS[(n + cfg.speakerOffset) % SPEAKERS.length],
+            startTime: start,
+            endTime: new Date(start.getTime() + slot.duration * 60000),
+            reminderSent: start < new Date(),
+          });
+          n++;
+        }
+      }
+      sessionsByExpo[expo._id.toString()] = (await createMany(Session, sessionDocs, `sessions (${cfg.title})`)).filter(Boolean);
     }
 
-    // Bookmark second session for some attendees
-    await Registration.create({
-      user: attendees[0]._id,
-      expo: createdExpos[0]._id,
-      session: createdSessions[1]._id,
-      type: "session",
-      registered: false,
-      bookmarked: true
-    });
-    await Registration.create({
-      user: attendees[1]._id,
-      expo: createdExpos[0]._id,
-      session: createdSessions[2]._id,
-      type: "session",
-      registered: false,
-      bookmarked: true
-    });
+    /* ---- Registrations and bookmarks ---- */
+    console.log("Seeding registrations and bookmarks...");
+    const regDocs = [];
+    const expoRegRecords = [];
+    const sessionRegRecords = [];
+    for (const att of attendeeUsers) {
+      for (const ce of sample(createdExpos, randInt(1, 4))) {
+        const expoId = ce.doc._id;
+        regDocs.push({ user: att._id, expo: expoId, type: "expo", registered: true, createdAt: randomPast(25) });
+        expoRegRecords.push({ user: att, expoTitle: ce.cfg.title });
 
-    // 7. Create Messages
+        const sessions = sessionsByExpo[expoId.toString()] || [];
+        const registered = sample(sessions, randInt(2, 5));
+        const registeredIds = new Set(registered.map((s) => s._id.toString()));
+        registered.forEach((s) => {
+          regDocs.push({ user: att._id, expo: expoId, session: s._id, type: "session", registered: true, bookmarked: chance(0.3) });
+          sessionRegRecords.push({ user: att, sessionTitle: s.title });
+        });
+        sample(sessions.filter((s) => !registeredIds.has(s._id.toString())), randInt(0, 3)).forEach((s) => {
+          regDocs.push({ user: att._id, expo: expoId, session: s._id, type: "session", registered: false, bookmarked: true });
+        });
+      }
+    }
+    await createMany(Registration, regDocs, "registrations");
+
+    /* ---- Messages ---- */
     console.log("Seeding messages...");
-    await Message.create({
-      sender: attendees[0]._id,
-      receiver: admin._id,
-      subject: "Inquiry about Global Tech Summit",
-      body: "Hello Admin, will there be student discount passes available for the summit?",
-      read: true
-    });
-    await Message.create({
-      sender: admin._id,
-      receiver: attendees[0]._id,
-      subject: "Re: Inquiry about Global Tech Summit",
-      body: "Hi Attendee! Yes, student passes will be released next week on the portal.",
-      read: false
-    });
-    await Message.create({
-      sender: exhibitors[0]._id,
-      receiver: admin._id,
-      subject: "Booth Setup Request",
-      body: "Hi Admin, could we request extra power outlets for Booth A1?",
-      read: false
-    });
+    const exUsers = exhibitorUsers.filter(Boolean);
+    const msgDocs = [];
+    const addMsg = (sender, receiver, subject, body, unreadChance = 0.35) =>
+      msgDocs.push({ sender: sender._id, receiver: receiver._id, subject, body, read: !chance(unreadChance), createdAt: randomPast(14) });
 
-    // 8. Create Feedback
+    for (let k = 0; k < 24; k++) {
+      const att = pick(attendeeUsers);
+      const ex = pick(exUsers);
+      const tpl = INQUIRIES[k % INQUIRIES.length];
+      addMsg(att, ex, tpl.subject, tpl.body(ex.company), 0.4);
+      if (k < 12) addMsg(ex, att, `Re: ${tpl.subject}`, INQUIRY_REPLIES[k % INQUIRY_REPLIES.length], 0.4);
+    }
+    for (let k = 0; k < 14; k++) {
+      const ex = exUsers[k % exUsers.length];
+      const tpl = EXHIBITOR_TO_ADMIN[k % EXHIBITOR_TO_ADMIN.length];
+      addMsg(ex, admin, tpl.subject, tpl.body, 0.5);
+      if (k < 9) addMsg(admin, ex, `Re: ${tpl.subject}`, ADMIN_REPLIES[k % ADMIN_REPLIES.length], 0.3);
+    }
+    await createMany(Message, msgDocs, "messages");
+
+    /* ---- Feedback ---- */
     console.log("Seeding feedback...");
-    const feedbackList = [
-      {
-        user: attendees[0]._id,
-        type: "suggestion",
-        message: "It would be great to have a mobile app map for finding booths easily."
-      },
-      {
-        user: attendees[1]._id,
-        type: "issue",
-        message: "The search bar on the exhibitors page was taking a bit long to filter results."
-      },
-      {
-        user: exhibitors[0]._id,
-        type: "suggestion",
-        message: "Consider extending floor hours on Day 2 so we have more networking time."
-      },
-      {
-        user: exhibitors[1]._id,
-        type: "suggestion",
-        message: "Please add a category filter dropdown for the food section on the floor plan."
-      },
-      {
-        user: attendees[2]._id,
-        type: "issue",
-        message: "I didn't receive a confirmation email when bookmarking a session."
-      },
-      {
-        user: attendees[3]._id,
-        type: "suggestion",
-        message: "Loved the schedule layout! Would like an export to Google Calendar option."
-      }
-    ];
+    const feedbackAuthors = [...attendeeUsers, ...exUsers];
+    const feedbackDocs = Array.from({ length: 30 }, (_, k) => {
+      const isIssue = k % 3 === 0;
+      return {
+        user: pick(feedbackAuthors)._id,
+        type: isIssue ? "issue" : "suggestion",
+        message: isIssue ? ISSUES[Math.floor(k / 3) % ISSUES.length] : SUGGESTIONS[(k - Math.floor(k / 3) - 1) % SUGGESTIONS.length],
+        createdAt: randomPast(20),
+      };
+    });
+    await createMany(Feedback, feedbackDocs, "feedback");
 
-    await Feedback.insertMany(feedbackList);
-
-    // 9. Create Notifications
+    /* ---- Notifications ---- */
     console.log("Seeding notifications...");
-    await Notification.create({
-      user: admin._id,
-      message: "New application received from AutoDrive Motors",
-      link: "/admin/applications",
-      read: false
-    });
-    await Notification.create({
-      user: exhibitors[0]._id,
-      message: "Your application for Global Tech Summit 2026 was approved.",
-      link: "/exhibitor/applications",
-      read: true
-    });
-    await Notification.create({
-      user: attendees[0]._id,
-      message: "Reminder: Keynote starts at 9:00 AM in Main Auditorium",
-      link: `/expos/${createdExpos[0]._id}?tab=schedule`,
-      read: false
-    });
+    const notifDocs = [];
+    const addNotif = (user, message, link, type) =>
+      notifDocs.push({ user: user._id, message, link, type, read: chance(0.45), createdAt: randomPast(10) });
 
-    // 10. Summary Output
+    sample(applicationRecords.filter((r) => r.state === "pending"), 14).forEach((r) =>
+      addNotif(admin, `New application from ${r.user.company} for ${r.expoTitle}`, "/admin/applications", "application")
+    );
+    for (let k = 0; k < 4; k++) addNotif(admin, "New feedback received", "/admin/feedback", "feedback");
+
+    const exhibitorNotifs = [];
+    applicationRecords.forEach((r) => {
+      if (r.state === "rejected") {
+        exhibitorNotifs.push([r.user, `Your application for ${r.expoTitle} was not approved`, "/exhibitor/applications", "application"]);
+      } else if (r.state !== "pending") {
+        exhibitorNotifs.push([r.user, `Your application for ${r.expoTitle} was approved`, "/exhibitor/applications", "application"]);
+        if (r.state === "booked") {
+          exhibitorNotifs.push([r.user, `Booth ${r.boothNumber} was confirmed for ${r.expoTitle}`, "/exhibitor/booths", "booth"]);
+        }
+      }
+    });
+    sample(exhibitorNotifs, 70).forEach((n) => addNotif(...n));
+
+    sample(expoRegRecords, 35).forEach((r) => addNotif(r.user, `You are registered for ${r.expoTitle}`, "/attendee/schedule", "registration"));
+    sample(sessionRegRecords, 20).forEach((r) => addNotif(r.user, `Reminder: ${r.sessionTitle} starts soon`, "/attendee/schedule", "reminder"));
+    await createMany(Notification, notifDocs, "notifications");
+
+    /* ---- Summary ---- */
+    const count = async (Model, filter = {}) => Model.countDocuments(filter);
     console.log("\n=======================================================");
     console.log("        EVENTSPHERE DEMO DATA SEEDED SUCCESSFULLY       ");
     console.log("=======================================================");
+    console.table({
+      "Users (exhibitors)": await count(User, { role: "exhibitor" }),
+      "Users (attendees)": await count(User, { role: "attendee" }),
+      Expos: await count(Expo),
+      Booths: await count(Booth),
+      "Booths booked": await count(Booth, { status: "booked" }),
+      "Booths reserved": await count(Booth, { status: "reserved" }),
+      Applications: await count(Application),
+      "Applications pending": await count(Application, { status: "pending" }),
+      "Applications approved": await count(Application, { status: "approved" }),
+      "Applications rejected": await count(Application, { status: "rejected" }),
+      Sessions: await count(Session),
+      Registrations: await count(Registration),
+      Messages: await count(Message),
+      Feedback: await count(Feedback),
+      Notifications: await count(Notification),
+    });
+    console.log("\nDemo logins:");
+    console.log("  Admin:      admin@eventsphere.com / Admin@123");
+    console.log(`  Exhibitors: ${EXHIBITORS.slice(0, 5).map((e) => e.email).join(", ")} ... (all ${EXHIBITORS.length}) / ${DEMO_PASSWORD}`);
+    console.log(`  Attendees:  attendee1@demo.com to attendee${ATTENDEE_NAMES.length}@demo.com / ${DEMO_PASSWORD}`);
 
-    const counts = {
-      Users: await User.countDocuments(),
-      Expos: await Expo.countDocuments(),
-      Booths: await Booth.countDocuments(),
-      Applications: await Application.countDocuments(),
-      Sessions: await Session.countDocuments(),
-      Registrations: await Registration.countDocuments(),
-      Messages: await Message.countDocuments(),
-      Feedback: await Feedback.countDocuments(),
-      Notifications: await Notification.countDocuments()
-    };
-
-    console.table(counts);
-
-    console.log("\n---------------- DEMO LOGIN CREDENTIALS ---------------");
-    console.log("Role        | Email                  | Password ");
-    console.log("------------|------------------------|----------");
-    console.log("Admin       | admin@eventsphere.com  | Admin@123");
-    console.log("Exhibitor 1 | exhibitor1@demo.com    | Demo@123");
-    console.log("Exhibitor 2 | exhibitor2@demo.com    | Demo@123");
-    console.log("Attendee 1  | attendee1@demo.com     | Demo@123");
-    console.log("Attendee 2  | attendee2@demo.com     | Demo@123");
-    console.log("-------------------------------------------------------");
-
+    await mongoose.disconnect();
     process.exit(0);
   } catch (error) {
-    console.error("Error seeding demo data:", error);
+    console.error("Error seeding data:", error);
+    try { await mongoose.disconnect(); } catch { /* ignore */ }
     process.exit(1);
   }
 };

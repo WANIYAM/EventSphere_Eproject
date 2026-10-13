@@ -42,18 +42,22 @@ import Feedback from "./pages/Feedback.jsx";
 import AdminFeedback from "./pages/admin/AdminFeedback.jsx";
 import Notifications from "./pages/Notifications.jsx";
 import AdminAnalytics from "./pages/admin/AdminAnalytics.jsx";
-
+// Import the new public pages in App.jsx:
+import Expos from "./pages/Expos.jsx";
+import About from "./pages/About.jsx";
+import Contact from "./pages/Contact.jsx";
 function AppContent() {
   const location = useLocation();
 
   // Hide the dashboard navbar and .main-content constraint on public/auth pages
-  const isPublicPage = [
+ const isPublicPage = [
     "/",
+    "/expos",
+    "/contact",
     "/login",
     "/register",
     "/forgot-password",
-  ].includes(location.pathname) || location.pathname.startsWith("/reset-password");
-
+  ].includes(location.pathname) || location.pathname.startsWith("/reset-password") || location.pathname.startsWith("/expos/");
   return (
     <>
       <ServerStatusBanner />
@@ -71,7 +75,10 @@ function AppContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-
+          <Route path="/expos" element={<Expos />} />
+          <Route path="/expos/:id" element={<ExpoDetails />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           {/* General Routes */}
           <Route
             path="/messages"

@@ -1,97 +1,86 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
-interface GalleryPhoto {
-  w: number;
-  h: number;
-  year: string;
-  badgeBg: string;
-  badgeTextColor: string;
-  shadowColor: string;
-  src: string;
-  label: string;
-}
-
-const EXPO_GALLERY_ITEMS: GalleryPhoto[] = [
+const GALLERY_ITEMS = [
   {
     w: 310,
     h: 360,
-    year: "MAIN CONCOURSE",
+    year: "'00 TORONTO",
     badgeBg: "var(--color-primary)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-primary)",
-    src: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=700&auto=format&fit=crop&q=80",
-    label: "Main trade show convention hall",
+    src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=700&auto=format&fit=crop&q=80",
+    label: "Toronto fireworks inauguration",
   },
   {
     w: 300,
     h: 240,
-    year: "KEYNOTE ARENA",
+    year: "'04 SPOTLIGHT",
     badgeBg: "var(--color-selective-yellow)",
     badgeTextColor: "var(--color-dark)",
     shadowColor: "var(--color-selective-yellow)",
-    src: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=700&auto=format&fit=crop&q=80",
-    label: "Auditorium keynote stage",
+    src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=700&auto=format&fit=crop&q=80",
+    label: "Acoustic stage microphone",
   },
   {
     w: 520,
     h: 340,
-    year: "EXHIBIT PAVILION",
+    year: "'12 SLUSH ARENA",
     badgeBg: "var(--color-cerulean)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-cerulean)",
     src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&auto=format&fit=crop&q=80",
-    label: "Exhibition booth floor plan",
+    label: "SLUSH yellow stage pavilion",
   },
   {
     w: 105,
     h: 260,
-    year: "B2B HUB",
+    year: "'15",
     badgeBg: "var(--color-light)",
     badgeTextColor: "var(--color-dark)",
     shadowColor: "#ffffff",
     src: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&auto=format&fit=crop&q=80",
-    label: "VIP meeting lounge",
+    label: "Night sparkler",
   },
   {
     w: 360,
     h: 360,
-    year: "DEMO PODS",
+    year: "'18 CROWD SURF",
     badgeBg: "var(--color-violet-pink)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-violet-pink)",
     src: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=700&auto=format&fit=crop&q=80",
-    label: "Live product demonstrations",
+    label: "Phone recording in crowd",
   },
   {
     w: 300,
     h: 240,
-    year: "WORKSHOP LAB",
+    year: "'21 MODULAR",
     badgeBg: "var(--color-purple-mimosa)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-purple-mimosa)",
-    src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=700&auto=format&fit=crop&q=80",
-    label: "Interactive breakout sessions",
+    src: "https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?w=700&auto=format&fit=crop&q=80",
+    label: "Turntable hardware mixer",
   },
   {
     w: 520,
     h: 340,
-    year: "GLOBAL GALA",
+    year: "'23 GALA CONFETTI",
     badgeBg: "var(--color-kiwi)",
     badgeTextColor: "var(--color-dark)",
     shadowColor: "var(--color-kiwi)",
-    src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&auto=format&fit=crop&q=80",
-    label: "Closing networking event",
+    src: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format&fit=crop&q=80",
+    label: "Confetti over massive crowd",
   },
   {
     w: 105,
     h: 260,
-    year: "STARTUP ZONE",
+    year: "'25",
     badgeBg: "var(--color-primary)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-primary)",
     src: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&auto=format&fit=crop&q=80",
-    label: "Innovation showcase stage",
+    label: "Laser beam stage finale",
   },
 ];
 
@@ -133,18 +122,19 @@ export const HorizontalScrollSection: React.FC = () => {
   const titleY = useTransform(smoothProgress, [0.85, 0.96], [0, -35]);
 
   return (
-    <section
-      id="gallery"
-      ref={containerRef}
-      style={{
-        height: "2900px",
-        position: "relative",
-        backgroundColor: "#0a090d",
-        paddingTop: 0,
-        zIndex: 10,
-        overflow: "visible",
-      }}
-    >
+    // Inside HorizontalScrollSection.tsx, replace the <section> style:
+      <section
+        id="gallery"
+        ref={containerRef}
+        style={{
+          height: "2900px",
+          position: "relative",
+          backgroundColor: "transparent", // REMOVED HARDCODED BLACK: lets GlobalBackground smoothly dissolve into cream!
+          paddingTop: 0,
+          zIndex: 10,
+          overflow: "visible",
+        }}
+      >
       <div
         style={{
           position: "sticky",
@@ -157,6 +147,38 @@ export const HorizontalScrollSection: React.FC = () => {
           gap: 28,
         }}
       >
+        {/* Ambient Stage Glow */}
+        <div
+          style={{
+            position: "absolute",
+            top: "15%",
+            left: "10%",
+            width: 500,
+            height: 400,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(20, 166, 234, 0.16) 0%, rgba(10, 9, 13, 0) 70%)",
+            filter: "blur(60px)",
+            pointerEvents: "none",
+            zIndex: 1,
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            top: "25%",
+            right: "15%",
+            width: 550,
+            height: 450,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(255, 62, 51, 0.14) 0%, rgba(255, 85, 248, 0.08) 50%, rgba(10, 9, 13, 0) 70%)",
+            filter: "blur(70px)",
+            pointerEvents: "none",
+            zIndex: 1,
+          }}
+        />
+
+        {/* Hollow Outline Watermark */}
         <motion.div
           style={{
             x: bgTextX,
@@ -180,11 +202,11 @@ export const HorizontalScrollSection: React.FC = () => {
               letterSpacing: 4,
             }}
           >
-            EVENTSPHERE EXPO SUITE • FLOOR PLANS & SESSIONS •
+            PIXELSTAGE ARCHIVE • 2000 — 2025 • LIVE STAGE REEL •
           </span>
         </motion.div>
 
-        {/* Horizontal Photos */}
+        {/* Horizontal Photo Reel */}
         <motion.div
           ref={trackRef}
           style={{
@@ -200,7 +222,7 @@ export const HorizontalScrollSection: React.FC = () => {
             zIndex: 5,
           }}
         >
-          {EXPO_GALLERY_ITEMS.map((item, i) => {
+          {GALLERY_ITEMS.map((item, i) => {
             const isHovered = hoveredIdx === i;
 
             return (
@@ -229,8 +251,8 @@ export const HorizontalScrollSection: React.FC = () => {
               >
                 <div style={{ position: "absolute", top: 6, left: 6, width: 9, height: 9, borderTop: "2.5px solid #fff", borderLeft: "2.5px solid #fff", zIndex: 10 }} />
                 <div style={{ position: "absolute", top: 6, right: 6, width: 9, height: 9, borderTop: "2.5px solid #fff", borderRight: "2.5px solid #fff", zIndex: 10 }} />
-                <div style={{ position: "absolute", bottom: 6, left: 6, width: 9, height: 9, borderBottom: "2.5px solid #fff", borderLeft: "2.5px solid #fff", zIndex: 10 }} />
-                <div style={{ position: "absolute", bottom: 6, right: 6, width: 9, height: 9, borderBottom: "2.5px solid #fff", borderRight: "2.5px solid #fff", zIndex: 10 }} />
+                <div style={{ position: "absolute", bottom: 6, left: 6, width: 8, height: 8, borderBottom: "2.5px solid #fff", borderLeft: "2.5px solid #fff", zIndex: 10 }} />
+                <div style={{ position: "absolute", bottom: 6, right: 6, width: 8, height: 8, borderBottom: "2.5px solid #fff", borderRight: "2.5px solid #fff", zIndex: 10 }} />
 
                 <motion.div
                   animate={{ y: isHovered ? -2 : 0 }}
@@ -265,7 +287,7 @@ export const HorizontalScrollSection: React.FC = () => {
                     height: "100%",
                     objectFit: "cover",
                     display: "block",
-                    filter: "contrast(1.08) brightness(0.96)",
+                    filter: "contrast(1.08) brightness(0.98)",
                   }}
                 />
               </motion.div>
@@ -273,7 +295,7 @@ export const HorizontalScrollSection: React.FC = () => {
           })}
         </motion.div>
 
-        {/* Lower Deck: Timeline & Title */}
+        {/* Lower Deck: Timecode & 25 Years Title */}
         <div
           style={{
             width: "100%",
@@ -289,14 +311,15 @@ export const HorizontalScrollSection: React.FC = () => {
             zIndex: 6,
           }}
         >
+          {/* Timeline Scrubber */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 360, width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "#ffffff", opacity: 0.8, fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
-              <span>FLOOR PLAN A</span>
+              <span>EST. 2000</span>
               <span style={{ color: "var(--color-kiwi)", display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "var(--color-kiwi)", display: "inline-block" }} />
-                REAL-TIME BOOTH MAP
+                STAGE SCRUBBER
               </span>
-              <span>FLOOR PLAN D</span>
+              <span>2025 FINALE</span>
             </div>
 
             <div style={{ width: "100%", height: 6, backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 4, overflow: "hidden", border: "1px solid rgba(255,255,255,0.18)" }}>
@@ -312,12 +335,13 @@ export const HorizontalScrollSection: React.FC = () => {
             </div>
 
             <div style={{ display: "flex", gap: 8, color: "rgba(255,255,255,0.45)", fontSize: 11, fontFamily: "'Satoshi', sans-serif" }}>
-              <span>EXPO LAYOUT // 150,000 SQ FT</span>
+              <span>TIMECODE // 00:25:00:25</span>
               <span>•</span>
-              <span>500+ ALLOCATED BOOTHS</span>
+              <span>8 EXHIBIT STAGES</span>
             </div>
           </div>
 
+          {/* 25 YEARS IN { 2025 } */}
           <motion.div
             style={{
               opacity: titleOpacity,
@@ -332,18 +356,54 @@ export const HorizontalScrollSection: React.FC = () => {
               <motion.span animate={{ rotate: [0, 180, 360] }} transition={{ duration: 6, repeat: Infinity, ease: "linear" }}>
                 ★
               </motion.span>
-              <span>ANNUAL INDUSTRY EXHIBITION</span>
+              <span>QUARTER CENTURY ARCHIVE</span>
             </div>
 
-            <h2 className="style-display" style={{ fontSize: "clamp(50px, 6.5vw, 88px)", color: "#ffffff", lineHeight: 0.88, margin: 0 }}>
-              EXPO EXCELLENCE
+            <h2
+              className="style-display"
+              style={{
+                fontSize: "clamp(50px, 6.5vw, 88px)",
+                color: "#ffffff",
+                lineHeight: 0.88,
+                whiteSpace: "nowrap",
+                margin: 0,
+                letterSpacing: 1.5,
+              }}
+            >
+              25 YEARS IN
             </h2>
-            <h2 className="style-display" style={{ fontSize: "clamp(50px, 6.5vw, 88px)", color: "var(--color-primary)", lineHeight: 0.88, margin: 0 }}>
-              <motion.span animate={{ x: bracketHovered ? -10 : 0, color: bracketHovered ? "var(--color-kiwi)" : "#ffffff" }} transition={{ type: "spring", stiffness: 450, damping: 20 }} style={{ display: "inline-block", color: "#ffffff" }}>
+
+            <h2
+              className="style-display"
+              style={{
+                fontSize: "clamp(50px, 6.5vw, 88px)",
+                color: "var(--color-primary)",
+                lineHeight: 0.88,
+                whiteSpace: "nowrap",
+                margin: 0,
+                letterSpacing: 1.5,
+                textShadow: "0 0 25px rgba(255, 62, 51, 0.4)",
+              }}
+            >
+              <motion.span
+                animate={{
+                  x: bracketHovered ? -10 : 0,
+                  color: bracketHovered ? "var(--color-kiwi)" : "#ffffff",
+                }}
+                transition={{ type: "spring", stiffness: 450, damping: 20 }}
+                style={{ display: "inline-block", color: "#ffffff" }}
+              >
                 &#123;
               </motion.span>{" "}
               2025{" "}
-              <motion.span animate={{ x: bracketHovered ? 10 : 0, color: bracketHovered ? "var(--color-kiwi)" : "#ffffff" }} transition={{ type: "spring", stiffness: 450, damping: 20 }} style={{ display: "inline-block", color: "#ffffff" }}>
+              <motion.span
+                animate={{
+                  x: bracketHovered ? 10 : 0,
+                  color: bracketHovered ? "var(--color-kiwi)" : "#ffffff",
+                }}
+                transition={{ type: "spring", stiffness: 450, damping: 20 }}
+                style={{ display: "inline-block", color: "#ffffff" }}
+              >
                 &#125;
               </motion.span>
             </h2>

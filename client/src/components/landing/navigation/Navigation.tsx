@@ -174,15 +174,15 @@ export const Navigation: React.FC = () => {
   const pointerEvents = useTransform(navOpacity, (val) => (val > 0.05 ? "auto" : "none"));
 
   // Navigation Items
-  const navItems = [
-    { id: "login", name: "Login ↗", bg: "var(--color-primary)", textColor: "#ffffff", href: "/login", isRoute: true },
-    { id: "about", name: "About us", bg: "var(--color-light)", textColor: "var(--color-dark)", href: "#about" },
-    { id: "agenda", name: "Agenda", bg: "var(--color-light)", textColor: "var(--color-dark)", href: "#agenda" },
-    { id: "gallery", name: "Gallery", bg: "var(--color-light-salmon)", textColor: "var(--color-light)", href: "#gallery" },
-    { id: "recordings", name: "Recordings", bg: "var(--color-vista-blue)", textColor: "var(--color-light)", href: "#recordings" },
-    { id: "footer", name: "Contact", bg: "var(--color-selective-yellow)", textColor: "var(--color-dark)", href: "#footer" },
-  ];
-
+  // Inside Navigation.tsx, update navItems to:
+const navItems = [
+  { id: "login", name: "Portal Login ↗", bg: "var(--color-primary)", textColor: "#ffffff", href: "/login", isRoute: true },
+  { id: "expos", name: "Upcoming Expos", bg: "var(--color-light)", textColor: "var(--color-dark)", href: "#expos" },
+  { id: "agenda", name: "Schedule", bg: "var(--color-light)", textColor: "var(--color-dark)", href: "#agenda" },
+  { id: "floorplan", name: "Floor Plan", bg: "var(--color-selective-yellow)", textColor: "var(--color-dark)", href: "#floorplan" },
+  { id: "exhibitors", name: "Exhibitors", bg: "var(--color-light-salmon)", textColor: "var(--color-light)", href: "#exhibitors" },
+  { id: "tickets", name: "Passes", bg: "var(--color-kiwi)", textColor: "var(--color-dark)", href: "#tickets" },
+];
   // Click Handler for both Anchor Scrolls and Page Routes
   const handleItemClick = (e: React.MouseEvent<HTMLAnchorElement>, item: typeof navItems[0]) => {
     e.preventDefault();

@@ -22,6 +22,7 @@ import registrationRoutes from "./routes/registrationRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
+import publicRoutes from "./routes/publicRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -63,7 +64,8 @@ app.use("/api/registrations", registrationRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/analytics", analyticsRoutes);
-
+// Add this line in the Routes section (around line 55):
+app.use("/api/public", publicRoutes);
 app.use("/api", (req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
