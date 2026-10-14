@@ -4,29 +4,27 @@ import { RollingTextButton } from "../common/RollingTextButton";
 
 // SRS Narrative Word Breakdown with Highlights
 const PARAGRAPH_WORDS = [
-  { text: "Overcoming" },
-  { text: "traditional" },
-  { text: "hurdles" },
-  { text: "through" },
-  { text: "automated registration,", highlight: "yellow" },
-  { text: "interactive floor plans,", highlight: "blue" },
-  { text: "and" },
-  { text: "real-time analytics,", highlight: "salmon" },
   { text: "EventSphere" },
   { text: "Management" },
-  { text: "empowers" },
+  { text: "brings" },
   { text: "organizers," },
   { text: "exhibitors," },
   { text: "and" },
   { text: "attendees" },
-  { text: "to" },
-  { text: "connect" },
-  { text: "seamlessly" },
-  { text: "across" },
-  { text: "every" },
-  { text: "industry" },
-  { text: "trade" },
-  { text: "show." },
+  { text: "together" },
+  { text: "with" },
+  { text: "event" },
+  { text: "registration,", highlight: "yellow" },
+  { text: "exhibitor" },
+  { text: "applications," },
+  { text: "interactive" },
+  { text: "booth" },
+  { text: "floor" },
+  { text: "plans,", highlight: "blue" },
+  { text: "and" },
+  { text: "up-to-date" },
+  { text: "event" },
+  { text: "schedules.", highlight: "salmon" },
 ];
 
 const ScrollWord: React.FC<{
@@ -138,7 +136,7 @@ export const AboutSection: React.FC = () => {
               display: "block",
             }}
           >
-            THE PLATFORM
+            EXPO MANAGEMENT
           </h2>
           <h2
             className="style-display"
@@ -254,25 +252,11 @@ export const AboutSection: React.FC = () => {
                 userSelect: "none",
               }}
             >
-              <svg viewBox="0 0 100 100" width="95" height="95">
-                <path
-                  id="circleTextPath"
-                  d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
-                  fill="none"
-                />
-                <text
-                  fontSize="8.5"
-                  fontWeight="bold"
-                  fontFamily="'Satoshi', sans-serif"
-                  fill="var(--color-dark)"
-                  letterSpacing="1.8"
-                >
-                  <textPath href="#circleTextPath">
-                    ★ NEXT-GEN EXPOS ★ EVENTSPHERE ★
-                  </textPath>
-                </text>
-              </svg>
-              <span style={{ position: "absolute", fontSize: 18, color: "var(--color-dark)" }}>✦</span>
+              <span style={{ fontSize: 12, fontWeight: 900, textAlign: "center", color: "var(--color-dark)" }}>
+                NEXT-GEN EXPOS
+                <br />
+                EVENTSPHERE
+              </span>
             </motion.div>
           </div>
 
@@ -326,7 +310,6 @@ export const AboutSection: React.FC = () => {
                 bgColor="var(--color-primary)"
                 textColor="var(--color-light)"
                 link="#speakers"
-                withArrow
               />
             </motion.div>
           </div>

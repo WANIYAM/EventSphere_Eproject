@@ -134,8 +134,8 @@ const ExpoCredentialBadge: React.FC<ExpoCardProps> = ({
 
           {/* Location & Dates */}
           <div style={{ display: "flex", flexDirection: "column", gap: 3, fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 700, opacity: 0.9 }}>
-            <span>📍 {expo.location || "Convention Hall, Malaysia"}</span>
-            <span>📅 {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()}</span>
+            <span>Location: {expo.location || "To be announced"}</span>
+            <span>Dates: {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()}</span>
           </div>
 
           {/* Description */}
@@ -177,8 +177,7 @@ const ExpoCredentialBadge: React.FC<ExpoCardProps> = ({
               gap: 4,
             }}
           >
-            <span>CLAIM PASS</span>
-            <span>→</span>
+            <span>REGISTER AS ATTENDEE</span>
           </Link>
 
           <Link
@@ -200,7 +199,7 @@ const ExpoCredentialBadge: React.FC<ExpoCardProps> = ({
               alignItems: "center",
             }}
           >
-            BOOK BOOTH
+            APPLY TO EXHIBIT
           </Link>
         </div>
       </div>
@@ -266,8 +265,7 @@ export const UpcomingExposSection: React.FC<{ expos?: any[] }> = ({ expos = [] }
                 marginBottom: 8,
               }}
             >
-              <span>★</span>
-              <span>DECK TO GRID SCATTER // 2025</span>
+              <span>EXPO EVENTS // EVENT DETAILS</span>
             </div>
 
             <h2
@@ -280,7 +278,7 @@ export const UpcomingExposSection: React.FC<{ expos?: any[] }> = ({ expos = [] }
                 letterSpacing: 1.5,
               }}
             >
-              UPCOMING &#123; TRADE SHOWS &#125; & EXPOS
+              EXPLORE &#123; EXPOS & TRADE SHOWS &#125;
             </h2>
           </div>
 
@@ -305,7 +303,7 @@ export const UpcomingExposSection: React.FC<{ expos?: any[] }> = ({ expos = [] }
               gap: 6,
             }}
           >
-            <span>{isManualStacked ? "💥 SCATTER TO GRID" : "🎴 STACK DECK"}</span>
+            <span>{isManualStacked ? "SCATTER TO GRID" : "STACK DECK"}</span>
           </motion.button>
         </div>
 

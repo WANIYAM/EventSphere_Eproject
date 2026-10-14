@@ -13,7 +13,7 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/notifications");
+      const res = await api.get("/notifications");
       setNotifications(res.data);
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to load notifications");
@@ -28,7 +28,7 @@ const Notifications = () => {
 
   const handleMarkAllRead = async () => {
     try {
-      await api.put("/api/notifications/read-all");
+      await api.put("/notifications/read-all");
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     } catch (err) {
       console.error(err);
@@ -38,7 +38,7 @@ const Notifications = () => {
   const handleItemClick = async (notif) => {
     if (!notif.read) {
       try {
-        await api.put(`/api/notifications/${notif._id}/read`);
+        await api.put(`/notifications/${notif._id}/read`);
         setNotifications((prev) =>
           prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
         );
@@ -57,7 +57,6 @@ const Notifications = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28, padding: "10px 0" }}>
-      {/* Header */}
       <div
         style={{
           backgroundColor: "#ffffff",
@@ -73,10 +72,10 @@ const Notifications = () => {
       >
         <div>
           <span style={{ backgroundColor: "var(--color-selective-yellow, #feb804)", color: "#000", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-            [ LIVE NOTIFICATION LOGS ]
+            [ NOTIFICATION LOGS ]
           </span>
           <h1 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(36px, 5vw, 48px)", color: "var(--color-dark, #231e25)", lineHeight: 0.9, margin: "6px 0 0 0" }}>
-            EXPO SYSTEM ALERTS
+            SYSTEM ALERTS
           </h1>
         </div>
 
@@ -105,11 +104,10 @@ const Notifications = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700 }}>
-          ⚠️ {error}
+          Notice: {error}
         </div>
       )}
 
-      {/* Notifications List */}
       <div
         style={{
           backgroundColor: "#ffffff",
@@ -120,7 +118,7 @@ const Notifications = () => {
       >
         {notifications.length === 0 ? (
           <div style={{ padding: 32, textAlign: "center", fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
-            You have no notifications yet.
+            No notifications available.
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -147,7 +145,7 @@ const Notifications = () => {
                     {notif.message}
                   </p>
                   <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
-                    ⏰ {new Date(notif.createdAt).toLocaleString()}
+                    {new Date(notif.createdAt).toLocaleString()}
                   </span>
                 </div>
 

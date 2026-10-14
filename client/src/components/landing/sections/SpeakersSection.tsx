@@ -203,33 +203,6 @@ const SpeakerCard: React.FC<{ speaker: SpeakerItem; index: number }> = ({ speake
         ))}
 
         <div style={{ position: "absolute", inset: 0, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "flex-end" }}>
-          <motion.svg
-            viewBox="0 0 330 380"
-            style={{
-              position: "absolute",
-              bottom: 0,
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              zIndex: 2,
-            }}
-            animate={{
-              x: isHovered ? 8 : 0,
-              y: isHovered ? -8 : 0,
-              scale: isHovered ? 1.02 : 1,
-            }}
-            transition={{ type: "spring", stiffness: 350, damping: 22 }}
-          >
-            <path
-              d={speaker.contourPath}
-              fill="none"
-              stroke="var(--color-dark)"
-              strokeWidth="4"
-              strokeLinejoin="miter"
-              strokeMiterlimit="4"
-            />
-          </motion.svg>
-
           <motion.img
             src={speaker.image}
             alt={speaker.name}

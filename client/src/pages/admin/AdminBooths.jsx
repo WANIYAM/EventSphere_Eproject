@@ -164,7 +164,7 @@ const AdminBooths = () => {
               marginBottom: 10,
             }}
           >
-            ← Back to Expos
+            Back to Expos
           </Link>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <span style={{ backgroundColor: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
@@ -176,7 +176,7 @@ const AdminBooths = () => {
           </h1>
           {expo && (
             <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, color: "#6b7280", margin: "4px 0 0 0", fontWeight: 600 }}>
-              📍 {expo.location} • 📅 {new Date(expo.startDate).toLocaleDateString()} - {new Date(expo.endDate).toLocaleDateString()}
+              {expo.location} - {new Date(expo.startDate).toLocaleDateString()} - {new Date(expo.endDate).toLocaleDateString()}
             </p>
           )}
         </div>
@@ -185,12 +185,12 @@ const AdminBooths = () => {
       {/* Alerts */}
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
@@ -233,7 +233,7 @@ const AdminBooths = () => {
       >
         {loading ? (
           <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 700, textAlign: "center", padding: "40px 0" }}>
-            Loading live booth telemetry...
+            Loading booth spaces...
           </p>
         ) : booths.length === 0 ? (
           <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 700, textAlign: "center", padding: "40px 0" }}>
@@ -334,7 +334,7 @@ const AdminBooths = () => {
                   onClick={() => setSelectedBooth(null)}
                   style={{ background: "none", border: "2px solid #000", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", fontWeight: 900, fontSize: 16 }}
                 >
-                  ✕
+                  Close
                 </button>
               </div>
 

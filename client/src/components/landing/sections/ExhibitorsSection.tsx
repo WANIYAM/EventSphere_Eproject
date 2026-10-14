@@ -50,7 +50,7 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
                 marginBottom: 12,
               }}
             >
-              [ RANDOMIZED SHOWCASE // VERIFIED BRANDS ]
+              [ EXHIBITOR DIRECTORY // COMPANY PROFILES ]
             </div>
             <h2
               className="style-display"
@@ -62,7 +62,7 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
                 letterSpacing: 2,
               }}
             >
-              FEATURED &#123; EXHIBITORS &#125;
+              EXPLORE &#123; EXHIBITORS &#125;
             </h2>
           </div>
 
@@ -87,8 +87,7 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
               gap: 8,
             }}
           >
-            <span>🔀</span>
-            <span>SHUFFLE SPOTLIGHT</span>
+            <span>SHOW OTHER EXHIBITORS</span>
           </motion.button>
         </div>
 
@@ -162,7 +161,7 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
                         {ex.logo ? (
                           <img src={`http://localhost:5000${ex.logo}`} alt={ex.company} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                         ) : (
-                          <span style={{ fontSize: 30 }}>🏢</span>
+                          <span style={{ fontSize: 12, fontWeight: 800 }}>No logo</span>
                         )}
                       </div>
 
@@ -178,7 +177,7 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
                           boxShadow: "2px 2px 0px rgba(0,0,0,0.2)",
                         }}
                       >
-                        BOOTH {ex.boothNumber || "A1"}
+                        {ex.boothNumber ? `BOOTH ${ex.boothNumber}` : "BOOTH NOT ASSIGNED"}
                       </span>
                     </div>
 
@@ -222,14 +221,14 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
                         opacity: 0.95,
                       }}
                     >
-                      {ex.description ? ex.description.substring(0, 115) + "..." : "Featured commercial exhibitor showcasing advanced enterprise solutions."}
+                      {ex.description ? ex.description.substring(0, 115) + "..." : "Company profile and product details will appear here."}
                     </p>
                   </div>
 
                   {/* Bottom Action Link */}
                   <div style={{ borderTop: "2px solid rgba(0,0,0,0.25)", paddingTop: 16 }}>
                     <Link
-                      to={`/attendee/exhibitors/${ex._id}`}
+                      to={`/exhibitors/${ex._id}`}
                       style={{
                         backgroundColor: "#000000",
                         color: "#ffffff",
@@ -246,8 +245,7 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
                         alignItems: "center",
                       }}
                     >
-                      <span>VIEW SHOWCASE PROFILE</span>
-                      <span>→</span>
+                      <span>VIEW EXHIBITOR PROFILE</span>
                     </Link>
                   </div>
                 </motion.div>

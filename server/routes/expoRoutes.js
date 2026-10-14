@@ -10,27 +10,24 @@ import {
 import { getBoothsByExpo } from "../controllers/boothController.js";
 import { getSessionsByExpo } from "../controllers/sessionController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
+import validateObjectId from "../middleware/validateObjectId.js";
 
 const router = express.Router();
 
-// 1. Unified public details route for attendee ExpoDetails page
-router.get("/:id/public", getPublicExpoDetails);
+router.get("/:id/public", validateObjectId, getPublicExpoDetails);
 
-// 2. Base expos routes: public GET, admin-protected POST
 router
   .route("/")
   .get(getExpos)
   .post(protect, authorize("admin"), createExpo);
 
-// 3. Single expo routes: public GET, admin-protected PUT/DELETE
 router
   .route("/:id")
-  .get(getExpo)
-  .put(protect, authorize("admin"), updateExpo)
-  .delete(protect, authorize("admin"), deleteExpo);
+  .get(validateObjectId, getExpo)
+  .put(protect, authorize("admin"), validateObjectId, updateExpo)
+  .delete(protect, authorize("admin"), validateObjectId, deleteExpo);
 
-// 4. Public sub-routes for booths and sessions
-router.get("/:expoId/booths", getBoothsByExpo);
-router.get("/:expoId/sessions", getSessionsByExpo);
+router.get("/:expoId/booths", validateObjectId, getBoothsByExpo);
+router.get("/:expoId/sessions", validateObjectId, getSessionsByExpo);
 
 export default router;

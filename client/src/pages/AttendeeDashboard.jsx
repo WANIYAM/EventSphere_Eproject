@@ -13,10 +13,10 @@ import api from "../services/api.js";
 
 // Attendee Time & Schedule Distribution for Pie Chart
 const SCHEDULE_PIE_DATA = [
-  { name: "Keynote Stages", value: 6, color: "var(--color-primary, #ff3e33)" },
-  { name: "Breakout Workshops", value: 4, color: "var(--color-kiwi, #abf139)" },
-  { name: "B2B Networking", value: 5, color: "var(--color-purple-mimosa, #a67eff)" },
-  { name: "Exhibition Floor Walk", value: 8, color: "var(--color-selective-yellow, #feb804)" },
+  { name: "Sessions", value: 6, color: "var(--color-primary, #ff3e33)" },
+  { name: "Workshops", value: 4, color: "var(--color-kiwi, #abf139)" },
+  { name: "Saved sessions", value: 5, color: "var(--color-purple-mimosa, #a67eff)" },
+  { name: "Expo visits", value: 8, color: "var(--color-selective-yellow, #feb804)" },
 ];
 
 const AttendeeDashboard = () => {
@@ -44,12 +44,11 @@ const AttendeeDashboard = () => {
   }, []);
 
   const attendeeLinks = [
-    { to: "/attendee/expos", tag: "DIRECTORY", bg: "var(--color-cerulean, #14a6ea)", textColor: "#fff", title: "BROWSE EXPOS & MAPS", desc: "Discover upcoming trade shows, search exhibitors by category, and navigate interactive floor plans." },
-    { to: "/attendee/schedule", tag: "TIMETABLE", bg: "var(--color-kiwi, #abf139)", textColor: "#000", title: "MY EXPO TIMETABLE", desc: "Access registered keynotes, workshops, and bookmarked sessions with live schedule reminders." },
-    { to: "/messages", tag: "COMMUNICATION", bg: "var(--color-purple-mimosa, #a67eff)", textColor: "#fff", title: "INBOX & INQUIRIES", desc: "Initiate direct chats with exhibitors for product inquiries and book meeting appointments." },
+    { to: "/expos", tag: "DIRECTORY", bg: "var(--color-cerulean, #14a6ea)", textColor: "#fff", title: "BROWSE EXPOS & MAPS", desc: "Explore event details, exhibitor profiles, booth locations, floor plans, sessions, and workshops." },
+    { to: "/schedule", tag: "MY SCHEDULE", bg: "var(--color-kiwi, #abf139)", textColor: "#000", title: "REGISTRATIONS & SAVED SESSIONS", desc: "Review your expo and session registrations and the sessions you have bookmarked." },
+    { to: "/messages", tag: "COMMUNICATION", bg: "var(--color-purple-mimosa, #a67eff)", textColor: "#fff", title: "MESSAGES & INQUIRIES", desc: "Contact exhibitors about their products and services through EventSphere messages." },
     { to: "/feedback", tag: "SUPPORT", bg: "var(--color-selective-yellow, #feb804)", textColor: "#000", title: "FEEDBACK & REVIEWS", desc: "Share suggestions or report any venue or platform issues to help us improve your visit." },
   ];
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 36, padding: "10px 0" }}>
       
@@ -60,9 +59,7 @@ const AttendeeDashboard = () => {
           border: "3px solid var(--color-dark, #231e25)",
           boxShadow: "7px 7px 0px var(--color-dark, #231e25)",
           padding: "28px 32px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: "block",
           flexWrap: "wrap",
           gap: 20,
         }}
@@ -70,7 +67,7 @@ const AttendeeDashboard = () => {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "var(--color-dark, #231e25)", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-              [ ATTENDEE PASS // VERIFIED ]
+              ATTENDEE ACCOUNT
             </span>
           </div>
 
@@ -78,12 +75,12 @@ const AttendeeDashboard = () => {
             ATTENDEE PORTAL
           </h1>
           <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 15, color: "#4b5563", margin: 0, fontWeight: 500 }}>
-            Welcome, <strong style={{ color: "var(--color-dark, #231e25)" }}>{user?.name}</strong>! Your personalized event planner, schedule, and passes.
+            Welcome, <strong style={{ color: "var(--color-dark, #231e25)" }}>{user?.name}</strong>. Browse event information, manage registrations, and bookmark sessions.
           </p>
         </div>
 
         <Link
-          to="/attendee/expos"
+          to="/expos"
           style={{
             backgroundColor: "var(--color-primary, #ff3e33)",
             color: "#ffffff",
@@ -98,7 +95,7 @@ const AttendeeDashboard = () => {
             display: "inline-block",
           }}
         >
-          EXPLORE EXPOS →
+          EXPLORE EXPOS
         </Link>
       </div>
 
@@ -120,9 +117,7 @@ const AttendeeDashboard = () => {
               border: "3px solid var(--color-dark, #231e25)",
               boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
               padding: "24px 28px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: "block",
             }}
           >
             <div>
@@ -133,9 +128,6 @@ const AttendeeDashboard = () => {
                 {loading ? "..." : stats.expos}
               </div>
             </div>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, border: "2px solid #fff" }}>
-              🎫
-            </div>
           </motion.div>
 
           <motion.div
@@ -145,9 +137,7 @@ const AttendeeDashboard = () => {
               border: "3px solid var(--color-dark, #231e25)",
               boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
               padding: "24px 28px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: "block",
             }}
           >
             <div>
@@ -157,9 +147,6 @@ const AttendeeDashboard = () => {
               <div style={{ fontFamily: "var(--font-display)", fontSize: 64, color: "#ffffff", lineHeight: 1, margin: "6px 0 0 0" }}>
                 {loading ? "..." : stats.sessions}
               </div>
-            </div>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#fff", color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, border: "2px solid #000" }}>
-              ⭐
             </div>
           </motion.div>
         </div>
@@ -179,14 +166,14 @@ const AttendeeDashboard = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <span style={{ fontFamily: "var(--font-display)", fontSize: 24, letterSpacing: 1, color: "var(--color-dark)" }}>
-                EVENT TIME ALLOCATION
+                EXAMPLE SCHEDULE BREAKDOWN
               </span>
               <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, color: "#6b7280", margin: "2px 0 0 0", fontWeight: 600 }}>
-                23 Total Hours of Planned Stage Keynotes & Interactive Demos
+                Illustrative categories only; your registrations and saved sessions are in My Schedule.
               </p>
             </div>
             <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "1.5px solid #000", padding: "2px 8px", fontSize: 11, fontWeight: 800, borderRadius: 2 }}>
-              SCHEDULE OPTIMIZED
+              EXAMPLE DATA
             </span>
           </div>
 
@@ -199,7 +186,7 @@ const AttendeeDashboard = () => {
                       if (active && payload && payload.length) {
                         return (
                           <div style={{ backgroundColor: "#000000", color: "#ffffff", padding: "6px 10px", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700 }}>
-                            {payload[0].name}: {payload[0].value} Hours
+                            {payload[0].name}: {payload[0].value} sample items
                           </div>
                         );
                       }
@@ -247,10 +234,10 @@ const AttendeeDashboard = () => {
                 }}
               >
                 <span style={{ fontFamily: "var(--font-display)", fontSize: 28, lineHeight: 0.9, color: "var(--color-dark)" }}>
-                  23h
+                  SAMPLE
                 </span>
                 <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 10, fontWeight: 800, color: "#6b7280" }}>
-                  TOTAL
+                  DATA
                 </span>
               </div>
             </div>
@@ -262,7 +249,7 @@ const AttendeeDashboard = () => {
                   <span style={{ width: 12, height: 12, backgroundColor: item.color, border: "1.5px solid #000", flexShrink: 0, borderRadius: 2 }} />
                   <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
                     <span style={{ color: "#374151" }}>{item.name}</span>
-                    <span style={{ fontWeight: 800, color: "#000" }}>{item.value}h</span>
+                    <span style={{ fontWeight: 800, color: "#000" }}>{item.value}</span>
                   </div>
                 </div>
               ))}
@@ -349,7 +336,6 @@ const AttendeeDashboard = () => {
                   }}
                 >
                   <span>LAUNCH MODULE</span>
-                  <span>→</span>
                 </Link>
               </div>
             </motion.div>

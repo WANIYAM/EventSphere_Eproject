@@ -30,8 +30,7 @@ export default function About() {
               border: "1.5px solid #000",
             }}
           >
-            <span>★</span>
-            <span>CHAPTER 01 // MANIFESTO & MISSION</span>
+            <span>ABOUT EVENTSPHERE MANAGEMENT</span>
           </div>
 
           <h1
@@ -44,8 +43,8 @@ export default function About() {
               letterSpacing: 2,
             }}
           >
-            REVOLUTIONIZING THE <br />
-            <span style={{ color: "var(--color-primary, #ff3e33)" }}>&#123; EXPO EXPERIENCE &#125;</span>
+            EXPO & TRADE SHOW <br />
+            <span style={{ color: "var(--color-primary, #ff3e33)" }}>MANAGEMENT</span>
           </h1>
         </div>
 
@@ -78,7 +77,7 @@ export default function About() {
               THE EVENTSPHERE STORY
             </h3>
             <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16, lineHeight: 1.6, color: "#374151", margin: 0 }}>
-              EventSphere Management was founded to solve the core inefficiencies inherent in traditional trade show and expo operations. Organizers, exhibitors, and attendees long faced hurdles including manual paper registration, disjointed communication channels, and zero real-time visibility into booth traffic.
+              EventSphere Management brings organizers, exhibitors, and attendees together in one place. The platform addresses common expo challenges such as manual registration, disconnected communication, and limited access to current event information.
             </p>
           </motion.div>
 
@@ -101,7 +100,7 @@ export default function About() {
               MISSION & TECHNOLOGY
             </h3>
             <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16, lineHeight: 1.6, color: "#000000", margin: 0, fontWeight: 600 }}>
-              Driven by a commitment to harness modern web technologies, EventSphere provides a unified MERN platform featuring live Socket.IO floor plan synchronization, role-based access control, and comprehensive analytics.
+              Organizers can manage expos, booth spaces, schedules, and exhibitor applications. Exhibitors can maintain company profiles and apply for booth spaces, while attendees can browse events, exhibitors, sessions, and floor plans.
             </p>
           </motion.div>
         </div>
@@ -109,15 +108,15 @@ export default function About() {
         {/* 3 Pillar Cards */}
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <h2 className="style-display" style={{ fontSize: "clamp(36px, 5vw, 64px)", margin: 0 }}>
-            CORE OPERATING PILLARS
+            PLATFORM FEATURES
           </h2>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
           {[
-            { tag: "01", title: "Organizer Control", desc: "Complete Expo CRUD, automated booth grid generation, session scheduling, and application approvals.", bg: "var(--color-primary)", text: "#fff" },
-            { tag: "02", title: "Exhibitor Portals", desc: "Company profiles, document uploads, real-time booth reservation, and direct attendee messaging.", bg: "var(--color-purple-mimosa)", text: "#fff" },
-            { tag: "03", title: "Attendee Pass", desc: "Interactive floor plan navigation, personal timetable builder, session bookmarking, and QR passes.", bg: "var(--color-kiwi)", text: "#000" },
+            { tag: "01", title: "Organizer Tools", desc: "Manage expo details, exhibitor applications, booth allocations, schedules, and performance reports.", bg: "var(--color-primary)", text: "#fff" },
+            { tag: "02", title: "Exhibitor Portal", desc: "Maintain company, product, service, and contact details; review booth spaces and apply to exhibit.", bg: "var(--color-purple-mimosa)", text: "#fff" },
+            { tag: "03", title: "Attendee Experience", desc: "Browse expo details, exhibitor profiles, floor plans, sessions, and workshops; register and bookmark sessions.", bg: "var(--color-kiwi)", text: "#000" },
           ].map((pillar, i) => (
             <motion.div
               key={pillar.tag}
@@ -159,7 +158,7 @@ export default function About() {
                   textDecoration: "none",
                 }}
               >
-                JOIN PLATFORM →
+                CREATE AN ACCOUNT
               </Link>
             </motion.div>
           ))}

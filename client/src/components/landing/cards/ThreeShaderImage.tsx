@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+// @ts-ignore -- suppress missing Three.js declarations in this project setup.
 import * as THREE from "three";
 
 interface ThreeShaderImageProps {

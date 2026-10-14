@@ -81,12 +81,12 @@ const AdminApplications = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
@@ -142,7 +142,7 @@ const AdminApplications = () => {
                               rel="noreferrer"
                               style={{ backgroundColor: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "2px 6px", borderRadius: 2, fontSize: 10, textDecoration: "none", fontWeight: 800 }}
                             >
-                              📄 Doc {idx + 1}
+                              Document {idx + 1}
                             </a>
                           ))}
                         </div>

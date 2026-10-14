@@ -15,15 +15,14 @@ export default function Expos() {
     const fetchExpos = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/public/landing-data");
-        setExpos(res.data?.allExpos || []);
+        const res = await api.get("/public/expos");
+        setExpos(res.data || []);
       } catch (err) {
-        // Fallback to standard expos route if public route fails
         try {
-          const fallbackRes = await api.get("/expos");
-          setExpos(fallbackRes.data || []);
-        } catch (e) {
-          setError("Failed to load expo directories.");
+          const fallbackRes = await api.get("/public/landing-data");
+          setExpos(fallbackRes.data?.allExpos || []);
+        } catch {
+          setError("Failed to load trade show directory.");
         }
       } finally {
         setLoading(false);
@@ -59,7 +58,7 @@ export default function Expos() {
       <CustomCursor />
       <Navigation />
 
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px clamp(20px, 4vw, 56px) 60px clamp(20px, 4vw, 56px)" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px clamp(16px, 4vw, 56px) 60px clamp(16px, 4vw, 56px)" }}>
         
         {/* Header */}
         <div style={{ marginBottom: 40 }}>
@@ -67,7 +66,6 @@ export default function Expos() {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 8,
               backgroundColor: "var(--color-primary, #ff3e33)",
               color: "#ffffff",
               padding: "4px 14px",
@@ -78,7 +76,6 @@ export default function Expos() {
               marginBottom: 12,
             }}
           >
-            <span>★</span>
             <span>PUBLIC EXPO DIRECTORY</span>
           </div>
 
@@ -92,7 +89,7 @@ export default function Expos() {
               letterSpacing: 1.5,
             }}
           >
-            UPCOMING &#123; TRADE SHOWS &#125;
+            UPCOMING TRADE SHOWS
           </h1>
         </div>
 
@@ -127,7 +124,7 @@ export default function Expos() {
 
         {error && (
           <div style={{ backgroundColor: "#fee2e2", border: "2px solid red", padding: 14, marginBottom: 20, fontWeight: 700 }}>
-            ⚠️ {error}
+            Notice: {error}
           </div>
         )}
 
@@ -138,10 +135,11 @@ export default function Expos() {
             No expos match your filter criteria.
           </div>
         ) : (
+          /* Grid scaled safely for 320px viewports without horizontal overflow */
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(320px, 100%), 1fr))",
               gap: "40px 28px",
             }}
           >
@@ -172,12 +170,7 @@ export default function Expos() {
                       overflow: "hidden",
                     }}
                   >
-                    {/* Lanyard Notch & Viewfinders */}
                     <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 44, height: 7, backgroundColor: "var(--color-dark)", borderRadius: "0 0 4px 4px", zIndex: 20 }} />
-                    <div style={{ position: "absolute", top: -5, left: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 20 }} />
-                    <div style={{ position: "absolute", top: -5, right: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 20 }} />
-                    <div style={{ position: "absolute", bottom: -5, left: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 20 }} />
-                    <div style={{ position: "absolute", bottom: -5, right: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 20 }} />
 
                     <div style={{ padding: "26px 22px 18px 22px", display: "flex", flexDirection: "column", gap: 12 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -194,8 +187,8 @@ export default function Expos() {
                       </h3>
 
                       <div style={{ display: "flex", flexDirection: "column", gap: 3, fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 700, opacity: 0.9 }}>
-                        <span>📍 {expo.location || "Convention Hall"}</span>
-                        <span>📅 {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()}</span>
+                        <span>Location: {expo.location || "Convention Hall"}</span>
+                        <span>Dates: {new Date(expo.startDate).toLocaleDateString()} to {new Date(expo.endDate).toLocaleDateString()}</span>
                       </div>
 
                       {expo.description && (
@@ -205,7 +198,7 @@ export default function Expos() {
                       )}
                     </div>
 
-                    <div style={{ borderTop: "2px dashed var(--color-dark, #231e25)", padding: "14px 18px", backgroundColor: "rgba(0,0,0,0.06)", display: "flex", gap: 10 }}>
+                    <div style={{ borderTop: "2px dashed var(--color-dark, #231e25)", padding: "14px 18px", backgroundColor: "rgba(0,0,0,0.06)", display: "flex" }}>
                       <Link
                         to={`/expos/${expo._id}`}
                         style={{
@@ -221,7 +214,7 @@ export default function Expos() {
                           textDecoration: "none",
                         }}
                       >
-                        VIEW DETAILS →
+                        VIEW DETAILS
                       </Link>
                     </div>
                   </motion.div>

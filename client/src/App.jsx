@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { SocketProvider } from "./context/SocketContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
@@ -14,72 +14,99 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import Unauthorized from "./pages/Unauthorized.jsx";
 import NotFound from "./pages/NotFound.jsx";
-
-// Dashboard Pages
-import AdminDashboard from "./pages/AdminDashboard.jsx";
-import ExhibitorDashboard from "./pages/ExhibitorDashboard.jsx";
-import AttendeeDashboard from "./pages/AttendeeDashboard.jsx";
-
-// Phase 3 Pages
-import AdminExpos from "./pages/admin/AdminExpos.jsx";
-import AdminBooths from "./pages/admin/AdminBooths.jsx";
-import AdminApplications from "./pages/admin/AdminApplications.jsx";
-import ExhibitorExpos from "./pages/exhibitor/ExhibitorExpos.jsx";
-import MyApplications from "./pages/exhibitor/MyApplications.jsx";
-
-// Phase 4 Pages
-import AdminSessions from "./pages/admin/AdminSessions.jsx";
-import ExhibitorProfile from "./pages/exhibitor/ExhibitorProfile.jsx";
-import ExhibitorBooths from "./pages/exhibitor/ExhibitorBooths.jsx";
-import Messages from "./pages/Messages.jsx";
-
-// Phase 5 & 6 Pages
-import AttendeeExpos from "./pages/attendee/AttendeeExpos.jsx";
-import ExpoDetails from "./pages/ExpoDetails.jsx";
-import ExhibitorProfileView from "./pages/attendee/ExhibitorProfileView.jsx";
-import MySchedule from "./pages/attendee/MySchedule.jsx";
-import Feedback from "./pages/Feedback.jsx";
-import AdminFeedback from "./pages/admin/AdminFeedback.jsx";
-import Notifications from "./pages/Notifications.jsx";
-import AdminAnalytics from "./pages/admin/AdminAnalytics.jsx";
-// Import the new public pages in App.jsx:
 import Expos from "./pages/Expos.jsx";
+import ExpoDetails from "./pages/ExpoDetails.jsx";
+import Exhibitors from "./pages/Exhibitors.jsx";
+import ExhibitorProfile from "./pages/ExhibitorProfile.jsx";
 import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
+
+// Attendee & Logged-In Pages
+import MySchedule from "./pages/attendee/MySchedule.jsx";
+import Messages from "./pages/Messages.jsx";
+import Feedback from "./pages/Feedback.jsx";
+import Notifications from "./pages/Notifications.jsx";
+
+// Admin Dashboard Pages
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminExpos from "./pages/admin/AdminExpos.jsx";
+import AdminBooths from "./pages/admin/AdminBooths.jsx";
+import AdminSessions from "./pages/admin/AdminSessions.jsx";
+import AdminApplications from "./pages/admin/AdminApplications.jsx";
+import AdminFeedback from "./pages/admin/AdminFeedback.jsx";
+import AdminAnalytics from "./pages/admin/AdminAnalytics.jsx";
+
+// Exhibitor Portal Pages
+import ExhibitorDashboard from "./pages/ExhibitorDashboard.jsx";
+import ExhibitorProfileManage from "./pages/exhibitor/ExhibitorProfile.jsx";
+import ExhibitorExpos from "./pages/exhibitor/ExhibitorExpos.jsx";
+import MyApplications from "./pages/exhibitor/MyApplications.jsx";
+import ExhibitorBooths from "./pages/exhibitor/ExhibitorBooths.jsx";
+
+const AttendeeExpoRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/expos/${id}`} replace />;
+};
+
+const AttendeeExhibitorRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/exhibitors/${id}`} replace />;
+};
+
 function AppContent() {
   const location = useLocation();
 
-  // Hide the dashboard navbar and .main-content constraint on public/auth pages
- const isPublicPage = [
+  // Public pages that mount the landing navigation or don't use the dashboard navbar
+  const isPublicPage = [
     "/",
     "/expos",
+    "/exhibitors",
+    "/about",
     "/contact",
     "/login",
     "/register",
     "/forgot-password",
-  ].includes(location.pathname) || location.pathname.startsWith("/reset-password") || location.pathname.startsWith("/expos/");
+  ].includes(location.pathname) ||
+    location.pathname.startsWith("/reset-password") ||
+    location.pathname.startsWith("/expos/") ||
+    location.pathname.startsWith("/exhibitors/");
+
   return (
     <>
       <ServerStatusBanner />
 
-      {/* Only show dashboard navbar on internal dashboard pages */}
+      {/* Dashboard navbar rendered only on internal dashboards */}
       {!isPublicPage && <Navbar />}
 
-      {/* Full width for Landing, Login & Register; Dashboard pages keep .main-content */}
-      <main className={isPublicPage ? "landing-wrapper" : "main-content"}>
+      <main className={isPublicPage ? "landing-wrapper" : ""}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
+          <Route path="/expos" element={<Expos />} />
+          <Route path="/expos/:id" element={<ExpoDetails />} />
+          <Route path="/exhibitors" element={<Exhibitors />} />
+          <Route path="/exhibitors/:id" element={<ExhibitorProfile />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/expos" element={<Expos />} />
-          <Route path="/expos/:id" element={<ExpoDetails />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          {/* General Routes */}
+
+          {/* Attendee Protected */}
+          <Route
+            path="/schedule"
+            element={
+              <ProtectedRoute allowedRoles={["attendee"]}>
+                <MySchedule />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Shared Authenticated Routes */}
           <Route
             path="/messages"
             element={
@@ -104,6 +131,13 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+
+          {/* Legacy Attendee Redirects */}
+          <Route path="/attendee" element={<Navigate to="/" replace />} />
+          <Route path="/attendee/expos" element={<Navigate to="/expos" replace />} />
+          <Route path="/attendee/expos/:id" element={<AttendeeExpoRedirect />} />
+          <Route path="/attendee/exhibitors/:id" element={<AttendeeExhibitorRedirect />} />
+          <Route path="/attendee/schedule" element={<Navigate to="/schedule" replace />} />
 
           {/* Admin Routes */}
           <Route
@@ -176,7 +210,7 @@ function AppContent() {
             path="/exhibitor/profile"
             element={
               <ProtectedRoute allowedRoles={["exhibitor"]}>
-                <ExhibitorProfile />
+                <ExhibitorProfileManage />
               </ProtectedRoute>
             }
           />
@@ -201,48 +235,6 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={["exhibitor"]}>
                 <ExhibitorBooths />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Attendee Routes */}
-          <Route
-            path="/attendee"
-            element={
-              <ProtectedRoute allowedRoles={["attendee"]}>
-                <AttendeeDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/attendee/expos"
-            element={
-              <ProtectedRoute allowedRoles={["attendee"]}>
-                <AttendeeExpos />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/attendee/expos/:id"
-            element={
-              <ProtectedRoute allowedRoles={["attendee"]}>
-                <ExpoDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/attendee/exhibitors/:id"
-            element={
-              <ProtectedRoute allowedRoles={["attendee"]}>
-                <ExhibitorProfileView />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/attendee/schedule"
-            element={
-              <ProtectedRoute allowedRoles={["attendee"]}>
-                <MySchedule />
               </ProtectedRoute>
             }
           />

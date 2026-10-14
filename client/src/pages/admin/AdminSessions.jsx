@@ -155,7 +155,7 @@ const AdminSessions = () => {
               marginBottom: 10,
             }}
           >
-            ← Back to Expos
+            Back to Expos
           </Link>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <span style={{ backgroundColor: "var(--color-purple-mimosa, #a67eff)", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
@@ -170,12 +170,12 @@ const AdminSessions = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
@@ -189,7 +189,7 @@ const AdminSessions = () => {
         }}
       >
         <h3 style={{ fontFamily: "var(--font-display)", fontSize: 28, margin: "0 0 20px 0" }}>
-          {editingId ? "EDIT SESSION SCHEDULE" : "+ ADD NEW KEYNOTE / WORKSHOP"}
+          {editingId ? "EDIT SESSION SCHEDULE" : "ADD SESSION / WORKSHOP"}
         </h3>
 
         <form onSubmit={handleSubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
@@ -200,7 +200,7 @@ const AdminSessions = () => {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g. Keynote: Future of Smart Warehousing"
+              placeholder="e.g. Sustainable packaging trends"
               style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
             />
           </div>
@@ -268,7 +268,7 @@ const AdminSessions = () => {
               type="submit"
               style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", border: "2px solid #000", boxShadow: "3px 3px 0px #000", padding: "12px 24px", fontFamily: "var(--font-display)", fontSize: 20, cursor: "pointer" }}
             >
-              {editingId ? "Update Session" : "Create Session →"}
+              {editingId ? "Update Session" : "Create Session"}
             </button>
             {editingId && (
               <button

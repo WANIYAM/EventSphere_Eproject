@@ -3,26 +3,63 @@ import User from "../models/User.js";
 import { emitToUser } from "../utils/socket.js";
 import { createNotification } from "../utils/notify.js";
 
-// @desc    Send a message
+// @desc    Send a message with server-enforced recipient authorization
 // @route   POST /api/messages
 export const sendMessage = async (req, res) => {
   try {
     const { receiver, subject, body } = req.body;
 
-    if (!receiver || !body) {
-      return res.status(400).json({ message: "Please provide receiver and message body" });
+    // 1. Validate required fields
+    if (!receiver) {
+      return res.status(400).json({ message: "Please provide a recipient" });
     }
 
+    if (!subject || !subject.trim()) {
+      return res.status(400).json({ message: "Subject is required" });
+    }
+
+    if (!body || !body.trim()) {
+      return res.status(400).json({ message: "Message body is required" });
+    }
+
+    // 2. Reject messaging yourself
+    if (receiver.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: "You cannot message yourself" });
+    }
+
+    // 3. Find receiver
     const receiverUser = await User.findById(receiver);
     if (!receiverUser) {
       return res.status(404).json({ message: "Recipient user not found" });
     }
 
+    // 4. Enforce role-based messaging permissions
+    const senderRole = req.user.role;
+    const receiverRole = receiverUser.role;
+
+    // Attendees may only message organizers (admins) and exhibitors
+    if (senderRole === "attendee" && receiverRole !== "admin" && receiverRole !== "exhibitor") {
+      return res.status(403).json({
+        message: "Attendees may only message event organizers and exhibitors"
+      });
+    }
+
+    // Exhibitors may message admins, other exhibitors, and attendees
+    if (
+      senderRole === "exhibitor" &&
+      !["admin", "exhibitor", "attendee"].includes(receiverRole)
+    ) {
+      return res.status(403).json({
+        message: "Exhibitors may only message organizers, exhibitors, and attendees"
+      });
+    }
+
+    // 5. Create and dispatch message
     const message = await Message.create({
       sender: req.user._id,
       receiver,
-      subject: subject || "No Subject",
-      body
+      subject: subject.trim(),
+      body: body.trim()
     });
 
     const populatedMsg = await Message.findById(message._id).populate(
@@ -30,10 +67,10 @@ export const sendMessage = async (req, res) => {
       "name role company email"
     );
 
-    // Emit live message event to receiver
+    // Emit live WebSocket event to receiver
     emitToUser(receiver.toString(), "message:new", populatedMsg);
 
-    // Create notification for receiver
+    // Create persistent notification for receiver
     const senderName = req.user.name || "a user";
     await createNotification(
       receiver,

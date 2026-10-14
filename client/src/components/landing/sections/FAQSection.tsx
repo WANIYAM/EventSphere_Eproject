@@ -4,32 +4,32 @@ import { motion, AnimatePresence } from "framer-motion";
 const EXPO_FAQS = [
   {
     q: "How do exhibitors reserve and manage booth spaces?",
-    a: "Exhibitors log into the Exhibitor Portal to browse available spaces on the interactive floor plan. Once a space is chosen, they can reserve it, upload company logos, list products/services, and manage on-site staff badges.",
+    a: "Exhibitors can review available booth spaces and submit an application. Organizers review applications and assign booth spaces. Exhibitors can maintain their company profile, products or services, and contact information.",
     rot: -1.8,
   },
   {
     q: "How does EventSphere differentiate user roles?",
-    a: "During registration, users choose between Admin/Organizer, Exhibitor, or Attendee roles. Role-based access control (RBAC) ensures organizers manage floor plans and schedules, exhibitors manage booths, and attendees browse and bookmark sessions.",
+    a: "Users register as organizers, exhibitors, or attendees. Each role has access to the event information and management tools relevant to its work.",
     rot: 2.0,
   },
   {
-    q: "Can attendees bookmark sessions and receive real-time updates?",
-    a: "Yes. Attendees can search the schedule, register for specific workshops, and bookmark sessions. The system provides real-time notifications for schedule changes, room updates, and upcoming bookmarked sessions.",
+    q: "What can attendees do with the event schedule?",
+    a: "Attendees can browse event schedules, sessions, and workshops, then register for events or sessions and bookmark sessions of interest. The system can provide notifications or reminders for bookmarked sessions.",
     rot: -1.5,
   },
   {
-    q: "How can attendees and neighboring exhibitors communicate?",
-    a: "EventSphere includes direct messaging and inquiry tools. Attendees can initiate contact with exhibitors for product inquiries and appointments, while neighboring booth exhibitors can collaborate directly through the platform.",
+    q: "How can users contact exhibitors or organizers?",
+    a: "Attendees can contact exhibitors with questions, and exhibitors can contact organizers for support. The platform also provides messaging for users to communicate about event-related inquiries.",
     rot: 1.8,
   },
   {
     q: "What analytics and reporting are available for organizers?",
-    a: "Organizers have access to a real-time dashboard displaying overall expo performance, attendee footfall, session popularity metrics, and individual booth engagement analytics.",
+    a: "Organizer reports cover attendee engagement, booth traffic, and session popularity to help review expo performance.",
     rot: -2.1,
   },
   {
-    q: "What security and data privacy standards are implemented?",
-    a: "All sensitive user data, passwords, and communications are encrypted during storage and transmission. The system complies with GDPR privacy guidelines and features automated daily backups to guarantee 99% uptime.",
+    q: "How does EventSphere manage account access and privacy?",
+    a: "EventSphere provides role-based account access for organizers, exhibitors, and attendees. Contact the event organizer for information about data handling and privacy practices for a specific deployment.",
     rot: 1.5,
   },
 ];
@@ -41,10 +41,10 @@ export const FAQSection: React.FC = () => {
     <section id="faq" style={{ maxWidth: 1040, margin: "0 auto", padding: "80px 24px 120px 24px" }}>
       <div style={{ textAlign: "center", marginBottom: 50 }}>
         <span style={{ color: "var(--color-cerulean)", fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase" }}>
-          SYSTEM SPECIFICATIONS & ARCHITECTURE
+          EVENT MANAGEMENT HELP
         </span>
         <h2 className="style-display" style={{ fontSize: "clamp(46px, 7vw, 84px)", color: "var(--color-dark)", marginTop: 6 }}>
-          EXPO SUITE &#123; FAQS &#125; ARCHITECTURE
+          EVENTSPHERE &#123; QUESTIONS &#125; & ANSWERS
         </h2>
       </div>
 

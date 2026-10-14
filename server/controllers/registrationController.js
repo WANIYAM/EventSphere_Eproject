@@ -1,5 +1,6 @@
 import Registration from "../models/Registration.js";
 import Session from "../models/Session.js";
+import Expo from "../models/Expo.js";
 
 // @desc    Register for an expo
 // @route   POST /api/registrations
@@ -8,22 +9,40 @@ export const registerForExpo = async (req, res) => {
     const { expo } = req.body;
     if (!expo) return res.status(400).json({ message: "Please provide expo" });
 
-    // Block duplicates
+    const expoDoc = await Expo.findById(expo);
+    if (!expoDoc) return res.status(404).json({ message: "Expo not found" });
+
+    // Reject registration if expo has already ended
+    if (expoDoc.endDate && new Date(expoDoc.endDate) < new Date()) {
+      return res.status(400).json({ message: "This expo has already ended" });
+    }
+
+    // Pre-check for duplicate registration
     const exists = await Registration.findOne({
-      user: req.user._id, expo, type: "expo"
+      user: req.user._id,
+      expo,
+      type: "expo"
     });
-    if (exists) return res.status(400).json({ message: "Already registered for this expo" });
+    if (exists) {
+      return res.status(409).json({ message: "Already registered" });
+    }
 
     const reg = await Registration.create({
-      user: req.user._id, expo, type: "expo", registered: true
+      user: req.user._id,
+      expo,
+      type: "expo",
+      registered: true
     });
     return res.status(201).json(reg);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Already registered" });
+    }
     return res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Register for a session (auto-register expo too)
+// @desc    Register for a session (auto-register expo too, with overlap warning)
 // @route   POST /api/registrations/session
 export const registerForSession = async (req, res) => {
   try {
@@ -33,34 +52,92 @@ export const registerForSession = async (req, res) => {
     const sess = await Session.findById(session);
     if (!sess) return res.status(404).json({ message: "Session not found" });
 
-    // Auto-create expo registration if missing
-    const expoReg = await Registration.findOne({
-      user: req.user._id, expo: sess.expo, type: "expo"
-    });
-    if (!expoReg) {
-      await Registration.create({
-        user: req.user._id, expo: sess.expo, type: "expo", registered: true
-      });
+    // Reject registration if session has already ended
+    if (sess.endTime && new Date(sess.endTime) < new Date()) {
+      return res.status(400).json({ message: "This session has already ended" });
     }
 
-    // If bookmark-only doc exists, set registered true
+    // Auto-create expo registration if missing
+    try {
+      const expoReg = await Registration.findOne({
+        user: req.user._id,
+        expo: sess.expo,
+        type: "expo"
+      });
+      if (!expoReg) {
+        await Registration.create({
+          user: req.user._id,
+          expo: sess.expo,
+          type: "expo",
+          registered: true
+        });
+      }
+    } catch (expoErr) {
+      if (expoErr.code !== 11000) {
+        console.error("Error creating parent expo registration:", expoErr);
+      }
+    }
+
+    // Check for overlapping active sessions for this user (non-blocking)
+    let warning;
+    if (sess.startTime && sess.endTime) {
+      const userActiveSessions = await Registration.find({
+        user: req.user._id,
+        type: "session",
+        registered: true,
+        session: { $ne: sess._id }
+      }).populate("session", "title startTime endTime");
+
+      const newStart = new Date(sess.startTime);
+      const newEnd = new Date(sess.endTime);
+
+      for (const r of userActiveSessions) {
+        if (r.session && r.session.startTime && r.session.endTime) {
+          const existStart = new Date(r.session.startTime);
+          const existEnd = new Date(r.session.endTime);
+
+          if (existStart < newEnd && existEnd > newStart) {
+            warning = `This session overlaps with ${r.session.title}`;
+            break;
+          }
+        }
+      }
+    }
+
+    // If bookmark-only doc exists, update registered to true
     const existing = await Registration.findOne({
-      user: req.user._id, session, type: "session"
+      user: req.user._id,
+      session,
+      type: "session"
     });
+
     if (existing) {
       if (existing.registered) {
-        return res.status(400).json({ message: "Already registered for this session" });
+        return res.status(409).json({ message: "Already registered" });
       }
       existing.registered = true;
       await existing.save();
-      return res.json(existing);
+
+      const responseObj = existing.toObject();
+      if (warning) responseObj.warning = warning;
+      return res.json(responseObj);
     }
 
     const reg = await Registration.create({
-      user: req.user._id, expo: sess.expo, session, type: "session", registered: true
+      user: req.user._id,
+      expo: sess.expo,
+      session,
+      type: "session",
+      registered: true
     });
-    return res.status(201).json(reg);
+
+    const responseObj = reg.toObject();
+    if (warning) responseObj.warning = warning;
+    return res.status(201).json(responseObj);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Already registered" });
+    }
     return res.status(500).json({ message: error.message });
   }
 };
@@ -75,12 +152,18 @@ export const toggleBookmark = async (req, res) => {
     const sess = await Session.findById(session);
     if (!sess) return res.status(404).json({ message: "Session not found" });
 
+    // Reject bookmarking if session has already ended
+    if (sess.endTime && new Date(sess.endTime) < new Date()) {
+      return res.status(400).json({ message: "This session has already ended" });
+    }
+
     const existing = await Registration.findOne({
-      user: req.user._id, session, type: "session"
+      user: req.user._id,
+      session,
+      type: "session"
     });
 
     if (existing) {
-      // Toggle bookmark
       existing.bookmarked = !existing.bookmarked;
       // If not registered and no longer bookmarked, remove doc
       if (!existing.registered && !existing.bookmarked) {
@@ -91,13 +174,19 @@ export const toggleBookmark = async (req, res) => {
       return res.json(existing);
     }
 
-    // Create bookmark-only doc
     const reg = await Registration.create({
-      user: req.user._id, expo: sess.expo, session, type: "session",
-      registered: false, bookmarked: true
+      user: req.user._id,
+      expo: sess.expo,
+      session,
+      type: "session",
+      registered: false,
+      bookmarked: true
     });
     return res.status(201).json(reg);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Already registered" });
+    }
     return res.status(500).json({ message: error.message });
   }
 };
@@ -113,7 +202,6 @@ export const cancelRegistration = async (req, res) => {
     }
 
     if (reg.type === "session") {
-      // If bookmarked, keep doc with registered false
       if (reg.bookmarked) {
         reg.registered = false;
         await reg.save();
@@ -125,7 +213,9 @@ export const cancelRegistration = async (req, res) => {
 
     // Cancelling expo: also remove session registrations for that expo
     await Registration.deleteMany({
-      user: req.user._id, expo: reg.expo, type: "session"
+      user: req.user._id,
+      expo: reg.expo,
+      type: "session"
     });
     await reg.deleteOne();
     return res.json({ message: "Expo registration and related session registrations cancelled" });

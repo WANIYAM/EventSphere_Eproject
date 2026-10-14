@@ -271,13 +271,13 @@ cd EventSphere_Eproject
    npm install
    ```
 
-2. Create a `.env` file inside `server/`:
+2. 2. Create a `.env` file inside `server/`:
    ```env
    PORT=5000
    MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/eventsphere?retryWrites=true&w=majority
    JWT_SECRET=eventsphere_super_secret_jwt_key_2025
    CLIENT_URL=http://localhost:5173
-   ```
+   DEMO_MODE=true
 
 3. Seed initial demo data (optional, creates admin & demo expos):
    ```bash

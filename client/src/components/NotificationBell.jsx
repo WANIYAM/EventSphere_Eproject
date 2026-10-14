@@ -13,7 +13,7 @@ const NotificationBell = () => {
 
   const fetchNotifications = async () => {
     try {
-      const res = await api.get("/api/notifications");
+      const res = await api.get("/notifications");
       setNotifications(res.data);
       const unread = res.data.filter((n) => !n.read).length;
       setUnreadCount(unread);
@@ -41,7 +41,6 @@ const NotificationBell = () => {
     };
   }, [socket]);
 
-  // Click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -54,7 +53,7 @@ const NotificationBell = () => {
 
   const handleMarkAllRead = async () => {
     try {
-      await api.put("/api/notifications/read-all");
+      await api.put("/notifications/read-all");
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (err) {
@@ -65,7 +64,7 @@ const NotificationBell = () => {
   const handleItemClick = async (notif) => {
     if (!notif.read) {
       try {
-        await api.put(`/api/notifications/${notif._id}/read`);
+        await api.put(`/notifications/${notif._id}/read`);
         setNotifications((prev) =>
           prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
         );
@@ -81,14 +80,39 @@ const NotificationBell = () => {
   };
 
   return (
-    <div className="notif-bell-container" ref={dropdownRef}>
+    <div className="notif-bell-container" ref={dropdownRef} style={{ position: "relative" }}>
       <button
-        className="notif-bell-btn"
         onClick={() => setIsOpen(!isOpen)}
         title="Notifications"
+        style={{
+          background: "none",
+          border: "1.5px solid var(--color-dark, #231e25)",
+          borderRadius: 4,
+          padding: "5px 10px",
+          fontFamily: "'Satoshi', sans-serif",
+          fontSize: 12,
+          fontWeight: 800,
+          cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+        }}
       >
-        🔔
-        {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
+        <span>Alerts</span>
+        {unreadCount > 0 && (
+          <span
+            style={{
+              backgroundColor: "var(--color-primary, #ff3e33)",
+              color: "#ffffff",
+              fontSize: 10,
+              fontWeight: 800,
+              borderRadius: 10,
+              padding: "1px 5px",
+            }}
+          >
+            {unreadCount}
+          </span>
+        )}
       </button>
 
       {isOpen && (
@@ -115,7 +139,7 @@ const NotificationBell = () => {
                   <span className="notif-time">
                     {new Date(notif.createdAt).toLocaleTimeString([], {
                       hour: "2-digit",
-                      minute: "2-digit"
+                      minute: "2-digit",
                     })}
                   </span>
                 </div>

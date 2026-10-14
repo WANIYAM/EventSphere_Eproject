@@ -9,17 +9,25 @@ const ServerStatusBanner = () => {
 
     const checkHealth = async () => {
       try {
-        const response = await api.get("/health", { timeout: 10_000 });
+        const response = await api.get("/health", { timeout: 10000 });
         if (active) {
-          setStatus(response.data.database === "connected" ? "healthy" : "disconnected");
+          const isConnected = response.data.database === "connected";
+          setStatus((prevStatus) => {
+            if (prevStatus === "disconnected" && isConnected) {
+              window.dispatchEvent(new CustomEvent("server:recovered"));
+            }
+            return isConnected ? "healthy" : "disconnected";
+          });
         }
       } catch {
-        if (active) setStatus("unreachable");
+        if (active) {
+          setStatus("unreachable");
+        }
       }
     };
 
     checkHealth();
-    const intervalId = setInterval(checkHealth, 15_000);
+    const intervalId = setInterval(checkHealth, 15000);
 
     return () => {
       active = false;

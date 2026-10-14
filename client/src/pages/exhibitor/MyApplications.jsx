@@ -70,7 +70,7 @@ const MyApplications = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
 
@@ -150,7 +150,7 @@ const MyApplications = () => {
                       rel="noreferrer"
                       style={{ backgroundColor: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "2px 8px", borderRadius: 2, fontSize: 11, textDecoration: "none", fontWeight: 800 }}
                     >
-                      📄 Doc {idx + 1}
+                      Document {idx + 1}
                     </a>
                   ))}
                 </div>

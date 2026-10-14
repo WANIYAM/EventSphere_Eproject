@@ -12,10 +12,10 @@ import { useAuth } from "../context/AuthContext.jsx";
 
 // Exhibitor Lead Generation Breakdown for Pie Chart
 const LEADS_PIE_DATA = [
-  { name: "Verified B2B Buyers", value: 168, color: "var(--color-primary, #ff3e33)" },
-  { name: "Product Demo Bookings", value: 92, color: "var(--color-selective-yellow, #feb804)" },
-  { name: "Brochure Downloads", value: 58, color: "var(--color-kiwi, #abf139)" },
-  { name: "General Inquiries", value: 25, color: "var(--color-purple-mimosa, #a67eff)" },
+  { name: "Applications", value: 168, color: "var(--color-primary, #ff3e33)" },
+  { name: "Booth assignments", value: 92, color: "var(--color-selective-yellow, #feb804)" },
+  { name: "Company profile", value: 58, color: "var(--color-kiwi, #abf139)" },
+  { name: "Messages", value: 25, color: "var(--color-purple-mimosa, #a67eff)" },
 ];
 
 const ExhibitorDashboard = () => {
@@ -25,9 +25,9 @@ const ExhibitorDashboard = () => {
   const exhibitorLinks = [
     { to: "/exhibitor/profile", tag: "PROFILE", bg: "var(--color-purple-mimosa, #a67eff)", textColor: "#fff", title: "COMPANY PROFILE", desc: "Update company info, category, description, website, and upload logos for attendee discovery." },
     { to: "/exhibitor/expos", tag: "OPPORTUNITIES", bg: "var(--color-kiwi, #abf139)", textColor: "#000", title: "BROWSE EXPOS", desc: "Explore upcoming trade shows and submit custom booth participation applications." },
-    { to: "/exhibitor/applications", tag: "STATUS", bg: "var(--color-selective-yellow, #feb804)", textColor: "#000", title: "MY APPLICATIONS", desc: "Track submitted booth applications, review approvals, floor assignments, and invoices." },
-    { to: "/exhibitor/booths", tag: "RESERVATION", bg: "var(--color-primary, #ff3e33)", textColor: "#fff", title: "MY BOOTH & MAP", desc: "Self-select available booth zones on the interactive floor plan and manage on-site staff badges." },
-    { to: "/messages", tag: "REAL-TIME", bg: "var(--color-cerulean, #14a6ea)", textColor: "#fff", title: "ORGANIZER CHAT", desc: "Communicate directly with event administrators and handle attendee product inquiries." },
+    { to: "/exhibitor/applications", tag: "STATUS", bg: "var(--color-selective-yellow, #feb804)", textColor: "#000", title: "MY APPLICATIONS", desc: "Review application status and booth assignments for the expos you have applied to." },
+    { to: "/exhibitor/booths", tag: "BOOTH SPACES", bg: "var(--color-primary, #ff3e33)", textColor: "#fff", title: "BOOTH INFORMATION", desc: "Review booth spaces and floor plan information for your expos." },
+    { to: "/messages", tag: "MESSAGES", bg: "var(--color-cerulean, #14a6ea)", textColor: "#fff", title: "ORGANIZER MESSAGES", desc: "Communicate with event organizers about your applications and participation." },
     { to: "/feedback", tag: "SUPPORT", bg: "var(--color-light-salmon, #ffa490)", textColor: "#000", title: "FEEDBACK & HELP", desc: "Share suggestions or report booth technical issues to the operations crew." },
   ];
 
@@ -41,9 +41,7 @@ const ExhibitorDashboard = () => {
           border: "3px solid var(--color-dark, #231e25)",
           boxShadow: "7px 7px 0px var(--color-dark, #231e25)",
           padding: "28px 32px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: "block",
           flexWrap: "wrap",
           gap: 20,
         }}
@@ -55,7 +53,7 @@ const ExhibitorDashboard = () => {
             </span>
             {user?.company && (
               <span style={{ backgroundColor: "var(--color-dark, #231e25)", color: "var(--color-light, #fff8eb)", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-                🏢 {user.company}
+                {user.company}
               </span>
             )}
           </div>
@@ -64,7 +62,7 @@ const ExhibitorDashboard = () => {
             EXHIBITOR COMMAND CENTER
           </h1>
           <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 15, color: "#4b5563", margin: 0, fontWeight: 500 }}>
-            Welcome, <strong style={{ color: "var(--color-dark, #231e25)" }}>{user?.name}</strong>. Your booth telemetry and lead generation metrics are live.
+            Welcome, <strong style={{ color: "var(--color-dark, #231e25)" }}>{user?.name}</strong>. Manage your company profile, expo applications, booth information, and event messages.
           </p>
         </div>
 
@@ -84,7 +82,7 @@ const ExhibitorDashboard = () => {
             display: "inline-block",
           }}
         >
-          + APPLY FOR BOOTH
+          APPLY FOR BOOTH
         </Link>
       </div>
 
@@ -106,24 +104,19 @@ const ExhibitorDashboard = () => {
               border: "3px solid var(--color-dark, #231e25)",
               boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
               padding: "24px 28px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: "block",
             }}
           >
             <div>
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#6b7280" }}>
-                ASSIGNED BOOTH SPACE
+                SAMPLE BOOTH ASSIGNMENT
               </span>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 60, color: "var(--color-dark, #231e25)", lineHeight: 1, margin: "4px 0" }}>
                 #B-104
               </div>
               <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", backgroundColor: "var(--color-primary, #ff3e33)", padding: "2px 8px", borderRadius: 2 }}>
-                ZONE A • MAIN HALLWAY
+                ILLUSTRATIVE EXAMPLE
               </span>
-            </div>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "var(--color-kiwi, #abf139)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, border: "2px solid #000" }}>
-              📍
             </div>
           </motion.div>
 
@@ -134,24 +127,19 @@ const ExhibitorDashboard = () => {
               border: "3px solid var(--color-dark, #231e25)",
               boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
               padding: "24px 28px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: "block",
             }}
           >
             <div>
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#000" }}>
-                TOTAL QR LEADS CAPTURED
+                SAMPLE ACTIVITY COUNT
               </span>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 60, color: "var(--color-dark, #231e25)", lineHeight: 1, margin: "4px 0" }}>
                 343
               </div>
               <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", backgroundColor: "#000", padding: "2px 8px", borderRadius: 2 }}>
-                ↑ +28% VS YESTERDAY
+                ILLUSTRATIVE FIGURE
               </span>
-            </div>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, border: "2px solid #fff" }}>
-              ⚡
             </div>
           </motion.div>
         </div>
@@ -171,14 +159,14 @@ const ExhibitorDashboard = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <span style={{ fontFamily: "var(--font-display)", fontSize: 24, letterSpacing: 1, color: "var(--color-dark)" }}>
-                LEAD CAPTURE BREAKDOWN
+                EXAMPLE EXHIBITOR ACTIVITY
               </span>
               <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, color: "#6b7280", margin: "2px 0 0 0", fontWeight: 600 }}>
-                Real-Time Breakdown of 343 Qualified Attendee Interactions
+                Sample values only; check your applications, booth assignments, profile, and messages for current information.
               </p>
             </div>
             <span style={{ backgroundColor: "var(--color-purple-mimosa, #a67eff)", color: "#fff", border: "1.5px solid #000", padding: "2px 8px", fontSize: 11, fontWeight: 800, borderRadius: 2 }}>
-              HIGH CONVERSION
+              EXAMPLE DATA
             </span>
           </div>
 
@@ -191,7 +179,7 @@ const ExhibitorDashboard = () => {
                       if (active && payload && payload.length) {
                         return (
                           <div style={{ backgroundColor: "#000000", color: "#ffffff", padding: "6px 10px", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700 }}>
-                            {payload[0].name}: {payload[0].value} Leads
+                            {payload[0].name}: {payload[0].value} sample items
                           </div>
                         );
                       }
@@ -341,7 +329,6 @@ const ExhibitorDashboard = () => {
                   }}
                 >
                   <span>OPEN WORKSPACE</span>
-                  <span>→</span>
                 </Link>
               </div>
             </motion.div>

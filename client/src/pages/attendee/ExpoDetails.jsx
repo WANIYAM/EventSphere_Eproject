@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import api from "../../services/api.js";
 import { useSocket } from "../../context/SocketContext.jsx";
 
@@ -17,18 +17,22 @@ const ExpoDetails = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Schedule state
   const [sessions, setSessions] = useState([]);
   const [registrations, setRegistrations] = useState([]);
-
-  // Exhibitors state
   const [exhibitors, setExhibitors] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [catFilter, setCatFilter] = useState("");
-
-  // Floor plan state
   const [booths, setBooths] = useState([]);
+
+  // Per-item pending action map
+  const [pendingActions, setPendingActions] = useState({});
+
+  const setItemPending = (key, isPending) => {
+    setPendingActions((prev) => ({ ...prev, [key]: isPending }));
+  };
+
+  const isPending = (key) => Boolean(pendingActions[key]);
 
   useEffect(() => {
     const fetchExpo = async () => {
@@ -66,7 +70,7 @@ const ExpoDetails = () => {
   const fetchRegistrations = async () => {
     try {
       const res = await api.get("/registrations/my");
-      setRegistrations(res.data);
+      setRegistrations(res.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -84,7 +88,7 @@ const ExpoDetails = () => {
   const fetchSessions = async () => {
     try {
       const res = await api.get(`/expos/${id}/sessions`);
-      setSessions(res.data);
+      setSessions(res.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -96,7 +100,7 @@ const ExpoDetails = () => {
       if (searchTerm) params.search = searchTerm;
       if (catFilter) params.category = catFilter;
       const res = await api.get("/exhibitors", { params });
-      setExhibitors(res.data);
+      setExhibitors(res.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -105,7 +109,7 @@ const ExpoDetails = () => {
   const fetchCategories = async () => {
     try {
       const res = await api.get("/exhibitors/categories");
-      setCategories(res.data);
+      setCategories(res.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -114,7 +118,7 @@ const ExpoDetails = () => {
   const fetchBooths = async () => {
     try {
       const res = await api.get(`/expos/${id}/booths`);
-      setBooths(res.data);
+      setBooths(res.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -125,55 +129,73 @@ const ExpoDetails = () => {
   }, [searchTerm, catFilter]);
 
   const isExpoRegistered = registrations.some(
-    (r) => r.type === "expo" && r.expo?._id === id && r.registered
+    (r) => r.type === "expo" && (r.expo?._id === id || r.expo === id) && r.registered
   );
 
   const getSessionReg = (sessionId) =>
-    registrations.find((r) => r.type === "session" && r.session?._id === sessionId);
+    registrations.find((r) => r.type === "session" && (r.session?._id === sessionId || r.session === sessionId));
+
+  const isExpoEnded = Boolean(expo?.endDate && new Date(expo.endDate) < new Date());
 
   const handleRegisterExpo = async () => {
+    if (isExpoEnded || isPending("expo")) return;
     setError("");
     setSuccess("");
+    setItemPending("expo", true);
     try {
       await api.post("/registrations", { expo: id });
       setSuccess("Successfully registered for this Expo!");
-      fetchRegistrations();
+      await fetchRegistrations();
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Registration failed");
+    } finally {
+      setItemPending("expo", false);
     }
   };
 
   const handleRegisterSession = async (sessionId) => {
+    if (isPending(`sess-${sessionId}`)) return;
     setError("");
     setSuccess("");
+    setItemPending(`sess-${sessionId}`, true);
     try {
-      await api.post("/registrations/session", { session: sessionId });
-      setSuccess("Registered for session!");
-      fetchRegistrations();
+      const res = await api.post("/registrations/session", { session: sessionId });
+      setSuccess(res.data?.warning ? `Registered for session! (Warning: ${res.data.warning})` : "Registered for session!");
+      await fetchRegistrations();
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed");
+    } finally {
+      setItemPending(`sess-${sessionId}`, false);
     }
   };
 
-  const handleCancelSession = async (regId) => {
+  const handleCancelSession = async (sessionId, regId) => {
+    if (isPending(`sess-${sessionId}`)) return;
     setError("");
     setSuccess("");
+    setItemPending(`sess-${sessionId}`, true);
     try {
       await api.delete(`/registrations/${regId}`);
       setSuccess("Session registration cancelled");
-      fetchRegistrations();
+      await fetchRegistrations();
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed");
+    } finally {
+      setItemPending(`sess-${sessionId}`, false);
     }
   };
 
   const handleBookmark = async (sessionId) => {
+    if (isPending(`bm-${sessionId}`)) return;
     setError("");
+    setItemPending(`bm-${sessionId}`, true);
     try {
       await api.put("/registrations/bookmark", { session: sessionId });
-      fetchRegistrations();
+      await fetchRegistrations();
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed");
+    } finally {
+      setItemPending(`bm-${sessionId}`, false);
     }
   };
 
@@ -216,7 +238,7 @@ const ExpoDetails = () => {
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <Link
-            to="/attendee/expos"
+            to="/expos"
             style={{
               fontFamily: "'Satoshi', sans-serif",
               fontSize: 13,
@@ -229,7 +251,7 @@ const ExpoDetails = () => {
               marginBottom: 6,
             }}
           >
-            ← Back to All Expos
+            Back to All Expos
           </Link>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -248,14 +270,29 @@ const ExpoDetails = () => {
           </h1>
 
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: 700, color: "#4b5563", marginTop: 4 }}>
-            <span>📅 {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()}</span>
-            <span>📍 {expo.location || "Convention Hall"}</span>
+            <span>Dates: {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()}</span>
+            <span>Location: {expo.location || "Convention Hall"}</span>
           </div>
         </div>
 
         {/* Registration Button / Verified Badge */}
         <div>
-          {isExpoRegistered ? (
+          {isExpoEnded ? (
+            <span
+              style={{
+                backgroundColor: "#fee2e2",
+                color: "#991b1b",
+                border: "2px solid #991b1b",
+                padding: "8px 18px",
+                borderRadius: 4,
+                fontSize: 14,
+                fontFamily: "'Satoshi', sans-serif",
+                fontWeight: 800,
+              }}
+            >
+              Ended
+            </span>
+          ) : isExpoRegistered ? (
             <div
               style={{
                 backgroundColor: "var(--color-kiwi, #abf139)",
@@ -272,11 +309,12 @@ const ExpoDetails = () => {
                 gap: 8,
               }}
             >
-              <span>✓</span> REGISTERED PASS
+              REGISTRATION CONFIRMED
             </div>
           ) : (
             <motion.button
               onClick={handleRegisterExpo}
+              disabled={isPending("expo")}
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.96 }}
               style={{
@@ -289,10 +327,11 @@ const ExpoDetails = () => {
                 fontFamily: "var(--font-display)",
                 fontSize: 22,
                 letterSpacing: 1,
-                cursor: "pointer",
+                cursor: isPending("expo") ? "not-allowed" : "pointer",
+                opacity: isPending("expo") ? 0.6 : 1,
               }}
             >
-              REGISTER FOR THIS EXPO →
+              {isPending("expo") ? "REGISTERING..." : "REGISTER FOR THIS EXPO"}
             </motion.button>
           )}
         </div>
@@ -300,22 +339,22 @@ const ExpoDetails = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
-      {/* Neo-Brutalist Tabs Bar */}
+      {/* Tabs */}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         {[
-          { id: "schedule", label: "SCHEDULE & KEYNOTES", icon: "📅" },
-          { id: "exhibitors", label: "EXHIBITORS DIRECTORY", icon: "🏢" },
-          { id: "floorplan", label: "INTERACTIVE FLOOR PLAN", icon: "🗺️" },
-          { id: "about", label: "EXPO MANIFESTO", icon: "📄" },
+          { id: "schedule", label: "SCHEDULE & SESSIONS" },
+          { id: "exhibitors", label: "EXHIBITORS DIRECTORY" },
+          { id: "floorplan", label: "INTERACTIVE FLOOR PLAN" },
+          { id: "about", label: "EXPO MANIFESTO" },
         ].map((t) => {
           const isActive = tab === t.id;
 
@@ -342,16 +381,13 @@ const ExpoDetails = () => {
                 transition: "all 0.15s ease",
               }}
             >
-              <span>{t.icon}</span>
               <span>{t.label}</span>
             </motion.button>
           );
         })}
       </div>
 
-      {/* =========================================================
-          TAB 1: SCHEDULE (Grouped by Day)
-      ========================================================== */}
+      {/* TAB 1: SCHEDULE */}
       {tab === "schedule" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           {sessions.length === 0 ? (
@@ -369,7 +405,6 @@ const ExpoDetails = () => {
                   padding: "24px 28px",
                 }}
               >
-                {/* Day Header Banner */}
                 <div
                   style={{
                     backgroundColor: "var(--color-dark, #231e25)",
@@ -385,12 +420,14 @@ const ExpoDetails = () => {
                   {day.toUpperCase()}
                 </div>
 
-                {/* Day Sessions List */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   {daySessions.map((s) => {
                     const reg = getSessionReg(s._id);
                     const isReg = reg?.registered;
                     const isBookmarked = reg?.bookmarked;
+                    const isSessionEnded = Boolean(s.endTime && new Date(s.endTime) < new Date());
+                    const isSessPending = isPending(`sess-${s._id}`);
+                    const isBmPending = isPending(`bm-${s._id}`);
 
                     return (
                       <div
@@ -412,48 +449,59 @@ const ExpoDetails = () => {
                           </h4>
                           {s.speaker && (
                             <span style={{ fontSize: 13, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, color: "var(--color-primary, #ff3e33)" }}>
-                              🎤 Speaker: {s.speaker} {s.topic && `(${s.topic})`}
+                              Speaker: {s.speaker} {s.topic && `(${s.topic})`}
                             </span>
                           )}
                           <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280", fontWeight: 600 }}>
-                            ⏰ {new Date(s.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – {new Date(s.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • 📍 {s.location || "Main Stage"}
+                            Time: {new Date(s.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – {new Date(s.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - Location: {s.location || "Main Stage"}
                           </span>
                         </div>
 
                         {/* Action Buttons */}
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          {isReg ? (
-                            <button
-                              onClick={() => handleCancelSession(reg._id)}
-                              style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", padding: "6px 14px", borderRadius: 3, cursor: "pointer", fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800 }}
-                            >
-                              Cancel Pass
-                            </button>
+                          {isSessionEnded ? (
+                            <span style={{ backgroundColor: "#fee2e2", color: "#991b1b", border: "1.5px solid #991b1b", padding: "5px 12px", borderRadius: 3, fontSize: 12, fontWeight: 800 }}>
+                              Ended
+                            </span>
                           ) : (
-                            <button
-                              onClick={() => handleRegisterSession(s._id)}
-                              style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "#000", border: "1.5px solid #000", padding: "6px 14px", borderRadius: 3, cursor: "pointer", fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800 }}
-                            >
-                              + Register
-                            </button>
-                          )}
+                            <>
+                              {isReg ? (
+                                <button
+                                  onClick={() => handleCancelSession(s._id, reg._id)}
+                                  disabled={isSessPending}
+                                  style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", padding: "6px 14px", borderRadius: 3, cursor: isSessPending ? "not-allowed" : "pointer", fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, opacity: isSessPending ? 0.6 : 1 }}
+                                >
+                                  {isSessPending ? "Cancelling..." : "Cancel Registration"}
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleRegisterSession(s._id)}
+                                  disabled={isSessPending}
+                                  style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "#000", border: "1.5px solid #000", padding: "6px 14px", borderRadius: 3, cursor: isSessPending ? "not-allowed" : "pointer", fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, opacity: isSessPending ? 0.6 : 1 }}
+                                >
+                                  {isSessPending ? "Registering..." : "+ Register"}
+                                </button>
+                              )}
 
-                          <button
-                            onClick={() => handleBookmark(s._id)}
-                            style={{
-                              backgroundColor: isBookmarked ? "var(--color-selective-yellow, #feb804)" : "#ffffff",
-                              color: "#000000",
-                              border: "1.5px solid #000",
-                              padding: "6px 10px",
-                              borderRadius: 3,
-                              cursor: "pointer",
-                              fontSize: 14,
-                              fontWeight: 900,
-                            }}
-                            title={isBookmarked ? "Remove Bookmark" : "Bookmark Session"}
-                          >
-                            {isBookmarked ? "★" : "☆"}
-                          </button>
+                              <button
+                                onClick={() => handleBookmark(s._id)}
+                                disabled={isBmPending}
+                                style={{
+                                  backgroundColor: isBookmarked ? "var(--color-selective-yellow, #feb804)" : "#ffffff",
+                                  color: "#000000",
+                                  border: "1.5px solid #000",
+                                  padding: "6px 10px",
+                                  borderRadius: 3,
+                                  cursor: isBmPending ? "not-allowed" : "pointer",
+                                  fontSize: 12,
+                                  fontWeight: 900,
+                                  opacity: isBmPending ? 0.6 : 1,
+                                }}
+                              >
+                                {isBmPending ? "Saving..." : (isBookmarked ? "Bookmarked" : "Bookmark")}
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     );
@@ -465,12 +513,9 @@ const ExpoDetails = () => {
         </div>
       )}
 
-      {/* =========================================================
-          TAB 2: EXHIBITORS (Search & Filter Cards)
-      ========================================================== */}
+      {/* TAB 2: EXHIBITORS */}
       {tab === "exhibitors" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          {/* Search & Filter Bar */}
           <div
             style={{
               backgroundColor: "var(--color-light, #fff8eb)",
@@ -560,7 +605,7 @@ const ExpoDetails = () => {
                     {ex.logo ? (
                       <img src={`${BASE}${ex.logo}`} alt={ex.company} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : (
-                      <span style={{ fontSize: 28 }}>🏢</span>
+                      <span style={{ fontSize: 12, fontWeight: 800 }}>No logo</span>
                     )}
                   </div>
 
@@ -575,11 +620,11 @@ const ExpoDetails = () => {
                     )}
                     {ex.booths?.length > 0 && (
                       <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700, color: "var(--color-primary, #ff3e33)", margin: "4px 0 0 0" }}>
-                        📍 Booth: {ex.booths.join(", ")}
+                        Booth: {ex.booths.join(", ")}
                       </p>
                     )}
                     <Link
-                      to={`/attendee/exhibitors/${ex._id}`}
+                      to={`/exhibitors/${ex._id}`}
                       style={{
                         fontFamily: "'Satoshi', sans-serif",
                         fontSize: 13,
@@ -592,7 +637,7 @@ const ExpoDetails = () => {
                         gap: 4,
                       }}
                     >
-                      View Booth & Products →
+                      View Booth & Products
                     </Link>
                   </div>
                 </motion.div>
@@ -602,9 +647,7 @@ const ExpoDetails = () => {
         </div>
       )}
 
-      {/* =========================================================
-          TAB 3: FLOOR PLAN (Interactive Booth Grid)
-      ========================================================== */}
+      {/* TAB 3: FLOOR PLAN */}
       {tab === "floorplan" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div
@@ -650,7 +693,7 @@ const ExpoDetails = () => {
                     whileHover={{ scale: 1.05, y: -3 }}
                     onClick={() => {
                       if (b.status === "booked" && b.exhibitor?._id) {
-                        navigate(`/attendee/exhibitors/${b.exhibitor._id}`);
+                        navigate(`/exhibitors/${b.exhibitor._id}`);
                       }
                     }}
                     style={{
@@ -682,9 +725,7 @@ const ExpoDetails = () => {
         </div>
       )}
 
-      {/* =========================================================
-          TAB 4: ABOUT MANIFESTO
-      ========================================================== */}
+      {/* TAB 4: ABOUT MANIFESTO */}
       {tab === "about" && (
         <div
           style={{

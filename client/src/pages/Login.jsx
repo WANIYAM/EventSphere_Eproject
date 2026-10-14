@@ -1,7 +1,16 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext.jsx";
+
+// Determine if destination is permitted for user role
+const isRoutePermitted = (role, target) => {
+  if (!target || typeof target !== "string") return false;
+  if (target.startsWith("/admin") && role !== "admin") return false;
+  if (target.startsWith("/exhibitor") && role !== "exhibitor") return false;
+  if (target.startsWith("/schedule") && role !== "attendee") return false;
+  return true;
+};
 
 export const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,6 +21,14 @@ export const Login = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const searchParams = new URLSearchParams(location.search);
+  const rawTarget =
+    location.state?.from?.pathname ||
+    (typeof location.state?.from === "string" ? location.state.from : null) ||
+    searchParams.get("redirect") ||
+    null;
 
   const fillDemo = (demoEmail, demoPass) => {
     setEmail(demoEmail);
@@ -41,19 +58,24 @@ export const Login = () => {
 
     try {
       const loggedUser = await login(email.trim(), password);
-      if (loggedUser.role === "admin") {
-        navigate("/admin");
+
+      // Validate destination against the authenticated user's role
+      const canResume = rawTarget && isRoutePermitted(loggedUser.role, rawTarget);
+      if (canResume) {
+        navigate(rawTarget, { replace: true });
+      } else if (loggedUser.role === "admin") {
+        navigate("/admin", { replace: true });
       } else if (loggedUser.role === "exhibitor") {
-        navigate("/exhibitor");
+        navigate("/exhibitor", { replace: true });
       } else {
-        navigate("/attendee");
+        navigate("/", { replace: true });
       }
     } catch (err) {
       setError(
         err.userMessage ||
-        err.response?.data?.message ||
+          err.response?.data?.message ||
           (!err.response
-            ? "Cannot reach the API at localhost:5000. Start the server and try again."
+            ? "Cannot reach the API. Start the server and try again."
             : "Login failed. Please check your credentials.")
       );
     } finally {
@@ -79,51 +101,6 @@ export const Login = () => {
         overflowX: "hidden",
       }}
     >
-      {/* Ambient Radial Spotlight */}
-      <div
-        style={{
-          position: "absolute",
-          top: "15%",
-          left: "10%",
-          width: 700,
-          height: 700,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(255, 62, 51, 0.12) 0%, rgba(254, 184, 4, 0.08) 45%, transparent 70%)",
-          filter: "blur(70px)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-
-      {/* Giant Hollow Watermark Spanning Full Width */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "2%",
-          left: "-2vw",
-          width: "110vw",
-          whiteSpace: "nowrap",
-          pointerEvents: "none",
-          zIndex: 0,
-          userSelect: "none",
-          overflow: "hidden",
-        }}
-      >
-        <span
-          className="style-display"
-          style={{
-            fontSize: "clamp(100px, 15vw, 220px)",
-            lineHeight: 0.85,
-            color: "transparent",
-            WebkitTextStroke: "1.5px rgba(35, 30, 37, 0.06)",
-            letterSpacing: 4,
-          }}
-        >
-          EVENTSPHERE • PORTAL ACCESS • 2025 •
-        </span>
-      </div>
-
-      {/* 1. TOP HEADER: SPANS 100% OF THE SCREEN */}
       <div
         style={{
           width: "100%",
@@ -149,30 +126,29 @@ export const Login = () => {
             borderRadius: 30,
             display: "inline-flex",
             alignItems: "center",
-            gap: 8,
           }}
         >
-          <span>←</span> BACK TO EXPO
+          Back to Expo
         </Link>
 
-        <span
-          style={{
-            fontFamily: "'Satoshi', sans-serif",
-            fontSize: 13,
-            fontWeight: 800,
-            color: "var(--color-dark, #231e25)",
-            backgroundColor: "var(--color-kiwi, #abf139)",
-            border: "2px solid var(--color-dark, #231e25)",
-            padding: "6px 16px",
-            borderRadius: 30,
-            boxShadow: "2px 2px 0px var(--color-dark, #231e25)",
-          }}
-        >
-          SECURE GATEWAY // v2.5
-        </span>
+        {rawTarget && (
+          <span
+            style={{
+              backgroundColor: "var(--color-selective-yellow, #feb804)",
+              color: "#000",
+              border: "1.5px solid #000",
+              padding: "4px 12px",
+              borderRadius: 20,
+              fontSize: 12,
+              fontWeight: 800,
+              fontFamily: "'Satoshi', sans-serif",
+            }}
+          >
+            Redirect target preserved
+          </span>
+        )}
       </div>
 
-      {/* 2. MAIN FULL-WIDTH 2-COLUMN GRID */}
       <div
         style={{
           width: "100%",
@@ -186,9 +162,6 @@ export const Login = () => {
           zIndex: 5,
         }}
       >
-        {/* =========================================================
-            LEFT COLUMN: FULL-SCALE BRANDING & DEMO SHORTCUTS
-        ========================================================== */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
           <div
             style={{
@@ -233,7 +206,7 @@ export const Login = () => {
                 letterSpacing: 1.5,
               }}
             >
-              AWAITS &#123; 2025 &#125;
+              AWAITS [ 2025 ]
             </h1>
           </div>
 
@@ -249,10 +222,9 @@ export const Login = () => {
               opacity: 0.9,
             }}
           >
-            One unified terminal for organizers, exhibitors, and attendees. Access real-time floor plans, schedule management, and instant B2B lead generation.
+            One unified terminal for organizers, exhibitors, and attendees. Access floor plans, schedules, and exhibitor showcases.
           </p>
 
-          {/* Quick Demo Credentials Box */}
           <div
             style={{
               backgroundColor: "var(--color-selective-yellow, #feb804)",
@@ -269,10 +241,10 @@ export const Login = () => {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontFamily: "var(--font-display)", fontSize: 20, letterSpacing: 0.5, color: "var(--color-dark)" }}>
-                QUICK DEMO ACCOUNTS (1-CLICK FILL)
+                DEMO ACCOUNTS (1-CLICK FILL)
               </span>
               <span style={{ fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800, backgroundColor: "#000", color: "#fff", padding: "3px 8px", borderRadius: 2 }}>
-                DEV SHORTCUT
+                SHORTCUT
               </span>
             </div>
 
@@ -293,7 +265,7 @@ export const Login = () => {
                   cursor: "pointer",
                 }}
               >
-                ⚡ Admin
+                Admin
               </button>
               <button
                 type="button"
@@ -311,7 +283,7 @@ export const Login = () => {
                   cursor: "pointer",
                 }}
               >
-                🏢 Exhibitor
+                Exhibitor
               </button>
               <button
                 type="button"
@@ -329,15 +301,12 @@ export const Login = () => {
                   cursor: "pointer",
                 }}
               >
-                🎫 Attendee
+                Attendee
               </button>
             </div>
           </div>
         </div>
 
-        {/* =========================================================
-            RIGHT COLUMN: FULL-PROPORTIONED LOGIN CARD
-        ========================================================== */}
         <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.96 }}
@@ -345,7 +314,7 @@ export const Login = () => {
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
             style={{
               width: "100%",
-              maxWidth: 540, // Expanded width for a commanding presence
+              maxWidth: 540,
               backgroundColor: "#ffffff",
               border: "3px solid var(--color-dark, #231e25)",
               boxShadow: "10px 10px 0px var(--color-dark, #231e25)",
@@ -354,13 +323,6 @@ export const Login = () => {
               boxSizing: "border-box",
             }}
           >
-            {/* 4 Corner Viewfinder Handles */}
-            <div style={{ position: "absolute", top: -7, left: -7, width: 13, height: 13, backgroundColor: "var(--color-primary, #ff3e33)", border: "2px solid #231e25" }} />
-            <div style={{ position: "absolute", top: -7, right: -7, width: 13, height: 13, backgroundColor: "var(--color-primary, #ff3e33)", border: "2px solid #231e25" }} />
-            <div style={{ position: "absolute", bottom: -7, left: -7, width: 13, height: 13, backgroundColor: "var(--color-primary, #ff3e33)", border: "2px solid #231e25" }} />
-            <div style={{ position: "absolute", bottom: -7, right: -7, width: 13, height: 13, backgroundColor: "var(--color-primary, #ff3e33)", border: "2px solid #231e25" }} />
-
-            {/* Form Tag Badge */}
             <div
               style={{
                 display: "inline-block",
@@ -400,14 +362,11 @@ export const Login = () => {
                 fontWeight: 500,
               }}
             >
-              Input your account details to access your dashboard.
+              Sign in to manage your registrations and schedule.
             </p>
 
-            {/* Error Banner */}
             {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
+              <div
                 style={{
                   backgroundColor: "#fee2e2",
                   border: "2px solid var(--color-primary, #ff3e33)",
@@ -415,23 +374,17 @@ export const Login = () => {
                   padding: "10px 14px",
                   borderRadius: 4,
                   marginBottom: 20,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
                   color: "#991b1b",
                   fontFamily: "'Satoshi', sans-serif",
                   fontSize: 14,
                   fontWeight: 700,
                 }}
               >
-                <span>⚠️</span>
-                <span>{error}</span>
-              </motion.div>
+                Error: {error}
+              </div>
             )}
 
-            {/* Form Fields */}
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              {/* Email Field */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label
                   htmlFor="email"
@@ -441,7 +394,6 @@ export const Login = () => {
                     fontWeight: 800,
                     color: "var(--color-dark, #231e25)",
                     textTransform: "uppercase",
-                    letterSpacing: 0.5,
                   }}
                 >
                   Email Address
@@ -465,7 +417,6 @@ export const Login = () => {
                 />
               </div>
 
-              {/* Password Field */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <label
@@ -476,7 +427,6 @@ export const Login = () => {
                       fontWeight: 800,
                       color: "var(--color-dark, #231e25)",
                       textTransform: "uppercase",
-                      letterSpacing: 0.5,
                     }}
                   >
                     Password
@@ -501,10 +451,10 @@ export const Login = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
+                    placeholder="Password"
                     style={{
                       width: "100%",
-                      padding: "13px 44px 13px 16px",
+                      padding: "13px 70px 13px 16px",
                       border: "2px solid var(--color-dark, #231e25)",
                       borderRadius: 4,
                       fontFamily: "'Satoshi', sans-serif",
@@ -524,23 +474,23 @@ export const Login = () => {
                       background: "none",
                       border: "none",
                       cursor: "pointer",
-                      fontSize: 18,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      fontFamily: "'Satoshi', sans-serif",
                       padding: 0,
-                      opacity: 0.6,
+                      color: "#6b7280",
                     }}
-                    title={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? "🙈" : "👁️"}
+                    {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
               </div>
 
-              {/* Submit Button */}
               <motion.button
                 type="submit"
                 disabled={submitting}
                 whileHover={{ y: -2, boxShadow: "5px 5px 0px var(--color-dark, #231e25)" }}
-                whileTap={{ y: 2, boxShadow: "1px 1px 0px var(--color-dark, #231e25)" }}
+                whileTap={{ y: 2 }}
                 style={{
                   marginTop: 8,
                   padding: "15px",
@@ -549,22 +499,16 @@ export const Login = () => {
                   border: "2.5px solid var(--color-dark, #231e25)",
                   boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
                   borderRadius: 4,
-                  fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)",
+                  fontFamily: "var(--font-display)",
                   fontSize: 24,
                   letterSpacing: 1.5,
                   cursor: submitting ? "not-allowed" : "pointer",
-                  opacity: submitting ? 0.75 : 1,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 8,
                 }}
               >
-                <span>{submitting ? "AUTHENTICATING..." : "ACCESS PORTAL →"}</span>
+                {submitting ? "AUTHENTICATING..." : "ACCESS PORTAL"}
               </motion.button>
             </form>
 
-            {/* Footer Register Redirect */}
             <div
               style={{
                 marginTop: 22,
@@ -579,7 +523,7 @@ export const Login = () => {
             >
               Don't have an expo pass?{" "}
               <Link
-                to="/register"
+                to={rawTarget ? `/register?redirect=${encodeURIComponent(rawTarget)}` : "/register"}
                 style={{
                   color: "var(--color-primary, #ff3e33)",
                   fontWeight: 800,

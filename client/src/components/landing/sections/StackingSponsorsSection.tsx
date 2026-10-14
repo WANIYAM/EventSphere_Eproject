@@ -2,78 +2,28 @@ import React, { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 const LaptopSticker: React.FC = () => (
-  <div style={{ position: "relative", width: 140, height: 120, display: "flex", alignItems: "center", justifyContent: "center" }}>
-    <svg width="135" height="115" viewBox="0 0 140 120" fill="none">
-      <rect x="22" y="12" width="96" height="68" rx="6" fill="#a67eff" stroke="#000000" strokeWidth="2.5" />
-      <rect x="28" y="18" width="84" height="56" rx="3" fill="#ff3e33" />
-      <text x="70" y="46" textAnchor="middle" fill="#ffffff" fontFamily="'Brush Script MT', cursive, sans-serif" fontSize="22" fontStyle="italic" fontWeight="bold">
-        Expo
-      </text>
-      <text x="70" y="66" textAnchor="middle" fill="#ffffff" fontFamily="'Brush Script MT', cursive, sans-serif" fontSize="22" fontStyle="italic" fontWeight="bold">
-        Live!
-      </text>
-      <path d="M 6 86 L 22 80 L 118 80 L 134 86 L 130 94 L 10 94 Z" fill="#ffffff" stroke="#000000" strokeWidth="2.5" />
-      <rect x="58" y="84" width="24" height="8" rx="1" fill="#a67eff" stroke="#000000" strokeWidth="1" />
-    </svg>
+  <div style={{ position: "relative", width: 140, height: 120, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, textAlign: "center" }}>
+    Expo Live
   </div>
 );
 
 const WaveSticker: React.FC = () => (
-  <div style={{ position: "relative", width: 130, height: 130, display: "flex", alignItems: "center", justifyContent: "center" }}>
-    <svg width="130" height="130" viewBox="0 0 140 140" fill="none">
-      <circle cx="70" cy="70" r="62" fill="#ffffff" stroke="#000000" strokeWidth="3" />
-      <circle cx="70" cy="68" r="32" fill="#ffa490" />
-      <circle cx="70" cy="54" r="16" fill="#feb804" stroke="#000000" strokeWidth="2" />
-      <path d="M 40 76 Q 55 64 70 76 T 100 76" stroke="#000000" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <path d="M 40 84 Q 55 72 70 84 T 100 84" stroke="#000000" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <path id="waveTextPath" d="M 22 70 A 48 48 0 0 1 118 70" fill="none" />
-      <text fontSize="12" fontWeight="800" fontFamily="'Satoshi', sans-serif" letterSpacing="2" fill="#000000">
-        <textPath href="#waveTextPath" startOffset="50%" textAnchor="middle">
-          SMART SIGNAGE
-        </textPath>
-      </text>
-      <text x="70" y="120" textAnchor="middle" fontSize="10" fontWeight="900" fontFamily="'Satoshi', sans-serif" letterSpacing="1.5" fill="#000000">
-        EXPO NETWORK
-      </text>
-    </svg>
+  <div style={{ position: "relative", width: 130, height: 130, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontWeight: 900, textAlign: "center" }}>
+    <span>SMART SIGNAGE</span>
+    <span>EXPO NETWORK</span>
   </div>
 );
 
 const EpycSticker: React.FC = () => (
-  <div style={{ position: "relative", width: 135, height: 120, display: "flex", alignItems: "center", justifyContent: "center" }}>
-    <svg width="135" height="120" viewBox="0 0 140 120" fill="none">
-      <path d="M 15 110 L 15 65 A 55 55 0 0 1 125 65 L 125 110 Z" fill="#ffffff" stroke="#000000" strokeWidth="3" />
-      <path d="M 25 65 A 45 45 0 0 1 115 65" stroke="#feb804" strokeWidth="8" fill="none" />
-      <path d="M 33 65 A 37 37 0 0 1 107 65" stroke="#ff55f8" strokeWidth="8" fill="none" />
-      <path d="M 41 65 A 29 29 0 0 1 99 65" stroke="#a67eff" strokeWidth="8" fill="none" />
-      <path d="M 49 65 A 21 21 0 0 1 91 65" stroke="#14a6ea" strokeWidth="8" fill="none" />
-      <text x="70" y="86" textAnchor="middle" fontSize="11" fontWeight="800" fontFamily="'Satoshi', sans-serif" letterSpacing="0.8" fill="#000000">
-        CLOUD INFRA
-      </text>
-      <text x="70" y="102" textAnchor="middle" fontSize="14" fontWeight="900" fontFamily="'Satoshi', sans-serif" letterSpacing="0.5" fill="#000000">
-        Epyc Cloud
-      </text>
-    </svg>
+  <div style={{ position: "relative", width: 135, height: 120, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontWeight: 900, textAlign: "center" }}>
+    <span>CLOUD INFRA</span>
+    <span>Epyc Cloud</span>
   </div>
 );
 
 const CoolBeanSticker: React.FC = () => (
-  <div style={{ position: "relative", width: 135, height: 135, display: "flex", alignItems: "center", justifyContent: "center" }}>
-    <svg width="135" height="135" viewBox="0 0 140 140" fill="none">
-      <path d="M 20 130 L 20 60 A 50 50 0 0 1 120 60 L 120 130 Z" fill="#ffffff" stroke="#000000" strokeWidth="3" />
-      <path id="beanTextPath" d="M 28 60 A 42 42 0 0 1 112 60" fill="none" />
-      <text fontSize="11" fontWeight="900" fontFamily="'Satoshi', sans-serif" letterSpacing="2" fill="#ff3e33">
-        <textPath href="#beanTextPath" startOffset="50%" textAnchor="middle">
-          SMART IOT
-        </textPath>
-      </text>
-      <ellipse cx="70" cy="85" rx="26" ry="34" fill="#feb804" stroke="#000000" strokeWidth="2.5" />
-      <rect x="52" y="70" width="16" height="12" rx="2" fill="#000000" />
-      <rect x="72" y="70" width="16" height="12" rx="2" fill="#000000" />
-      <line x1="68" y1="74" x2="72" y2="74" stroke="#000000" strokeWidth="2" />
-      <path d="M 60 92 Q 70 100 80 92" stroke="#000000" strokeWidth="2.5" fill="none" />
-      <path d="M 40 92 L 48 84 L 46 72 L 52 74 L 54 86" stroke="#000000" strokeWidth="2" fill="#feb804" />
-    </svg>
+  <div style={{ position: "relative", width: 135, height: 135, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, textAlign: "center" }}>
+    SMART IOT
   </div>
 );
 
@@ -218,7 +168,7 @@ export const StackingSponsorsSection: React.FC = () => {
                     }}
                     style={{ backgroundColor: "#ffffff", color: "#000000", border: "2px solid #000000", boxShadow: "3px 3px 0px #000000", padding: "8px 24px", borderRadius: 40, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
                   >
-                    <span>Scroll</span><span style={{ fontSize: 16 }}>↓</span>
+                    <span>Scroll</span>
                   </button>
                 </div>
               </div>
@@ -251,7 +201,6 @@ export const StackingSponsorsSection: React.FC = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
                     <span style={{ fontFamily: "var(--font-display)", fontSize: 38, letterSpacing: 1, color: "#000000" }}>EPYC</span>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: "#000000" }}>®</span>
                   </div>
                   <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: "clamp(19px, 2.2vw, 26px)", fontWeight: 500, color: "#000000", lineHeight: 1.35, margin: 0, maxWidth: 660 }}>
                     Supported 2,500+ concurrent user check-ins with 99.9% uptime. The benchmark for enterprise expo infrastructure.
@@ -262,7 +211,7 @@ export const StackingSponsorsSection: React.FC = () => {
                     onClick={() => scrollNextStep(3)}
                     style={{ backgroundColor: "#ffffff", color: "#000000", border: "2px solid #000000", boxShadow: "3px 3px 0px #000000", padding: "8px 24px", borderRadius: 40, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
                   >
-                    <span>Scroll</span><span style={{ fontSize: 16 }}>↓</span>
+                    <span>Scroll</span>
                   </button>
                 </div>
               </div>
@@ -294,10 +243,6 @@ export const StackingSponsorsSection: React.FC = () => {
               <div style={{ flex: "1 1 540px", padding: "36px clamp(24px, 4vw, 44px)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 22 }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                    <svg width="28" height="12" viewBox="0 0 32 14" fill="none">
-                      <path d="M 2 8 Q 8 2 14 8 T 26 8" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                      <path d="M 2 12 Q 8 6 14 12 T 26 12" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                    </svg>
                     <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 900, letterSpacing: 1.5, color: "#000000" }}>
                       SMART SIGNAGE
                     </span>
@@ -311,7 +256,7 @@ export const StackingSponsorsSection: React.FC = () => {
                     onClick={() => scrollNextStep(2)}
                     style={{ backgroundColor: "#ffffff", color: "#000000", border: "2px solid #000000", boxShadow: "3px 3px 0px #000000", padding: "8px 24px", borderRadius: 40, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
                   >
-                    <span>Scroll</span><span style={{ fontSize: 16 }}>↓</span>
+                    <span>Scroll</span>
                   </button>
                 </div>
               </div>
@@ -355,7 +300,7 @@ export const StackingSponsorsSection: React.FC = () => {
                     onClick={() => scrollNextStep(1)}
                     style={{ backgroundColor: "#ffffff", color: "#000000", border: "2px solid #000000", boxShadow: "3px 3px 0px #000000", padding: "8px 24px", borderRadius: 40, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
                   >
-                    <span>Scroll</span><span style={{ fontSize: 16 }}>↓</span>
+                    <span>Scroll</span>
                   </button>
                 </div>
               </div>

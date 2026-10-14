@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
+import { useSocket } from "../../../context/SocketContext.jsx";
+import api from "../../../services/api.js";
 
-// Interactive Retro TV with Channel Switcher
 const RetroTvLogo: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [channel, setChannel] = useState<"noise" | "bars" | "wave">("noise");
@@ -40,11 +41,11 @@ const RetroTvLogo: React.FC = () => {
         ctx.fillStyle = "#000000";
         ctx.fillRect(0, 0, w, h);
         ctx.strokeStyle = "#abf139";
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.2;
         ctx.beginPath();
         step += 0.15;
         for (let x = 0; x < w; x++) {
-          const y = h / 2 + Math.sin(x * 0.4 + step) * 6;
+          const y = h / 2 + Math.sin(x * 0.4 + step) * 4;
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
@@ -67,15 +68,15 @@ const RetroTvLogo: React.FC = () => {
   return (
     <motion.button
       onClick={toggleChannel}
-      whileHover={{ scale: 1.08 }}
+      whileHover={{ scale: 1.06 }}
       whileTap={{ scale: 0.94 }}
-      title="Click to switch TV feed"
+      title="Switch TV channel"
       style={{
-        width: 48,
-        height: 46,
-        borderRadius: 10,
+        width: 36,
+        height: 34,
+        borderRadius: 8,
         backgroundColor: "var(--color-cerulean, #14a6ea)",
-        border: "2px solid var(--color-dark, #231e25)",
+        border: "1.5px solid var(--color-dark, #231e25)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -86,22 +87,22 @@ const RetroTvLogo: React.FC = () => {
         padding: 0,
       }}
     >
-      <div style={{ position: "absolute", top: -8, left: 14, width: 2, height: 9, backgroundColor: "var(--color-dark, #231e25)", transform: "rotate(-25deg)" }} />
-      <div style={{ position: "absolute", top: -8, right: 14, width: 2, height: 9, backgroundColor: "var(--color-dark, #231e25)", transform: "rotate(25deg)" }} />
-      <canvas ref={canvasRef} width={28} height={22} style={{ borderRadius: 3, backgroundColor: "#000", border: "1px solid var(--color-dark, #231e25)" }} />
+      <div style={{ position: "absolute", top: -6, left: 10, width: 1.5, height: 7, backgroundColor: "var(--color-dark, #231e25)", transform: "rotate(-25deg)" }} />
+      <div style={{ position: "absolute", top: -6, right: 10, width: 1.5, height: 7, backgroundColor: "var(--color-dark, #231e25)", transform: "rotate(25deg)" }} />
+      <canvas ref={canvasRef} width={22} height={16} style={{ borderRadius: 2, backgroundColor: "#000", border: "1px solid var(--color-dark, #231e25)" }} />
     </motion.button>
   );
 };
 
-// NavButton Component
 const NavButton: React.FC<{
   name: string;
   href: string;
   bg: string;
   textColor: string;
+  badge?: number;
   isActive?: boolean;
   onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
-}> = ({ name, href, bg, textColor, isActive, onClick }) => {
+}> = ({ name, href, bg, textColor, badge, isActive, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -112,53 +113,52 @@ const NavButton: React.FC<{
       onMouseLeave={() => setIsHovered(false)}
       whileTap={{ scale: 0.96 }}
       animate={{
-        x: isHovered ? -8 : 0,
+        x: isHovered ? -5 : 0,
         boxShadow: isHovered
-          ? "5px 5px 0px var(--color-dark, #231e25)"
-          : "3px 3px 0px var(--color-dark, #231e25)",
+          ? "4px 4px 0px var(--color-dark, #231e25)"
+          : "2.5px 2.5px 0px var(--color-dark, #231e25)",
       }}
       transition={{ type: "spring", stiffness: 450, damping: 26 }}
       style={{
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: 10,
-        padding: "10px 24px",
+        gap: 6,
+        padding: "6px 16px",
         borderRadius: 9999,
         backgroundColor: isActive ? "var(--color-dark, #231e25)" : bg,
         color: isActive ? "var(--color-light, #fff8eb)" : textColor,
         textDecoration: "none",
-        border: "2px solid var(--color-dark, #231e25)",
+        border: "1.5px solid var(--color-dark, #231e25)",
         fontFamily: "'Satoshi', sans-serif",
-        fontSize: 18,
-        fontWeight: 700,
-        letterSpacing: "-0.015em",
+        fontSize: 13,
+        fontWeight: 800,
+        letterSpacing: "0.01em",
         cursor: "pointer",
         userSelect: "none",
         whiteSpace: "nowrap",
       }}
     >
-      <AnimatePresence>
-        {isHovered && (
-          <motion.span
-            initial={{ width: 0, opacity: 0, x: -8 }}
-            animate={{ width: "auto", opacity: 1, x: 0 }}
-            exit={{ width: 0, opacity: 0, x: -8 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            style={{ display: "inline-flex", alignItems: "center", overflow: "hidden" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-          </motion.span>
-        )}
-      </AnimatePresence>
-
       <span>{name}</span>
 
+      {badge !== undefined && badge > 0 && (
+        <span
+          style={{
+            backgroundColor: "var(--color-primary, #ff3e33)",
+            color: "#ffffff",
+            fontSize: 10,
+            fontWeight: 900,
+            borderRadius: 10,
+            padding: "1px 5px",
+            border: "1px solid #000",
+          }}
+        >
+          {badge}
+        </span>
+      )}
+
       {isActive && (
-        <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--color-kiwi, #abf139)" }} />
+        <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "var(--color-kiwi, #abf139)" }} />
       )}
     </motion.a>
   );
@@ -168,56 +168,83 @@ export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const socketContext = useSocket() as {
+    socket?: {
+      on: (event: string, listener: () => void) => void;
+      off: (event: string, listener: () => void) => void;
+    };
+  } | null;
+  const socket = socketContext?.socket ?? null;
+
+  const [unreadCount, setUnreadCount] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeNavId, setActiveNavId] = useState<string>("home");
 
   const { scrollY } = useScroll();
-  const navY = useTransform(scrollY, [80, 260], [0, -120]);
+  const navY = useTransform(scrollY, [80, 260], [0, -100]);
   const navOpacity = useTransform(scrollY, [80, 220], [1, 0]);
   const pointerEvents = useTransform(navOpacity, (val) => (val > 0.05 ? "auto" : "none"));
 
-  const getDashboardPath = () => {
-    if (!user) return "/login";
-    if (user.role === "admin") return "/admin";
-    if (user.role === "exhibitor") return "/exhibitor";
-    return "/attendee";
+  useEffect(() => {
+    if (user) {
+      api.get("/messages/unread-count")
+        .then((res) => setUnreadCount(res.data?.count || 0))
+        .catch(() => {});
+    } else {
+      setUnreadCount(0);
+    }
+  }, [user, location.pathname]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewMessage = () => setUnreadCount((prev) => prev + 1);
+    socket.on("message:new", handleNewMessage);
+    return () => socket.off("message:new", handleNewMessage);
+  }, [socket]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const getNavItems = () => {
+    if (!user) {
+      return [
+        { id: "login", name: "Login", bg: "var(--color-primary, #ff3e33)", textColor: "#ffffff", href: "/login", isRoute: true },
+        { id: "register", name: "Register Pass", bg: "var(--color-kiwi, #abf139)", textColor: "#000000", href: "/register", isRoute: true },
+        { id: "expos", name: "Expos", bg: "var(--color-selective-yellow, #feb804)", textColor: "var(--color-dark, #231e25)", href: "/expos", isRoute: true },
+        { id: "exhibitors", name: "Exhibitors", bg: "var(--color-purple-mimosa, #a67eff)", textColor: "#ffffff", href: "/exhibitors", isRoute: true },
+        { id: "about", name: "About", bg: "var(--color-light, #fff8eb)", textColor: "var(--color-dark, #231e25)", href: "#about", isRoute: false },
+        { id: "contact", name: "Contact", bg: "var(--color-light-salmon, #ffa490)", textColor: "var(--color-dark, #231e25)", href: "/contact", isRoute: true },
+      ];
+    }
+
+    if (user.role === "attendee") {
+      return [
+        { id: "schedule", name: "My Schedule", bg: "var(--color-kiwi, #abf139)", textColor: "#000000", href: "/schedule", isRoute: true },
+        { id: "messages", name: "Messages", bg: "var(--color-cerulean, #14a6ea)", textColor: "#ffffff", href: "/messages", isRoute: true, badge: unreadCount },
+        { id: "expos", name: "Expos", bg: "var(--color-selective-yellow, #feb804)", textColor: "var(--color-dark, #231e25)", href: "/expos", isRoute: true },
+        { id: "exhibitors", name: "Exhibitors", bg: "var(--color-purple-mimosa, #a67eff)", textColor: "#ffffff", href: "/exhibitors", isRoute: true },
+        { id: "feedback", name: "Feedback", bg: "var(--color-light-salmon, #ffa490)", textColor: "var(--color-dark, #231e25)", href: "/feedback", isRoute: true },
+      ];
+    }
+
+    if (user.role === "admin") {
+      return [
+        { id: "dashboard", name: "Admin Dashboard", bg: "var(--color-primary, #ff3e33)", textColor: "#ffffff", href: "/admin", isRoute: true },
+        { id: "messages", name: "Messages", bg: "var(--color-cerulean, #14a6ea)", textColor: "#ffffff", href: "/messages", isRoute: true, badge: unreadCount },
+        { id: "expos", name: "Expos", bg: "var(--color-selective-yellow, #feb804)", textColor: "var(--color-dark, #231e25)", href: "/expos", isRoute: true },
+        { id: "exhibitors", name: "Exhibitors", bg: "var(--color-purple-mimosa, #a67eff)", textColor: "#ffffff", href: "/exhibitors", isRoute: true },
+      ];
+    }
+
+    return [
+      { id: "dashboard", name: "Exhibitor Portal", bg: "var(--color-purple-mimosa, #a67eff)", textColor: "#ffffff", href: "/exhibitor", isRoute: true },
+      { id: "messages", name: "Messages", bg: "var(--color-cerulean, #14a6ea)", textColor: "#ffffff", href: "/messages", isRoute: true, badge: unreadCount },
+      { id: "expos", name: "Expos", bg: "var(--color-selective-yellow, #feb804)", textColor: "var(--color-dark, #231e25)", href: "/expos", isRoute: true },
+      { id: "exhibitors", name: "Exhibitors", bg: "var(--color-kiwi, #abf139)", textColor: "#000000", href: "/exhibitors", isRoute: true },
+    ];
   };
 
-  // ONLY 4 NAV ITEMS: Login, About, Expos, Contact
-  const navItems = [
-    {
-      id: "login",
-      name: user ? `${user.role.toUpperCase()} PORTAL ↗` : "Login ↗",
-      bg: "var(--color-primary, #ff3e33)",
-      textColor: "#ffffff",
-      href: user ? getDashboardPath() : "/login",
-      isRoute: true,
-    },
-    {
-      id: "about",
-      name: "About",
-      bg: "var(--color-light, #fff8eb)",
-      textColor: "var(--color-dark, #231e25)",
-      href: "#about",
-      isRoute: false,
-    },
-    {
-      id: "expos",
-      name: "Expos",
-      bg: "var(--color-selective-yellow, #feb804)",
-      textColor: "var(--color-dark, #231e25)",
-      href: "/expos",
-      isRoute: true,
-    },
-    {
-      id: "contact",
-      name: "Contact",
-      bg: "var(--color-kiwi, #abf139)",
-      textColor: "var(--color-dark, #231e25)",
-      href: "#footer",
-      isRoute: false,
-    },
-  ];
+  const navItems = getNavItems();
 
   const handleItemClick = (e: React.MouseEvent<HTMLAnchorElement>, item: typeof navItems[0]) => {
     e.preventDefault();
@@ -238,28 +265,6 @@ export const Navigation: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (location.pathname !== "/") return;
-
-    const handleScroll = () => {
-      const scrollPos = window.scrollY + window.innerHeight * 0.35;
-      const aboutEl = document.getElementById("about");
-      const footerEl = document.getElementById("footer");
-
-      if (footerEl && scrollPos >= footerEl.offsetTop) {
-        setActiveNavId("contact");
-      } else if (aboutEl && scrollPos >= aboutEl.offsetTop) {
-        setActiveNavId("about");
-      } else {
-        setActiveNavId("home");
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [location.pathname]);
-
   return (
     <motion.header
       style={{
@@ -268,7 +273,7 @@ export const Navigation: React.FC = () => {
         left: 0,
         right: 0,
         zIndex: 100,
-        padding: "20px clamp(16px, 3.5vw, 36px)",
+        padding: "16px clamp(14px, 3vw, 28px)",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "flex-start",
@@ -277,20 +282,19 @@ export const Navigation: React.FC = () => {
         opacity: navOpacity,
       }}
     >
-      {/* Brand & Retro TV Ticker */}
       <motion.div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 10,
           pointerEvents,
-          backgroundColor: "rgba(35, 30, 37, 0.7)",
-          padding: "6px 16px 6px 6px",
-          borderRadius: 34,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          border: "1.5px solid rgba(255,255,255,0.2)",
-          boxShadow: "3px 3px 0px rgba(0,0,0,0.3)",
+          backgroundColor: "rgba(35, 30, 37, 0.72)",
+          padding: "4px 12px 4px 4px",
+          borderRadius: 24,
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          border: "1.2px solid rgba(255,255,255,0.25)",
+          boxShadow: "2px 2px 0px rgba(0,0,0,0.3)",
         }}
       >
         <Link to="/" style={{ textDecoration: "none", display: "inline-flex" }}>
@@ -301,53 +305,45 @@ export const Navigation: React.FC = () => {
           alignItems: "center",
           color: "#fff",
           fontFamily: "'Satoshi', sans-serif",
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: 600,
           whiteSpace: "nowrap",
           overflow: "hidden",
-          maxWidth: "clamp(200px, 30vw, 380px)",
+          maxWidth: "clamp(180px, 24vw, 320px)",
         }}>
-          <span style={{ fontSize: 18, marginRight: 6, opacity: 0.9, color: "var(--color-kiwi, #abf139)" }}>&#91;</span>
+          <span style={{ fontSize: 14, marginRight: 6, opacity: 0.9, color: "var(--color-kiwi, #abf139)" }}>[</span>
           <div style={{ overflow: "hidden", display: "inline-flex" }}>
             <div className="marquee-track" style={{ animationDuration: "14s" }}>
-              <span style={{ marginRight: 24 }}>
-                &#123; EventSphere Management &nbsp; Expo & Trade Show Operating System &#125;
-              </span>
-              <span style={{ marginRight: 24 }}>
-                &#123; EventSphere Management &nbsp; Expo & Trade Show Operating System &#125;
-              </span>
+              <span style={{ marginRight: 20 }}>EventSphere Management Expo OS</span>
+              <span style={{ marginRight: 20 }}>EventSphere Management Expo OS</span>
             </div>
           </div>
-          <span style={{ fontSize: 18, marginLeft: 6, opacity: 0.9, color: "var(--color-kiwi, #abf139)" }}>&#93;</span>
+          <span style={{ fontSize: 14, marginLeft: 6, opacity: 0.9, color: "var(--color-kiwi, #abf139)" }}>]</span>
         </div>
       </motion.div>
 
-      {/* TOP RIGHT: Nav Pills (Login, About, Expos, Contact) */}
       <motion.nav
         className="desktop-menu-column"
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
-          gap: 10,
+          gap: 6,
           pointerEvents,
         }}
       >
-        {navItems.map((item) => {
-          const isRouteActive = item.isRoute && location.pathname === item.href;
-          const isAnchorActive = !item.isRoute && location.pathname === "/" && activeNavId === item.id;
-          return (
-            <NavButton
-              key={item.id}
-              name={item.name}
-              href={item.href}
-              bg={item.bg}
-              textColor={item.textColor}
-              isActive={isRouteActive || isAnchorActive}
-              onClick={(e) => handleItemClick(e, item)}
-            />
-          );
-        })}
+        {navItems.map((item) => (
+          <NavButton
+            key={item.id}
+            name={item.name}
+            href={item.href}
+            bg={item.bg}
+            textColor={item.textColor}
+            badge={item.badge}
+            isActive={item.isRoute && location.pathname === item.href}
+            onClick={(e) => handleItemClick(e, item)}
+          />
+        ))}
 
         {user && (
           <motion.button
@@ -358,66 +354,61 @@ export const Navigation: React.FC = () => {
               navigate("/login");
             }}
             style={{
-              padding: "6px 18px",
+              padding: "4px 12px",
               borderRadius: 9999,
               backgroundColor: "var(--color-dark, #231e25)",
               color: "var(--color-light, #fff8eb)",
-              border: "1.5px solid rgba(255,255,255,0.4)",
+              border: "1.2px solid rgba(255,255,255,0.4)",
               fontFamily: "'Satoshi', sans-serif",
-              fontSize: 13,
+              fontSize: 11,
               fontWeight: 800,
               cursor: "pointer",
             }}
           >
-            LOGOUT ✕
+            Logout ({user.name?.split(" ")[0]})
           </motion.button>
         )}
       </motion.nav>
 
-      {/* Mobile Toggle Button */}
       <motion.button
         onClick={() => setMobileOpen(!mobileOpen)}
         className="mobile-toggle-btn"
         aria-label="Toggle navigation"
         style={{
-          width: 48,
-          height: 48,
-          borderRadius: 12,
+          padding: "6px 14px",
+          borderRadius: 8,
           backgroundColor: mobileOpen ? "var(--color-primary, #ff3e33)" : "var(--color-light, #fff8eb)",
+          color: mobileOpen ? "#ffffff" : "var(--color-dark, #231e25)",
           border: "2px solid var(--color-dark, #231e25)",
-          boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
+          boxShadow: "2px 2px 0px var(--color-dark, #231e25)",
           cursor: "pointer",
-          display: "none",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 6,
+          fontFamily: "'Satoshi', sans-serif",
+          fontSize: 13,
+          fontWeight: 800,
           pointerEvents,
         }}
       >
-        <span style={{ width: 22, height: 3, backgroundColor: mobileOpen ? "#fff" : "#000", transform: mobileOpen ? "rotate(45deg) translate(4px, 4px)" : "none", transition: "0.2s" }} />
-        <span style={{ width: 22, height: 3, backgroundColor: mobileOpen ? "#fff" : "#000", transform: mobileOpen ? "rotate(-45deg) translate(3px, -3px)" : "none", transition: "0.2s" }} />
+        {mobileOpen ? "Close" : "Menu"}
       </motion.button>
 
-      {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -15 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
+            exit={{ opacity: 0, y: -10 }}
             style={{
               position: "fixed",
-              top: 84,
-              left: 20,
-              right: 20,
+              top: 70,
+              left: 16,
+              right: 16,
               backgroundColor: "var(--color-light, #fff8eb)",
-              border: "3px solid var(--color-dark, #231e25)",
-              boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
-              padding: "24px",
+              border: "2.5px solid var(--color-dark, #231e25)",
+              boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
+              padding: "18px",
               display: "flex",
               flexDirection: "column",
-              gap: 12,
+              gap: 10,
               pointerEvents: "auto",
               zIndex: 150,
             }}
@@ -428,11 +419,11 @@ export const Navigation: React.FC = () => {
                 href={item.href}
                 onClick={(e) => handleItemClick(e, item)}
                 style={{
-                  color: item.id === "login" ? "var(--color-primary, #ff3e33)" : "var(--color-dark, #231e25)",
+                  color: "var(--color-dark, #231e25)",
                   textDecoration: "none",
-                  padding: "10px 0",
-                  fontSize: 20,
-                  borderBottom: "1.5px dashed var(--color-dark, #231e25)",
+                  padding: "8px 0",
+                  fontSize: 16,
+                  borderBottom: "1px dashed var(--color-dark, #231e25)",
                   display: "flex",
                   justifyContent: "space-between",
                   fontFamily: "'Satoshi', sans-serif",
@@ -440,7 +431,7 @@ export const Navigation: React.FC = () => {
                 }}
               >
                 <span>{item.name}</span>
-                <span>→</span>
+                <span>Select</span>
               </a>
             ))}
 
@@ -452,18 +443,18 @@ export const Navigation: React.FC = () => {
                   navigate("/login");
                 }}
                 style={{
-                  marginTop: 10,
-                  padding: "10px",
+                  marginTop: 6,
+                  padding: "8px",
                   backgroundColor: "var(--color-dark, #231e25)",
                   color: "#fff",
                   border: "none",
                   fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: 800,
                   cursor: "pointer",
                 }}
               >
-                LOGOUT
+                Logout
               </button>
             )}
           </motion.div>
@@ -473,7 +464,10 @@ export const Navigation: React.FC = () => {
       <style>{`
         @media (max-width: 860px) {
           .desktop-menu-column { display: none !important; }
-          .mobile-toggle-btn { display: flex !important; }
+          .mobile-toggle-btn { display: block !important; }
+        }
+        @media (min-width: 861px) {
+          .mobile-toggle-btn { display: none !important; }
         }
       `}</style>
     </motion.header>

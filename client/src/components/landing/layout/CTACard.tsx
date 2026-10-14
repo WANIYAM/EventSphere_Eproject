@@ -18,7 +18,7 @@ export const CTACard: React.FC = () => {
         <div className="marquee-track">
           {[...Array(6)].map((_, i) => (
             <span key={i} className="style-display" style={{ fontSize: "clamp(50px, 8vw, 92px)", marginRight: 40, color: "var(--color-dark)" }}>
-              RESERVE YOUR SPOT • JOIN 2,500+ CREATORS • SHAPE THE FUTURE •
+              RESERVE YOUR SPOT - JOIN 2,500+ CREATORS - SHAPE THE FUTURE -
             </span>
           ))}
         </div>
@@ -28,7 +28,7 @@ export const CTACard: React.FC = () => {
         <div className="marquee-track" style={{ animationDirection: "reverse" }}>
           {[...Array(6)].map((_, i) => (
             <span key={i} className="style-display" style={{ fontSize: "clamp(50px, 8vw, 92px)", marginRight: 40, color: "var(--color-light)", WebkitTextStroke: "2px var(--color-dark)" }}>
-              PIXELSTAGE 2025 • JULY 1-3 • PENANG MALAYSIA • GET TICKETS •
+              PIXELSTAGE 2025 - JULY 1-3 - PENANG MALAYSIA - GET TICKETS -
             </span>
           ))}
         </div>

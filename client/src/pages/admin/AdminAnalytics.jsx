@@ -71,8 +71,8 @@ const AdminAnalytics = () => {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
         {[
           { label: "TOTAL USERS", val: totals.users, sub: `${totals.exhibitors} Exhibitors · ${totals.attendees} Attendees`, bg: "var(--color-light, #fff8eb)" },
-          { label: "TOTAL EXPOS", val: totals.expos, sub: "Across all halls", bg: "var(--color-selective-yellow, #feb804)" },
-          { label: "SCHEDULED SESSIONS", val: totals.sessions, sub: "Keynotes & Workshops", bg: "var(--color-kiwi, #abf139)" },
+          { label: "TOTAL EXPOS", val: totals.expos, sub: "Listed on the platform", bg: "var(--color-selective-yellow, #feb804)" },
+          { label: "SCHEDULED SESSIONS", val: totals.sessions, sub: "Sessions and workshops", bg: "var(--color-kiwi, #abf139)" },
           { label: "APPLICATIONS", val: totals.applications, sub: "Submitted Booth Requests", bg: "var(--color-purple-mimosa, #a67eff)", text: "#fff" },
           { label: "USER FEEDBACK", val: totals.feedback, sub: "Suggestions & Issues", bg: "var(--color-cerulean, #14a6ea)", text: "#fff" },
         ].map((item) => (

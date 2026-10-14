@@ -54,12 +54,12 @@ const Feedback = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
@@ -95,7 +95,7 @@ const Feedback = () => {
                 boxShadow: type === "suggestion" ? "3px 3px 0px #000" : "none",
               }}
             >
-              💡 Feature Suggestion
+              Feature Suggestion
             </button>
             <button
               type="button"
@@ -113,7 +113,7 @@ const Feedback = () => {
                 boxShadow: type === "issue" ? "3px 3px 0px #000" : "none",
               }}
             >
-              ⚠️ Issue / Bug Report
+              Issue / Bug Report
             </button>
           </div>
         </div>
@@ -145,7 +145,7 @@ const Feedback = () => {
             cursor: submitting ? "not-allowed" : "pointer",
           }}
         >
-          {submitting ? "SUBMITTING..." : "SUBMIT FEEDBACK LOG →"}
+          {submitting ? "SUBMITTING..." : "SUBMIT FEEDBACK LOG"}
         </motion.button>
       </form>
     </div>

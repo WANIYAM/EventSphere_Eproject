@@ -3,12 +3,12 @@ import Application from "../models/Application.js";
 import { emitToAll } from "../utils/socket.js";
 import { createNotification } from "../utils/notify.js";
 
-// @desc    Get all booths for a specific expo
+// @desc    Get all booths for a specific expo (public/attendee view - no emails populated)
 // @route   GET /api/expos/:expoId/booths
 export const getBoothsByExpo = async (req, res) => {
   try {
     const booths = await Booth.find({ expo: req.params.expoId })
-      .populate("exhibitor", "name company email")
+      .populate("exhibitor", "name company category logo")
       .sort({ boothNumber: 1 });
     return res.status(200).json(booths);
   } catch (error) {
@@ -57,7 +57,6 @@ export const assignBooth = async (req, res) => {
       return res.status(400).json({ message: "Booth is not available for assignment" });
     }
 
-    // Check if exhibitor has an approved application for this expo
     const application = await Application.findOne({
       expo: booth.expo,
       exhibitor: exhibitorId,
@@ -70,7 +69,6 @@ export const assignBooth = async (req, res) => {
       });
     }
 
-    // Assign booth
     booth.exhibitor = exhibitorId;
     booth.status = "booked";
     await booth.save();
@@ -103,7 +101,6 @@ export const releaseBooth = async (req, res) => {
 
     const previousExhibitor = booth.exhibitor;
 
-    // Clear booth from application
     await Application.findOneAndUpdate(
       { booth: booth._id },
       { booth: null }
@@ -142,7 +139,6 @@ export const reserveBooth = async (req, res) => {
       return res.status(400).json({ message: "Booth is no longer available" });
     }
 
-    // Must have an approved application for this expo
     const application = await Application.findOne({
       expo: booth.expo,
       exhibitor: req.user._id,
@@ -155,7 +151,6 @@ export const reserveBooth = async (req, res) => {
       });
     }
 
-    // Check if exhibitor already holds a booth in this expo
     const existingHolding = await Booth.findOne({
       expo: booth.expo,
       exhibitor: req.user._id,

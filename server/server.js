@@ -24,23 +24,18 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import publicRoutes from "./routes/publicRoutes.js";
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 
-// Initialize Socket.IO
 initSocket(server);
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Serve uploads folder statically
 app.use("/uploads", express.static(path.resolve("uploads")));
 
-// Health check remains available while the database is unavailable.
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "ok",
@@ -50,7 +45,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api", dbCheck);
 
-// Routes
+// Mounted Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/expos", expoRoutes);
 app.use("/api/booths", boothRoutes);
@@ -64,12 +59,13 @@ app.use("/api/registrations", registrationRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/analytics", analyticsRoutes);
-// Add this line in the Routes section (around line 55):
 app.use("/api/public", publicRoutes);
+
 app.use("/api", (req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
+// Centralized Error Handler (CastError & ValidationError -> 400, sanitizes 500s)
 app.use((err, req, res, next) => {
   console.error(err.stack || err);
 
@@ -77,11 +73,16 @@ app.use((err, req, res, next) => {
     return next(err);
   }
 
-  const status = err.status || 500;
-  const message =
-    process.env.NODE_ENV === "production" && status >= 500
-      ? "Something went wrong on the server."
-      : err.message || "Internal server error";
+  if (err.name === "CastError") {
+    return res.status(400).json({ message: "Invalid id" });
+  }
+
+  if (err.name === "ValidationError") {
+    return res.status(400).json({ message: err.message || "Validation failed" });
+  }
+
+  const status = err.status || (err.statusCode ? err.statusCode : 500);
+  const message = status >= 500 ? "Something went wrong" : (err.message || "Something went wrong");
 
   return res.status(status).json({ message });
 });

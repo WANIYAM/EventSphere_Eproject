@@ -56,7 +56,7 @@ const Unauthorized = () => {
             display: "inline-block",
           }}
         >
-          RETURN TO EXPO →
+          RETURN TO EXPO
         </Link>
       </motion.div>
     </div>

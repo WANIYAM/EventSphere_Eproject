@@ -5,82 +5,82 @@ const GALLERY_ITEMS = [
   {
     w: 310,
     h: 360,
-    year: "'00 TORONTO",
+    year: "EVENT MANAGEMENT",
     badgeBg: "var(--color-primary)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-primary)",
     src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=700&auto=format&fit=crop&q=80",
-    label: "Toronto fireworks inauguration",
+    label: "Event organizers managing an expo",
   },
   {
     w: 300,
     h: 240,
-    year: "'04 SPOTLIGHT",
+    year: "ATTENDEE REGISTRATION",
     badgeBg: "var(--color-selective-yellow)",
     badgeTextColor: "var(--color-dark)",
     shadowColor: "var(--color-selective-yellow)",
     src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=700&auto=format&fit=crop&q=80",
-    label: "Acoustic stage microphone",
+    label: "Attendees at an event",
   },
   {
     w: 520,
     h: 340,
-    year: "'12 SLUSH ARENA",
+    year: "EXHIBITOR PROFILES",
     badgeBg: "var(--color-cerulean)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-cerulean)",
     src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&auto=format&fit=crop&q=80",
-    label: "SLUSH yellow stage pavilion",
+    label: "Exhibitors presenting products at a trade show",
   },
   {
     w: 105,
     h: 260,
-    year: "'15",
+    year: "BOOTH SPACES",
     badgeBg: "var(--color-light)",
     badgeTextColor: "var(--color-dark)",
     shadowColor: "#ffffff",
     src: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&auto=format&fit=crop&q=80",
-    label: "Night sparkler",
+    label: "Expo booth display",
   },
   {
     w: 360,
     h: 360,
-    year: "'18 CROWD SURF",
+    year: "EVENT SCHEDULE",
     badgeBg: "var(--color-violet-pink)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-violet-pink)",
     src: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=700&auto=format&fit=crop&q=80",
-    label: "Phone recording in crowd",
+    label: "Event session in progress",
   },
   {
     w: 300,
     h: 240,
-    year: "'21 MODULAR",
+    year: "EXPO FLOOR PLAN",
     badgeBg: "var(--color-purple-mimosa)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-purple-mimosa)",
     src: "https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?w=700&auto=format&fit=crop&q=80",
-    label: "Turntable hardware mixer",
+    label: "Trade show floor",
   },
   {
     w: 520,
     h: 340,
-    year: "'23 GALA CONFETTI",
+    year: "EVENT PARTICIPANTS",
     badgeBg: "var(--color-kiwi)",
     badgeTextColor: "var(--color-dark)",
     shadowColor: "var(--color-kiwi)",
     src: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format&fit=crop&q=80",
-    label: "Confetti over massive crowd",
+    label: "People attending an expo",
   },
   {
     w: 105,
     h: 260,
-    year: "'25",
+    year: "EVENT UPDATES",
     badgeBg: "var(--color-primary)",
     badgeTextColor: "#ffffff",
     shadowColor: "var(--color-primary)",
     src: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&auto=format&fit=crop&q=80",
-    label: "Laser beam stage finale",
+    label: "Expo presentation",
   },
 ];
 
@@ -202,7 +202,7 @@ export const HorizontalScrollSection: React.FC = () => {
               letterSpacing: 4,
             }}
           >
-            PIXELSTAGE ARCHIVE • 2000 — 2025 • LIVE STAGE REEL •
+            EVENTSPHERE MANAGEMENT - EXPO & TRADE SHOW PLATFORM -
           </span>
         </motion.div>
 
@@ -295,7 +295,7 @@ export const HorizontalScrollSection: React.FC = () => {
           })}
         </motion.div>
 
-        {/* Lower Deck: Timecode & 25 Years Title */}
+        {/* Lower Deck: Gallery progress and event management title */}
         <div
           style={{
             width: "100%",
@@ -314,12 +314,12 @@ export const HorizontalScrollSection: React.FC = () => {
           {/* Timeline Scrubber */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 360, width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "#ffffff", opacity: 0.8, fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
-              <span>EST. 2000</span>
+              <span>EVENT MANAGEMENT</span>
               <span style={{ color: "var(--color-kiwi)", display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "var(--color-kiwi)", display: "inline-block" }} />
-                STAGE SCRUBBER
+                EXPO GALLERY
               </span>
-              <span>2025 FINALE</span>
+              <span>EVENT HIGHLIGHTS</span>
             </div>
 
             <div style={{ width: "100%", height: 6, backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 4, overflow: "hidden", border: "1px solid rgba(255,255,255,0.18)" }}>
@@ -335,13 +335,13 @@ export const HorizontalScrollSection: React.FC = () => {
             </div>
 
             <div style={{ display: "flex", gap: 8, color: "rgba(255,255,255,0.45)", fontSize: 11, fontFamily: "'Satoshi', sans-serif" }}>
-              <span>TIMECODE // 00:25:00:25</span>
-              <span>•</span>
-              <span>8 EXHIBIT STAGES</span>
+              <span>EXPO INFORMATION</span>
+              <span>-</span>
+              <span>EVENT WORKFLOWS</span>
             </div>
           </div>
 
-          {/* 25 YEARS IN { 2025 } */}
+          {/* Event management platform title */}
           <motion.div
             style={{
               opacity: titleOpacity,
@@ -353,10 +353,7 @@ export const HorizontalScrollSection: React.FC = () => {
             onMouseLeave={() => setBracketHovered(false)}
           >
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 4, color: "var(--color-kiwi)", fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 700 }}>
-              <motion.span animate={{ rotate: [0, 180, 360] }} transition={{ duration: 6, repeat: Infinity, ease: "linear" }}>
-                ★
-              </motion.span>
-              <span>QUARTER CENTURY ARCHIVE</span>
+              <span>ORGANIZATORS, EXHIBITORS & ATTENDEES</span>
             </div>
 
             <h2
@@ -370,7 +367,7 @@ export const HorizontalScrollSection: React.FC = () => {
                 letterSpacing: 1.5,
               }}
             >
-              25 YEARS IN
+              ONE PLATFORM
             </h2>
 
             <h2
@@ -395,7 +392,7 @@ export const HorizontalScrollSection: React.FC = () => {
               >
                 &#123;
               </motion.span>{" "}
-              2025{" "}
+              EVENTSPHERE{" "}
               <motion.span
                 animate={{
                   x: bracketHovered ? 10 : 0,

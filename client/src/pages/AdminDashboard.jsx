@@ -13,10 +13,10 @@ import api from "../services/api.js";
 
 // Floor Plan Booth Allocation Data for Donut Chart
 const BOOTH_PIE_DATA = [
-  { name: "Booked & Paid", value: 142, color: "var(--color-primary, #ff3e33)" },
-  { name: "Reserved / Pending", value: 68, color: "var(--color-selective-yellow, #feb804)" },
-  { name: "Available Spaces", value: 45, color: "var(--color-kiwi, #abf139)" },
-  { name: "VIP Keynote Pods", value: 25, color: "var(--color-purple-mimosa, #a67eff)" },
+  { name: "Allocated", value: 142, color: "var(--color-primary, #ff3e33)" },
+  { name: "Pending", value: 68, color: "var(--color-selective-yellow, #feb804)" },
+  { name: "Available", value: 45, color: "var(--color-kiwi, #abf139)" },
+  { name: "Unassigned", value: 25, color: "var(--color-purple-mimosa, #a67eff)" },
 ];
 
 const AdminDashboard = () => {
@@ -57,7 +57,7 @@ const AdminDashboard = () => {
       textColor: "#ffffff",
       handleColor: "#ffffff",
       title: "MANAGE EXPOS",
-      desc: "Create expos, configure dates & locations, manage session schedules, and design interactive floor plan layouts.",
+      desc: "Create expos, update event details, manage schedules, and configure floor plans and booth spaces.",
     },
     {
       to: "/admin/applications",
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
       textColor: "#000000",
       handleColor: "#000000",
       title: "EXHIBITOR APPS",
-      desc: "Review incoming booth reservation requests with instant approve/reject controls and automated invoicing.",
+      desc: "Review exhibitor applications and update their approval status and booth allocations.",
     },
     {
       to: "/admin/analytics",
@@ -74,8 +74,8 @@ const AdminDashboard = () => {
       bg: "var(--color-kiwi, #abf139)",
       textColor: "#000000",
       handleColor: "#000000",
-      title: "LIVE ANALYTICS",
-      desc: "Track real-time attendee footfall, session popularity metrics, and booth engagement heatmaps.",
+      title: "EVENT ANALYTICS",
+      desc: "Review reports on attendee registrations, exhibitor activity, and session interest.",
     },
     {
       to: "/messages",
@@ -83,8 +83,8 @@ const AdminDashboard = () => {
       bg: "var(--color-purple-mimosa, #a67eff)",
       textColor: "#ffffff",
       handleColor: "#ffffff",
-      title: "MESSAGES & BROADCAST",
-      desc: "Send platform-wide broadcast alerts or handle direct 1-on-1 inquiries with registered exhibitors.",
+      title: "MESSAGES",
+      desc: "Review and respond to event-related messages from exhibitors and attendees.",
     },
     {
       to: "/admin/feedback",
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
       textColor: "#000000",
       handleColor: "#000000",
       title: "USER FEEDBACK",
-      desc: "Review submitted suggestions, attendee satisfaction ratings, and technical issue logs.",
+      desc: "Review feedback submitted by attendees and exhibitors.",
     },
     {
       to: "/feedback",
@@ -102,7 +102,7 @@ const AdminDashboard = () => {
       textColor: "#ffffff",
       handleColor: "#ffffff",
       title: "SUBMIT SUGGESTION",
-      desc: "Log organizer notes, record venue operations feedback, or suggest new system enhancements.",
+      desc: "Send feedback about EventSphere or suggest improvements.",
     },
   ];
 
@@ -116,9 +116,7 @@ const AdminDashboard = () => {
           border: "3px solid var(--color-dark, #231e25)",
           boxShadow: "7px 7px 0px var(--color-dark, #231e25)",
           padding: "28px 32px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: "block",
           flexWrap: "wrap",
           gap: 20,
           position: "relative",
@@ -127,17 +125,17 @@ const AdminDashboard = () => {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <span style={{ backgroundColor: "var(--color-dark, #231e25)", color: "var(--color-light, #fff8eb)", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-              [ SYSTEM CONTROL HUB ]
+              ORGANIZER DASHBOARD
             </span>
             <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "#000", padding: "4px 12px", borderRadius: 20, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-              ● LIVE CLUSTER // 99.9% UPTIME
+              EXPO MANAGEMENT
             </span>
           </div>
           <h1 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(42px, 5.5vw, 60px)", color: "var(--color-dark, #231e25)", lineHeight: 0.88, margin: "4px 0 0 0" }}>
-            ADMIN COMMAND CONSOLE
+            MANAGE YOUR EXPOS
           </h1>
           <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 15, color: "#4b5563", margin: 0, fontWeight: 500 }}>
-            Welcome back, <strong style={{ color: "var(--color-dark, #231e25)" }}>{user?.name || "Administrator"}</strong>. Real-time expo data is active.
+            Welcome, <strong style={{ color: "var(--color-dark, #231e25)" }}>{user?.name || "Organizer"}</strong>. Manage expo details, exhibitor applications, booth spaces, and schedules.
           </p>
         </div>
 
@@ -157,7 +155,7 @@ const AdminDashboard = () => {
             display: "inline-block",
           }}
         >
-          + CREATE NEW EXPO
+          CREATE NEW EXPO
         </Link>
       </div>
 
@@ -180,9 +178,7 @@ const AdminDashboard = () => {
               border: "3px solid var(--color-dark, #231e25)",
               boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
               padding: "24px 28px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: "block",
             }}
           >
             <div>
@@ -192,9 +188,6 @@ const AdminDashboard = () => {
               <div style={{ fontFamily: "var(--font-display)", fontSize: 64, color: "var(--color-dark, #231e25)", lineHeight: 1, margin: "6px 0 0 0" }}>
                 {loading ? "..." : stats.totalExpos}
               </div>
-            </div>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 32, border: "2px solid #000" }}>
-              🎪
             </div>
           </motion.div>
 
@@ -206,9 +199,7 @@ const AdminDashboard = () => {
               border: "3px solid var(--color-dark, #231e25)",
               boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
               padding: "24px 28px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: "block",
             }}
           >
             <div>
@@ -218,9 +209,6 @@ const AdminDashboard = () => {
               <div style={{ fontFamily: "var(--font-display)", fontSize: 64, color: "var(--color-dark, #231e25)", lineHeight: 1, margin: "6px 0 0 0" }}>
                 {loading ? "..." : stats.pendingApps}
               </div>
-            </div>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#000000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 26, border: "2px solid #fff" }}>
-              ⏳
             </div>
           </motion.div>
         </div>
@@ -240,14 +228,14 @@ const AdminDashboard = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <span style={{ fontFamily: "var(--font-display)", fontSize: 24, letterSpacing: 1, color: "var(--color-dark)" }}>
-                BOOTH SPACE ALLOCATION
+                EXAMPLE BOOTH ALLOCATION
               </span>
               <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, color: "#6b7280", margin: "2px 0 0 0", fontWeight: 600 }}>
-                280 Total Floor Spaces Across All Active Convention Halls
+                Illustrative figures only; see analytics for current event information.
               </p>
             </div>
             <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "1.5px solid #000", padding: "2px 8px", fontSize: 11, fontWeight: 800, borderRadius: 2 }}>
-              84% BOOKED
+              EXAMPLE DATA
             </span>
           </div>
 
@@ -310,10 +298,10 @@ const AdminDashboard = () => {
                 }}
               >
                 <span style={{ fontFamily: "var(--font-display)", fontSize: 28, lineHeight: 0.9, color: "var(--color-dark)" }}>
-                  280
+                  SAMPLE
                 </span>
                 <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 10, fontWeight: 800, color: "#6b7280" }}>
-                  BOOTHS
+                  DATA
                 </span>
               </div>
             </div>
@@ -387,7 +375,7 @@ const AdminDashboard = () => {
                   {item.tag}
                 </span>
                 <span style={{ fontSize: 13, fontWeight: 900, backgroundColor: "#000", color: "#fff", padding: "2px 6px", borderRadius: 2 }}>
-                  MODULE // 2025
+                  EVENTSPHERE
                 </span>
               </div>
 
@@ -421,7 +409,6 @@ const AdminDashboard = () => {
                   }}
                 >
                   <span>LAUNCH WORKSPACE</span>
-                  <span>→</span>
                 </Link>
               </div>
             </motion.div>

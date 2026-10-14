@@ -35,7 +35,7 @@ export const Footer: React.FC = () => {
       <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: "column", gap: 36 }}>
         
         {/* =========================================================
-            ROW 1: GET IN TOUCH CARD + CONFERENCE HIGHLIGHTS CARD
+            ROW 1: CONTACT CARD + PLATFORM OVERVIEW
         ========================================================== */}
         <div
           style={{
@@ -64,7 +64,7 @@ export const Footer: React.FC = () => {
                 &#123; GET IN TOUCH &#125;
               </span>
               <span style={{ fontSize: 11, padding: "3px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: 700, borderRadius: 2 }}>
-                EXPO DESK
+                EVENT SUPPORT
               </span>
             </div>
 
@@ -100,12 +100,12 @@ export const Footer: React.FC = () => {
                 TEL: +60 4-653 8888
               </span>
               <span style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontFamily: "'Satoshi', sans-serif" }}>
-                EVENTSPHERE • PENANG
+                EVENTSPHERE - PENANG
               </span>
             </div>
           </div>
 
-          {/* Card 2: Conference Event Overview */}
+          {/* Card 2: Platform overview */}
           <div
             style={{
               backgroundColor: "var(--color-selective-yellow)",
@@ -122,20 +122,20 @@ export const Footer: React.FC = () => {
           >
             <div>
               <span style={{ fontFamily: "var(--font-display)", fontSize: 22, letterSpacing: 1, display: "block" }}>
-                EVENTSPHERE 2025 AT A GLANCE
+                EVENTSPHERE PLATFORM
               </span>
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700, opacity: 0.75 }}>
-                EXPO MANAGEMENT • GLOBAL TRADE SHOW SUITE
+                EXPO & TRADE SHOW MANAGEMENT
               </span>
             </div>
 
-            {/* 4 Conference Stat Badges */}
+            {/* Core platform areas */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
               {[
-                { number: "30+", label: "SESSIONS", color: "var(--color-primary)", text: "#ffffff" },
-                { number: "500+", label: "EXHIBITORS", color: "var(--color-purple-mimosa)", text: "#ffffff" },
-                { number: "2.5K", label: "ATTENDEES", color: "var(--color-cerulean)", text: "#ffffff" },
-                { number: "100%", label: "REAL-TIME", color: "var(--color-kiwi)", text: "#000000" },
+                { number: "01", label: "EXPOS", color: "var(--color-primary)", text: "#ffffff" },
+                { number: "02", label: "BOOTHS", color: "var(--color-purple-mimosa)", text: "#ffffff" },
+                { number: "03", label: "SESSIONS", color: "var(--color-cerulean)", text: "#ffffff" },
+                { number: "04", label: "REGISTRATION", color: "var(--color-kiwi)", text: "#000000" },
               ].map((badge) => (
                 <motion.div
                   key={badge.label}
@@ -168,7 +168,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* =========================================================
-            ROW 2: CLEAN TEXT LINKS + GUESTLIST PASS FORM
+            ROW 2: PLATFORM LINKS + EVENT UPDATES FORM
         ========================================================== */}
         <div
           style={{
@@ -191,7 +191,7 @@ export const Footer: React.FC = () => {
                 { name: "X / Twitter", bg: "var(--color-cerulean)", text: "#ffffff", href: "#" },
                 { name: "Organizer Portal", bg: "var(--color-light)", text: "#000000", href: "#about" },
                 { name: "Exhibitor Booths", bg: "var(--color-selective-yellow)", text: "#000000", href: "#gallery" },
-                { name: "Register Pass", bg: "var(--color-light)", text: "#000000", href: "#tickets" },
+                { name: "Event Registration", bg: "var(--color-light)", text: "#000000", href: "#tickets" },
                 { name: "Expo Schedule", bg: "var(--color-vista-blue)", text: "#000000", href: "#agenda" },
               ].map((link) => (
                 <motion.a
@@ -239,20 +239,20 @@ export const Footer: React.FC = () => {
                   style={{ padding: "6px 0" }}
                 >
                   <h4 style={{ fontFamily: "var(--font-display)", fontSize: 24, margin: 0, color: "var(--color-primary)" }}>
-                    REGISTRATION CONFIRMED
+                    THANK YOU FOR YOUR INTEREST
                   </h4>
                   <p style={{ margin: "4px 0 0 0", fontSize: 13, fontFamily: "'Satoshi', sans-serif", fontWeight: 600 }}>
-                    Expo pass details and floor plan access have been sent to your inbox.
+                    This demo form does not create an expo registration or send email updates.
                   </p>
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubscribe} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontFamily: "var(--font-display)", fontSize: 18, letterSpacing: 0.5, color: "var(--color-primary)" }}>
-                      EXPO REGISTRATION // LIVE UPDATES
+                      EVENTSPHERE UPDATES
                     </span>
                     <span style={{ fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, opacity: 0.65 }}>
-                      EVENTSPHERE 2025
+                      EVENT MANAGEMENT
                     </span>
                   </div>
 
@@ -293,7 +293,7 @@ export const Footer: React.FC = () => {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      REGISTER →
+                      SUBMIT EMAIL
                     </motion.button>
                   </div>
                 </form>
@@ -350,13 +350,13 @@ export const Footer: React.FC = () => {
                 letterSpacing: 0.5,
               }}
             >
-              REVOLUTIONIZING THE EXPO EXPERIENCE // 2025
+              EXPO & TRADE SHOW MANAGEMENT
             </div>
           </div>
 
           {/* Legal / Copyright */}
           <div style={{ display: "flex", gap: 12, fontSize: 13, fontFamily: "'Satoshi', sans-serif", fontWeight: 600 }}>
-            <span>© 2025 EVENTSPHERE MANAGEMENT</span>
+            <span>© EVENTSPHERE MANAGEMENT</span>
             <span>/</span>
             <a href="#" style={{ color: "#ffffff", textDecoration: "none" }}>TERMS</a>
             <span>/</span>

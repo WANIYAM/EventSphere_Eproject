@@ -57,7 +57,7 @@ const NotFound = () => {
             display: "inline-block",
           }}
         >
-          BACK TO HOMEPAGE →
+          BACK TO HOMEPAGE
         </Link>
       </motion.div>
     </div>

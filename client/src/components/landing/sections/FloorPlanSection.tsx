@@ -98,16 +98,16 @@ export const FloorPlanSection: React.FC<{ booths?: any[]; expos?: any[] }> = ({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 24, marginBottom: 36 }}>
           <div>
             <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "#000", padding: "4px 12px", borderRadius: 4, fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-              [ LIVE FLOOR PLAN // SELECT EVENT ]
+              [ BOOTH AVAILABILITY // SELECT EVENT ]
             </span>
             <h2 className="style-display" style={{ fontSize: "clamp(46px, 7vw, 96px)", color: "#fff", margin: "10px 0 0 0", lineHeight: 0.9 }}>
-              INTERACTIVE &#123; FLOOR PLAN &#125; STATUS
+              EXPO &#123; FLOOR PLAN &#125; & BOOTH SPACES
             </h2>
           </div>
 
           {expos.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: 10, backgroundColor: "#161318", border: "2px solid #fff", padding: "8px 14px", borderRadius: 6 }}>
-              <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, color: "var(--color-kiwi)" }}>EXPO EVENT:</span>
+              <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, color: "var(--color-kiwi)" }}>EXPO:</span>
               <select
                 value={selectedExpoId}
                 onChange={(e) => setSelectedExpoId(e.target.value)}
@@ -166,7 +166,7 @@ export const FloorPlanSection: React.FC<{ booths?: any[]; expos?: any[] }> = ({
               letterSpacing: 0.5,
             }}
           >
-            RESERVE AVAILABLE BOOTH →
+            APPLY TO EXHIBIT
           </Link>
         </div>
 
@@ -182,7 +182,7 @@ export const FloorPlanSection: React.FC<{ booths?: any[]; expos?: any[] }> = ({
         >
           {loading ? (
             <div style={{ textAlign: "center", padding: "60px 0", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, fontSize: 16, color: "#fff" }}>
-              Loading floor plan telemetry...
+              Loading booth availability...
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 14 }}>
@@ -248,30 +248,31 @@ export const FloorPlanSection: React.FC<{ booths?: any[]; expos?: any[] }> = ({
             >
               <div>
                 <span style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "var(--color-primary)" }}>
-                  BOOTH INSPECTOR // {selectedBooth.boothNumber}
+                  BOOTH DETAILS // {selectedBooth.boothNumber}
                 </span>
                 <h3 style={{ fontFamily: "var(--font-display)", fontSize: 28, margin: "4px 0" }}>
                   {selectedBooth.exhibitor?.company ? `Assigned to: ${selectedBooth.exhibitor.company}` : `Status: ${selectedBooth.status.toUpperCase()}`}
                 </h3>
                 <p style={{ margin: 0, fontSize: 14, fontFamily: "'Satoshi', sans-serif", fontWeight: 600 }}>
-                  Dimensions: {selectedBooth.size || "3x3 m"} • Price: ${selectedBooth.price || 500}
+                  Dimensions: {selectedBooth.size || "3x3 m"} - Price: ${selectedBooth.price || 500}
                 </p>
               </div>
 
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                 {selectedBooth.status === "booked" && selectedBooth.exhibitor?._id && (
                   <Link
-                    to={`/attendee/exhibitors/${selectedBooth.exhibitor._id}`}
+                    to={`/exhibitors/${selectedBooth.exhibitor._id}`}
                     style={{ backgroundColor: "var(--color-dark)", color: "#fff", border: "2px solid #000", padding: "8px 16px", textDecoration: "none", fontWeight: 800, fontSize: 13 }}
                   >
-                    View Exhibitor Profile →
+                    View Exhibitor Profile
                   </Link>
                 )}
                 <button
                   onClick={() => setSelectedBooth(null)}
+                  aria-label="Close"
                   style={{ backgroundColor: "var(--color-primary)", color: "#fff", border: "2px solid #000", padding: "8px 16px", cursor: "pointer", fontWeight: 800, fontSize: 13 }}
                 >
-                  Close ✕
+                  Close
                 </button>
               </div>
             </motion.div>

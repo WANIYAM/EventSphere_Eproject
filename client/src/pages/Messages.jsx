@@ -140,7 +140,7 @@ const Messages = () => {
         }}
       >
         <span style={{ backgroundColor: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-          [ REAL-TIME COMMUNICATION ]
+          EVENT COMMUNICATION
         </span>
         <h1 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(36px, 5vw, 48px)", color: "var(--color-dark, #231e25)", lineHeight: 0.9, margin: "6px 0 0 0" }}>
           MESSAGES & INBOX
@@ -149,21 +149,21 @@ const Messages = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
       {/* Tabs Bar */}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         {[
-          { id: "inbox", label: `INBOX (${unreadCount} UNREAD)`, icon: "📥" },
-          { id: "sent", label: `SENT ARCHIVE (${sent.length})`, icon: "📤" },
-          { id: "compose", label: "+ COMPOSE MESSAGE", icon: "✍️" },
+          { id: "inbox", label: `INBOX (${unreadCount} UNREAD)` },
+          { id: "sent", label: `SENT ARCHIVE (${sent.length})` },
+          { id: "compose", label: "COMPOSE MESSAGE" },
         ].map((t) => {
           const isActive = activeTab === t.id && !selectedMessage;
 
@@ -192,7 +192,6 @@ const Messages = () => {
                 gap: 8,
               }}
             >
-              <span>{t.icon}</span>
               <span>{t.label}</span>
             </motion.button>
           );
@@ -257,7 +256,7 @@ const Messages = () => {
                         </span>
                         <div>
                           <span style={{ color: "var(--color-primary, #ff3e33)", fontSize: 12, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>
-                            Read →
+                            Read
                           </span>
                         </div>
                       </div>
@@ -322,7 +321,7 @@ const Messages = () => {
                         </span>
                         <div>
                           <span style={{ color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>
-                            View Details →
+                            View Details
                           </span>
                         </div>
                       </div>
@@ -351,10 +350,10 @@ const Messages = () => {
                   onClick={() => setSelectedMessage(null)}
                   style={{ background: "#ffffff", border: "2px solid #000", padding: "6px 14px", borderRadius: 4, cursor: "pointer", fontFamily: "'Satoshi', sans-serif", fontWeight: 800, fontSize: 13 }}
                 >
-                  ← Back to Messages List
+                  Back to Messages List
                 </button>
                 <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, color: "#6b7280" }}>
-                  📅 {new Date(selectedMessage.createdAt).toLocaleString()}
+                  Sent: {new Date(selectedMessage.createdAt).toLocaleString()}
                 </span>
               </div>
 
@@ -389,7 +388,7 @@ const Messages = () => {
                     onClick={() => handleReply(selectedMessage)}
                     style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", border: "2px solid #000", boxShadow: "2px 2px 0px #000", padding: "10px 22px", fontFamily: "var(--font-display)", fontSize: 20, cursor: "pointer" }}
                   >
-                    Reply to Message →
+                    Reply to Message
                   </button>
                 </div>
               )}
@@ -487,7 +486,7 @@ const Messages = () => {
                   cursor: sending ? "not-allowed" : "pointer",
                 }}
               >
-                {sending ? "SENDING..." : "DISPATCH MESSAGE →"}
+                {sending ? "SENDING..." : "DISPATCH MESSAGE"}
               </motion.button>
             </form>
           )}

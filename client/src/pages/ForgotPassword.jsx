@@ -70,7 +70,7 @@ const ForgotPassword = () => {
           gap: 6,
         }}
       >
-        <span>←</span> Back to Login
+        Back to Login
       </Link>
 
       <motion.div
@@ -110,7 +110,7 @@ const ForgotPassword = () => {
         </div>
 
         <h2 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(40px, 6vw, 52px)", color: "var(--color-dark, #231e25)", lineHeight: 0.92, margin: "0 0 8px 0" }}>
-          RESET YOUR PASS
+          RESET YOUR PASSWORD
         </h2>
         <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, color: "#6b7280", margin: "0 0 24px 0", fontWeight: 500 }}>
           Enter your registered email to generate a secure reset link.
@@ -118,12 +118,12 @@ const ForgotPassword = () => {
 
         {error && (
           <div style={{ backgroundColor: "#fee2e2", border: "2px solid red", padding: "10px 14px", marginBottom: 16, color: "#991b1b", fontWeight: 700, fontSize: 13 }}>
-            ⚠️ {error}
+            Error: {error}
           </div>
         )}
         {message && (
           <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2px solid #000", padding: "10px 14px", marginBottom: 16, color: "#000", fontWeight: 800, fontSize: 13 }}>
-            ✓ {message}
+            Success: {message}
           </div>
         )}
 
@@ -167,7 +167,7 @@ const ForgotPassword = () => {
               cursor: submitting ? "not-allowed" : "pointer",
             }}
           >
-            {submitting ? "PROCESSING..." : "GENERATE RESET LINK →"}
+            {submitting ? "PROCESSING..." : "GENERATE RESET LINK"}
           </motion.button>
         </form>
       </motion.div>

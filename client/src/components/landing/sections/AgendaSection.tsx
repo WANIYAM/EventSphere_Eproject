@@ -19,9 +19,9 @@ const DEFAULT_SCHEDULE: AgendaItem[] = [
   {
     id: "01",
     time: "09:00 - 10:30",
-    stageTag: "MAIN AUDITORIUM // OPENING",
-    introduction: "Opening Keynote & EventSphere Platform Unveiling",
-    description: "Welcome address on modernizing multi-industry trade shows through unified registration, floor plans, and real-time telemetry.",
+    stageTag: "MAIN HALL // EVENT INFORMATION",
+    introduction: "Expo Welcome and Event Information",
+    description: "Find event details, registration information, and guidance for exhibitors and attendees.",
     image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&auto=format&fit=crop&q=80",
     bg: "rgb(255, 85, 248)", // Violet Pink (Card 1)
     rotate: -2.0,
@@ -32,9 +32,9 @@ const DEFAULT_SCHEDULE: AgendaItem[] = [
   {
     id: "02",
     time: "11:00 - 13:00",
-    stageTag: "EXHIBIT HALL // BOOTH DEMOS",
-    introduction: "Exhibitor Product Showcases & Interactive Floor Walk",
-    description: "Commercial exhibitors demonstrate products across reserved booth zones with instant digital lead retrieval and networking.",
+    stageTag: "EXHIBIT HALL // EXHIBITOR SHOWCASE",
+    introduction: "Exhibitor Profiles and Booth Spaces",
+    description: "Browse exhibitor profiles, products and services, and booth locations on the event floor plan.",
     image: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=600&auto=format&fit=crop&q=80",
     bg: "rgb(254, 184, 4)", // Selective Yellow (Card 2)
     rotate: 1.8,
@@ -45,9 +45,9 @@ const DEFAULT_SCHEDULE: AgendaItem[] = [
   {
     id: "03",
     time: "14:30 - 16:30",
-    stageTag: "CONFERENCE ROOM B // WORKSHOP",
-    introduction: "Panel: Scalable Architecture for Global Expos",
-    description: "Industry veterans and organizers analyze concurrent user throughput, automated reporting, and role-based permissions.",
+    stageTag: "EVENT LOCATION // WORKSHOP",
+    introduction: "Planning Sessions and Workshops",
+    description: "Review session topics, speakers, time slots, and locations in the event schedule.",
     image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80",
     bg: "rgb(255, 164, 144)", // Terracotta (Card 3)
     rotate: -1.6,
@@ -58,9 +58,9 @@ const DEFAULT_SCHEDULE: AgendaItem[] = [
   {
     id: "04",
     time: "18:00 - 21:00",
-    stageTag: "EXECUTIVE LOUNGE // NETWORKING",
-    introduction: "B2B Matchmaking Gala & Exhibitor Awards",
-    description: "Direct collaboration between registered attendees, exhibitors, and venue organizers over cocktails and live entertainment.",
+    stageTag: "EXPO FLOOR // ATTENDEE GUIDE",
+    introduction: "Plan an Expo Visit",
+    description: "Register for events and sessions, bookmark sessions of interest, and check event updates.",
     image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=80",
     bg: "rgb(171, 241, 57)", // Kiwi Green (Card 4)
     rotate: 2.2,
@@ -125,7 +125,7 @@ export const AgendaSection: React.FC<{ sessions?: any[] }> = ({ sessions = [] })
             time: `${startStr} - ${endStr}`,
             stageTag: s.location ? `${s.location.toUpperCase()} // ${s.topic?.toUpperCase() || "SESSION"}` : "MAIN STAGE // SESSION",
             introduction: s.title,
-            description: s.speaker ? `Keynote Speaker: ${s.speaker} · ${s.topic || "Industry Talk"}` : (s.topic || "Keynote Presentation"),
+            description: s.speaker ? `Speaker: ${s.speaker} · ${s.topic || "Session"}` : (s.topic || "Event session"),
             image: DEFAULT_SCHEDULE[idx % DEFAULT_SCHEDULE.length].image,
             ...styleCfg,
           };
@@ -177,7 +177,7 @@ export const AgendaSection: React.FC<{ sessions?: any[] }> = ({ sessions = [] })
               marginBottom: 12,
             }}
           >
-            [ TIMETABLE // ITINERARY ]
+            [ EVENT PROGRAM // SCHEDULE ]
           </div>
           <h2
             className="style-display"
@@ -201,7 +201,7 @@ export const AgendaSection: React.FC<{ sessions?: any[] }> = ({ sessions = [] })
               margin: 0,
             }}
           >
-            PROGRAM 2025
+            EVENT SCHEDULE
           </h2>
         </div>
 
@@ -330,8 +330,7 @@ export const AgendaSection: React.FC<{ sessions?: any[] }> = ({ sessions = [] })
                       gap: 8,
                     }}
                   >
-                    <span>Scroll</span>
-                    <span style={{ fontSize: 16 }}>↓</span>
+                    <span>Next session</span>
                   </motion.button>
                 </div>
               </div>

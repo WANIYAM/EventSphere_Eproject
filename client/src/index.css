@@ -130,7 +130,8 @@ body {
 
 .card h2 {
   margin-bottom: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
   color: var(--text-main);
 }
 
@@ -766,20 +767,22 @@ body {
 .badge-issue { background-color: #fee2e2; color: #991b1b; }
 
 /* ==============================
-   Phase 6: Notifications Bell & Dropdown
+   Phase 6: Notifications & Dropdown
    ============================== */
-.notif-bell-container {
+.notification-container {
   position: relative;
   display: inline-block;
 }
 
-.notif-bell-btn {
+.notification-button {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
   position: relative;
-  padding: 0.3rem 0.5rem;
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
 }
 
 .notif-badge {
@@ -948,8 +951,10 @@ body {
   background: none;
   border: none;
   color: white;
-  font-size: 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 /* ==============================
@@ -1016,13 +1021,15 @@ body {
 /* ==============================
    Phase 6: Responsive Navbar & Mobile Adjustments
    ============================== */
-.hamburger-btn {
+.mobile-menu-button {
   display: none;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
   color: var(--text-main);
+  white-space: nowrap;
 }
 
 .table-responsive {
@@ -1041,7 +1048,46 @@ body {
     width: 100%;
   }
 
-  .hamburger-btn {
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-number {
+    font-size: 1.8rem;
+  }
+}
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .w-full-mobile {
+    width: 100%;
+  }
+
+  .mobile-menu-button {
     display: block;
   }
 

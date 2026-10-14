@@ -92,7 +92,7 @@ export const Footer: React.FC = () => {
                     cursor: "pointer",
                   }}
                 >
-                  {formState === "Loading" ? "..." : formState === "Success" ? "✓ Done" : "Join"}
+                  {formState === "Loading" ? "..." : formState === "Success" ? "Done" : "Join"}
                 </button>
               </div>
               {formState === "Success" && (

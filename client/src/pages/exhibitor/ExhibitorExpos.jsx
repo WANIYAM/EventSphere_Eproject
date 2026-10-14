@@ -120,12 +120,12 @@ const ExhibitorExpos = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
@@ -189,8 +189,8 @@ const ExhibitorExpos = () => {
                       {expo.title}
                     </h3>
                     <div style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, color: "#6b7280", fontWeight: 700, marginBottom: 12 }}>
-                      📅 {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()} <br />
-                      📍 {expo.location || "TBA"}
+                      Dates: {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()} <br />
+                      Location: {expo.location || "TBA"}
                     </div>
                     {expo.description && (
                       <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, color: "#4b5563", lineHeight: 1.45, margin: 0 }}>
@@ -215,7 +215,7 @@ const ExhibitorExpos = () => {
                           cursor: "not-allowed",
                         }}
                       >
-                        Application Submitted ✓
+                        Application Submitted
                       </button>
                     ) : (
                       <motion.button
@@ -236,7 +236,7 @@ const ExhibitorExpos = () => {
                           cursor: "pointer",
                         }}
                       >
-                        Apply for Booth Space →
+                        Apply for Booth Space
                       </motion.button>
                     )}
                   </div>
@@ -293,7 +293,7 @@ const ExhibitorExpos = () => {
                   onClick={() => setSelectedExpo(null)}
                   style={{ background: "none", border: "2px solid #000", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", fontWeight: 900, fontSize: 16 }}
                 >
-                  ✕
+                  Close
                 </button>
               </div>
 
@@ -349,7 +349,7 @@ const ExhibitorExpos = () => {
                     marginTop: 8,
                   }}
                 >
-                  {submitting ? "SUBMITTING APPLICATION..." : "SUBMIT BOOTH APPLICATION →"}
+                  {submitting ? "SUBMITTING APPLICATION..." : "SUBMIT BOOTH APPLICATION"}
                 </motion.button>
               </form>
             </motion.div>

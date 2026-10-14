@@ -2,25 +2,6 @@ import React, { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { RollingTextButton } from "../common/RollingTextButton";
 
-const TicketQrCode: React.FC<{ size?: number }> = ({ size = 76 }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="var(--color-dark)">
-    <rect x="0" y="0" width="28" height="28" rx="2" />
-    <rect x="4" y="4" width="20" height="20" fill="#fff" rx="1" />
-    <rect x="8" y="8" width="12" height="12" />
-    <rect x="72" y="0" width="28" height="28" rx="2" />
-    <rect x="76" y="4" width="20" height="20" fill="#fff" rx="1" />
-    <rect x="80" y="8" width="12" height="12" />
-    <rect x="0" y="72" width="28" height="28" rx="2" />
-    <rect x="4" y="76" width="20" height="20" fill="#fff" rx="1" />
-    <rect x="8" y="80" width="12" height="12" />
-    <rect x="36" y="10" width="12" height="12" />
-    <rect x="36" y="36" width="28" height="28" />
-    <rect x="72" y="44" width="12" height="24" />
-    <rect x="44" y="72" width="20" height="12" />
-    <rect x="76" y="76" width="18" height="18" />
-  </svg>
-);
-
 const ScallopEdge: React.FC<{ side: "left" | "right"; count?: number }> = ({ side, count = 12 }) => (
   <div
     style={{
@@ -108,7 +89,7 @@ export const TicketSection: React.FC = () => {
                 letterSpacing: 1.5,
               }}
             >
-              YOUR ACCESS TO
+              GET STARTED WITH
             </h2>
             <h2
               className="style-display"
@@ -120,12 +101,12 @@ export const TicketSection: React.FC = () => {
                 letterSpacing: 1.5,
               }}
             >
-              &#123; EVENTSPHERE &#125; STARTS HERE
+              &#123; EVENTSPHERE &#125;
             </h2>
           </div>
 
           <RollingTextButton
-            buttonText="Register Now"
+            buttonText="Contact EventSphere"
             bgColor="var(--color-light)"
             textColor="var(--color-dark)"
             link="#contact"
@@ -165,10 +146,10 @@ export const TicketSection: React.FC = () => {
 
             <div>
               <h3 className="style-display" style={{ fontSize: 54, color: "#ffffff", lineHeight: 0.88, margin: 0 }}>
-                JUL-01
+                EXPO
               </h3>
               <h3 className="style-display" style={{ fontSize: 54, color: "var(--color-dark)", lineHeight: 0.88, margin: 0 }}>
-                EXPO'25
+                REGISTRATION
               </h3>
             </div>
 
@@ -188,13 +169,13 @@ export const TicketSection: React.FC = () => {
                   textAlign: "center",
                 }}
               >
-                All-Access Pass
+                Attendee registration
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                <TicketQrCode size={70} />
+                <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800 }}>EVENT DETAILS</span>
                 <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 700, color: "var(--color-dark)" }}>
-                  #EXP-2025-01
+                  Dates and location set by organizer
                 </span>
               </div>
             </div>
@@ -235,13 +216,13 @@ export const TicketSection: React.FC = () => {
 
               <div style={{ textAlign: "right" }}>
                 <h4 className="style-display" style={{ fontSize: 34, color: "var(--color-dark)", margin: 0, lineHeight: 0.9 }}>
-                  01-03 JULY
+                  EXPO DATES
                 </h4>
                 <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 600, color: "var(--color-dark)", margin: "4px 0 0 0" }}>
-                  Penang, Malaysia
+                  Set by the organizer
                 </p>
                 <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, color: "#555", margin: 0 }}>
-                  09:00 to 21:00 Daily
+                  See the individual expo listing
                 </p>
               </div>
             </div>
@@ -251,19 +232,19 @@ export const TicketSection: React.FC = () => {
                 TRADE SHOW
               </h1>
               <h1 className="style-display" style={{ fontSize: "clamp(64px, 9vw, 108px)", color: "var(--color-dark)", lineHeight: 0.88, letterSpacing: 1.5, margin: 0 }}>
-                EXPO PASS
+                EVENT REGISTRATION
               </h1>
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
               <div style={{ backgroundColor: "var(--color-dark)", color: "var(--color-light)", padding: "8px 20px", borderRadius: 24, fontSize: 14, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
-                Organizer & Exhibitor Verified
+                Organizer, exhibitor, and attendee access
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                <TicketQrCode size={70} />
+                <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800 }}>NEXT STEP</span>
                 <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 700, color: "var(--color-dark)" }}>
-                  #ESP-2025-SECURE
+                  Choose an expo to view its details
                 </span>
               </div>
             </div>

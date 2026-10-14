@@ -67,12 +67,12 @@ const AttendeeExpos = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
@@ -135,8 +135,8 @@ const AttendeeExpos = () => {
                       {expo.title}
                     </h3>
                     <div style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, color: "#6b7280", fontWeight: 700, marginBottom: 12 }}>
-                      📅 {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()} <br />
-                      📍 {expo.location || "TBA"}
+                      Dates: {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()} <br />
+                      Location: {expo.location || "TBA"}
                     </div>
                     {expo.description && (
                       <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, color: "#4b5563", lineHeight: 1.45, margin: 0 }}>
@@ -162,7 +162,7 @@ const AttendeeExpos = () => {
                         textAlign: "center",
                       }}
                     >
-                      View Floor Plan →
+                      View Floor Plan
                     </Link>
 
                     {registered ? (
@@ -180,7 +180,7 @@ const AttendeeExpos = () => {
                           alignItems: "center",
                         }}
                       >
-                        ✓ Claimed
+                        Claimed
                       </span>
                     ) : (
                       <button

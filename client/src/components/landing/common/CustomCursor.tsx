@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, type FC } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 
 interface CursorConfig {

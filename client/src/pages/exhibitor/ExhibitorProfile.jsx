@@ -120,12 +120,12 @@ const ExhibitorProfile = () => {
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
       {success && (
         <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ✓ {success}
+          Success: {success}
         </div>
       )}
 
@@ -236,7 +236,7 @@ const ExhibitorProfile = () => {
               cursor: infoSubmitting ? "not-allowed" : "pointer",
             }}
           >
-            {infoSubmitting ? "SAVING..." : "SAVE PROFILE DETAILS →"}
+            {infoSubmitting ? "SAVING..." : "SAVE PROFILE DETAILS"}
           </motion.button>
         </form>
 
@@ -278,7 +278,7 @@ const ExhibitorProfile = () => {
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             ) : (
-              <span style={{ fontSize: 48 }}>🏢</span>
+              <span style={{ fontSize: 12, fontWeight: 800 }}>No logo</span>
             )}
           </div>
 

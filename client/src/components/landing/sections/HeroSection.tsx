@@ -1,8 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
 import { CursorImageTrail } from "../common/CursorImageTrail";
+import { useAuth } from "../../../context/AuthContext.jsx";
 
 export const HeroSection: React.FC = () => {
+  const { user } = useAuth();
   const heroRef = useRef<HTMLDivElement>(null);
   const [bracketsHovered, setBracketsHovered] = useState(false);
 
@@ -79,9 +82,9 @@ export const HeroSection: React.FC = () => {
         }}
       />
 
-      <CursorImageTrail containerRef={heroRef} />
+      <CursorImageTrail containerRef={heroRef as React.RefObject<HTMLDivElement>} />
 
-      {/* Main Headline: REVOLUTIONIZING THE EXPO EXPERIENCE */}
+      {/* Main Headline */}
       <motion.div
         initial={{ filter: "blur(14px)", opacity: 0, scale: 0.94 }}
         animate={{ filter: "blur(0px)", opacity: 1, scale: 1 }}
@@ -123,7 +126,7 @@ export const HeroSection: React.FC = () => {
           </motion.span>
 
           <span className="style-display" style={{ fontSize: "clamp(60px, 11vw, 150px)", color: "var(--color-light)", lineHeight: 0.9 }}>
-            REVOLUTIONIZING
+            STREAMLINING
           </span>
 
           <motion.span
@@ -184,7 +187,7 @@ export const HeroSection: React.FC = () => {
                 textTransform: "uppercase",
               }}
             >
-              ORGANIZERS • EXHIBITORS • ATTENDEES
+              ORGANIZERS - EXHIBITORS - ATTENDEES
             </span>
           </motion.div>
 
@@ -218,7 +221,7 @@ export const HeroSection: React.FC = () => {
                 textTransform: "uppercase",
               }}
             >
-              REAL-TIME BOOTH ALLOCATION & SCHEDULING
+              EVENT DETAILS, BOOTHS & SCHEDULES
             </span>
           </motion.div>
         </div>
@@ -247,12 +250,11 @@ export const HeroSection: React.FC = () => {
           <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "var(--color-kiwi)" }} />
           <span>EVENTSPHERE MANAGEMENT SYSTEM</span>
         </div>
-        <span style={{ opacity: 0.65, fontSize: 11 }}>ENTERPRISE EXPOS & TRADE SHOWS</span>
+        <span style={{ opacity: 0.65, fontSize: 11 }}>EXPO & TRADE SHOW MANAGEMENT</span>
       </motion.div>
 
-      {/* Center Bottom: "Scroll to Explore" */}
-      <motion.button
-        onClick={scrollToGallery}
+      {/* Center Bottom: Adaptive CTA Controls */}
+      <motion.div
         style={{
           position: "absolute",
           bottom: 28,
@@ -260,47 +262,101 @@ export const HeroSection: React.FC = () => {
           transform: "translateX(-50%)",
           opacity: heroControlsOpacity,
           zIndex: 6,
-          backgroundColor: "var(--color-dark)",
-          color: "var(--color-light)",
-          border: "2px solid #000000",
-          boxShadow: "3px 3px 0px #000000",
-          padding: "8px 20px",
-          borderRadius: 40,
           display: "flex",
           alignItems: "center",
           gap: 12,
-          cursor: "pointer",
-          userSelect: "none",
+          flexWrap: "wrap",
+          justifyContent: "center",
         }}
-        whileHover={{ scale: 1.05, y: -3, boxShadow: "5px 5px 0px #000000" }}
-        whileTap={{ scale: 0.96 }}
       >
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 12 }}>
-          {[0.5, 1, 0.4, 0.85].map((h, i) => (
-            <motion.span
-              key={i}
-              animate={{ height: ["3px", `${h * 12}px`, "3px"] }}
-              transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.12 }}
-              style={{ width: 2.5, backgroundColor: "var(--color-kiwi)", borderRadius: 1 }}
-            />
-          ))}
-        </div>
+        {user?.role === "attendee" ? (
+          <>
+            {/* Attendee Button 1: Browse Expos */}
+            <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.96 }}>
+              <Link
+                to="/expos"
+                style={{
+                  backgroundColor: "var(--color-dark)",
+                  color: "var(--color-light)",
+                  border: "2px solid #000000",
+                  boxShadow: "3px 3px 0px #000000",
+                  padding: "8px 22px",
+                  borderRadius: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  textDecoration: "none",
+                  fontFamily: "var(--font-display)",
+                  fontSize: 16,
+                  letterSpacing: 1,
+                }}
+              >
+                <span>BROWSE EXPOS</span>
+              </Link>
+            </motion.div>
 
-        <span style={{ fontFamily: "var(--font-display)", fontSize: 16, letterSpacing: 1 }}>
-          EXPLORE EXPO SUITE
-        </span>
+            {/* Attendee Button 2: My Schedule */}
+            <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.96 }}>
+              <Link
+                to="/schedule"
+                style={{
+                  backgroundColor: "var(--color-kiwi, #abf139)",
+                  color: "#000000",
+                  border: "2px solid #000000",
+                  boxShadow: "3px 3px 0px #000000",
+                  padding: "8px 22px",
+                  borderRadius: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  textDecoration: "none",
+                  fontFamily: "var(--font-display)",
+                  fontSize: 16,
+                  letterSpacing: 1,
+                }}
+              >
+                <span>MY SCHEDULE</span>
+              </Link>
+            </motion.div>
+          </>
+        ) : (
+          /* Visitor / Default Button: Explore Expo Suite */
+          <motion.button
+            onClick={scrollToGallery}
+            style={{
+              backgroundColor: "var(--color-dark)",
+              color: "var(--color-light)",
+              border: "2px solid #000000",
+              boxShadow: "3px 3px 0px #000000",
+              padding: "8px 20px",
+              borderRadius: 40,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              cursor: "pointer",
+              userSelect: "none",
+            }}
+            whileHover={{ scale: 1.05, y: -3, boxShadow: "5px 5px 0px #000000" }}
+            whileTap={{ scale: 0.96 }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 12 }}>
+              {[0.5, 1, 0.4, 0.85].map((h, i) => (
+                <motion.span
+                  key={i}
+                  animate={{ height: ["3px", `${h * 12}px`, "3px"] }}
+                  transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.12 }}
+                  style={{ width: 2.5, backgroundColor: "var(--color-kiwi)", borderRadius: 1 }}
+                />
+              ))}
+            </div>
 
-        <motion.span
-          animate={{ y: [0, 3, 0] }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-          style={{ display: "inline-flex" }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <polyline points="19 12 12 19 5 12" />
-          </svg>
-        </motion.span>
-      </motion.button>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 16, letterSpacing: 1 }}>
+              EXPLORE EXPO SUITE
+            </span>
+
+          </motion.button>
+        )}
+      </motion.div>
     </motion.section>
   );
 };

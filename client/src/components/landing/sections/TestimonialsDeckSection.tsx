@@ -16,10 +16,10 @@ interface Testimonial {
 const EXPO_TESTIMONIALS: Testimonial[] = [
   {
     id: 0,
-    name: "Sarah Mitchell",
-    role: "Lead Event Organizer",
-    company: "Global TradeSphere Expo",
-    quote: "EventSphere eliminated our traditional paperwork bottlenecks. Managing 450+ exhibitor applications and real-time floor plan allocations in one single dashboard saved us hundreds of staff hours.",
+    name: "Event Organizer",
+    role: "Expo management",
+    company: "EventSphere workflow",
+    quote: "Create and update expo events, review exhibitor applications, allocate booth spaces, and manage event schedules.",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80",
     rating: 5,
     accentColor: "var(--color-primary)",
@@ -27,10 +27,10 @@ const EXPO_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: 1,
-    name: "David Kim",
-    role: "Exhibitor & Sales Director",
-    company: "Apex Industrial Robotics",
-    quote: "Selecting and reserving our booth space directly on the interactive floor plan was seamless. The built-in attendee communication channel drove 300+ pre-booked product demos before the show even opened.",
+    name: "Exhibitor",
+    role: "Company profile",
+    company: "EventSphere workflow",
+    quote: "Maintain company details, products and services, and contact information; review booth availability and apply to exhibit.",
     avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80",
     rating: 5,
     accentColor: "var(--color-selective-yellow)",
@@ -38,10 +38,10 @@ const EXPO_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: 2,
-    name: "Ayesha Rahman",
-    role: "Operations VP",
-    company: "NexGen Trade Shows",
-    quote: "The real-time schedule management is flawless. Last-minute room and speaker changes synchronized within 1 second to all attendee portals and hallway signage with zero confusion.",
+    name: "Event Organizer",
+    role: "Schedule management",
+    company: "EventSphere workflow",
+    quote: "Create sessions with time slots, speakers, topics, and locations, then update event schedules as needed.",
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80",
     rating: 5,
     accentColor: "var(--color-cerulean)",
@@ -49,10 +49,10 @@ const EXPO_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: 3,
-    name: "James Carter",
-    role: "Enterprise Attendee & Buyer",
-    company: "Venture Logistics Group",
-    quote: "Filtering exhibitors by product keywords and bookmarking keynote sessions on my phone transformed my visit. The floor map routing helped our sourcing team cover the entire 150,000 sq ft venue in 2 days.",
+    name: "Attendee",
+    role: "Event planning",
+    company: "EventSphere workflow",
+    quote: "Explore event details, exhibitors, and floor plans; register for events or sessions and bookmark sessions of interest.",
     avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&auto=format&fit=crop&q=80",
     rating: 5,
     accentColor: "var(--color-kiwi)",
@@ -142,8 +142,7 @@ export const TestimonialsDeckSection: React.FC = () => {
               marginBottom: 12,
             }}
           >
-            <span>★★★★★</span>
-            <span style={{ color: "#ffffff", opacity: 0.9 }}>VERIFIED ORGANIZERS & EXHIBITORS</span>
+            <span>ORGANIZERS, EXHIBITORS & ATTENDEES</span>
           </div>
 
           <h2
@@ -156,7 +155,7 @@ export const TestimonialsDeckSection: React.FC = () => {
               letterSpacing: 2,
             }}
           >
-            CLIENT VALIDATION
+            PLATFORM CAPABILITIES
           </h2>
         </div>
 
@@ -257,8 +256,8 @@ export const TestimonialsDeckSection: React.FC = () => {
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ display: "flex", gap: 3, color: "var(--color-primary)", fontSize: 16 }}>
-                    {"★".repeat(t.rating)}
+                  <div style={{ display: "flex", color: "var(--color-primary)", fontSize: 12, fontWeight: 800 }}>
+                    WORKFLOW {String(t.id + 1).padStart(2, "0")}
                   </div>
                   <span
                     style={{
@@ -272,7 +271,7 @@ export const TestimonialsDeckSection: React.FC = () => {
                       border: "1px solid var(--color-dark)",
                     }}
                   >
-                    SRS VALIDATED
+                    CORE FEATURE
                   </span>
                 </div>
 
@@ -332,7 +331,7 @@ export const TestimonialsDeckSection: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {t.role} • <span style={{ color: "var(--color-dark)" }}>{t.company}</span>
+                      {t.role} - <span style={{ color: "var(--color-dark)" }}>{t.company}</span>
                     </p>
                   </div>
                 </div>

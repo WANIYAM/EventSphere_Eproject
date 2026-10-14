@@ -58,15 +58,15 @@ const AdminFeedback = () => {
             style={{ padding: "8px 14px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, backgroundColor: "var(--color-light, #fff8eb)" }}
           >
             <option value="">All Categories</option>
-            <option value="suggestion">💡 Suggestions</option>
-            <option value="issue">⚠️ Issues</option>
+            <option value="suggestion">Suggestions</option>
+            <option value="issue">Issues</option>
           </select>
         </div>
       </div>
 
       {error && (
         <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          ⚠️ {error}
+          Error: {error}
         </div>
       )}
 
@@ -119,7 +119,7 @@ const AdminFeedback = () => {
                           fontSize: 11,
                         }}
                       >
-                        {f.type === "suggestion" ? "💡 Suggestion" : "⚠️ Issue"}
+                        {f.type === "suggestion" ? "Suggestion" : "Issue"}
                       </span>
                     </td>
                     <td style={{ padding: "12px 14px", border: "1.5px solid var(--color-dark)", maxWidth: "420px", fontWeight: 500 }}>

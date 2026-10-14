@@ -7,14 +7,15 @@ import {
   getSession
 } from "../controllers/sessionController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
+import validateObjectId from "../middleware/validateObjectId.js";
 
 const router = express.Router();
 
 // General session endpoints
 router.post("/", protect, authorize("admin"), createSession);
-router.get("/:id", protect, getSession);
-router.put("/:id", protect, authorize("admin"), updateSession);
-router.delete("/:id", protect, authorize("admin"), deleteSession);
+router.get("/:id", validateObjectId, getSession);
+router.put("/:id", protect, authorize("admin"), validateObjectId, updateSession);
+router.delete("/:id", protect, authorize("admin"), validateObjectId, deleteSession);
 
 export default router;
 export { getSessionsByExpo };

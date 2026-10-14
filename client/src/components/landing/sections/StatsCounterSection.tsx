@@ -45,7 +45,7 @@ const AnimatedNumber: React.FC<{ target: number; suffix?: string }> = ({
 };
 
 export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
-  stats = { totalExpos: 1, totalExhibitors: 4, totalSessions: 4, totalAttendees: 8, occupancyRate: 15 },
+  stats = { totalExpos: 0, totalExhibitors: 0, totalSessions: 0, totalAttendees: 0, occupancyRate: 0 },
 }) => {
   return (
     <section
@@ -78,7 +78,7 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
             }}
           >
             <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "var(--color-kiwi, #abf139)" }} />
-            <span>REAL-TIME DATABASE TELEMETRY</span>
+            <span>EVENT MANAGEMENT OVERVIEW</span>
           </div>
 
           <h2
@@ -91,7 +91,7 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
               letterSpacing: 1.5,
             }}
           >
-            EVENTSPHERE &#123; BENTO MATRIX &#125;
+            EVENTSPHERE &#123; PLATFORM OVERVIEW &#125;
           </h2>
         </div>
 
@@ -134,13 +134,12 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
               <div>
                 <span style={{ backgroundColor: "#000", color: "#fff", padding: "3px 10px", borderRadius: 2, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-                  [ GLOBAL REACH // SCALE ]
+                  [ ATTENDEE REGISTRATION ]
                 </span>
                 <h4 style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 18, fontWeight: 800, margin: "10px 0 0 0" }}>
-                  TOTAL REGISTERED TRADE ATTENDEES
+                  REGISTERED ATTENDEES
                 </h4>
               </div>
-              <span style={{ fontSize: 24 }}>👥</span>
             </div>
 
             <div style={{ margin: "20px 0" }}>
@@ -152,29 +151,20 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
                   letterSpacing: 2,
                 }}
               >
-                <AnimatedNumber target={stats.totalAttendees ? stats.totalAttendees * 1000 : 8000} suffix="+" />
+                <AnimatedNumber target={stats.totalAttendees ?? 0} />
               </div>
               <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: 600, opacity: 0.9, margin: "8px 0 0 0" }}>
-                Enterprise buyers, developers & trade visitors actively registered across all expo halls.
+                Attendee accounts on EventSphere.
               </p>
             </div>
 
-            {/* Live Throughput Bar */}
+            {/* Registration information */}
             <div style={{ display: "flex", alignItems: "center", gap: 12, borderTop: "2px solid rgba(0,0,0,0.25)", paddingTop: 14 }}>
               <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 800, color: "#000" }}>
-                LIVE PASS ISSUANCE
+                ATTENDEE ACCOUNTS
               </span>
-              <div style={{ flex: 1, height: 8, backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 4, overflow: "hidden" }}>
-                <motion.div
-                  initial={{ width: 0 }}
-                  whileInView={{ width: "88%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.4, ease: "easeOut" }}
-                  style={{ height: "100%", backgroundColor: "var(--color-kiwi, #abf139)" }}
-                />
-              </div>
               <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-                88% ALLOCATED
+                FOR EACH EXPO
               </span>
             </div>
           </motion.div>
@@ -219,15 +209,15 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
                   lineHeight: 0.88,
                 }}
               >
-                <AnimatedNumber target={stats.occupancyRate || 15} suffix="%" />
+                <AnimatedNumber target={stats.occupancyRate ?? 0} suffix="%" />
               </div>
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase", opacity: 0.8 }}>
-                COMMERCIAL BOOTHS BOOKED
+                BOOTH SPACES ALLOCATED
               </span>
             </div>
 
             <div style={{ backgroundColor: "#000", color: "#fff", padding: "8px 12px", borderRadius: 3, textAlign: "center", fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
-              RESERVE ON FLOOR PLAN →
+              VIEW BOOTH AVAILABILITY
             </div>
           </motion.div>
 
@@ -255,10 +245,10 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
 
             <div>
               <span style={{ backgroundColor: "#fff", color: "#000", padding: "3px 8px", borderRadius: 2, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-                CONVENTION HALLS
+                EXPO LISTINGS
               </span>
               <h4 style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16, fontWeight: 800, margin: "10px 0 0 0" }}>
-                ACTIVE TRADE SHOWS
+                EXPOS ON PLATFORM
               </h4>
             </div>
 
@@ -270,11 +260,11 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
                 margin: "12px 0 6px 0",
               }}
             >
-              <AnimatedNumber target={stats.totalExpos || 1} />
+              <AnimatedNumber target={stats.totalExpos ?? 0} />
             </div>
 
             <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700, opacity: 0.9 }}>
-              LIVE IN PENANG // KOMCA DPS 1
+              Event dates and locations are provided in each expo listing.
             </span>
           </motion.div>
 
@@ -302,10 +292,10 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
 
             <div>
               <span style={{ backgroundColor: "#000", color: "#fff", padding: "3px 8px", borderRadius: 2, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-                VERIFIED BRANDS
+                EXHIBITOR PROFILES
               </span>
               <h4 style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16, fontWeight: 800, margin: "10px 0 0 0" }}>
-                APPROVED EXHIBITORS
+                EXHIBITOR ACCOUNTS
               </h4>
             </div>
 
@@ -317,11 +307,11 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
                 margin: "12px 0 6px 0",
               }}
             >
-              <AnimatedNumber target={stats.totalExhibitors || 4} />
+              <AnimatedNumber target={stats.totalExhibitors ?? 0} />
             </div>
 
             <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700, opacity: 0.9 }}>
-              COMMERCIAL BOOTH SHOWCASES
+              COMPANY, PRODUCT & SERVICE DETAILS
             </span>
           </motion.div>
 
@@ -349,7 +339,7 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
 
             <div>
               <span style={{ backgroundColor: "#000", color: "#fff", padding: "3px 8px", borderRadius: 2, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-                KEYNOTES & LABS
+                SESSIONS & WORKSHOPS
               </span>
               <h4 style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16, fontWeight: 800, margin: "10px 0 0 0" }}>
                 SCHEDULED SESSIONS
@@ -364,11 +354,11 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
                 margin: "12px 0 6px 0",
               }}
             >
-              <AnimatedNumber target={stats.totalSessions || 4} />
+              <AnimatedNumber target={stats.totalSessions ?? 0} />
             </div>
 
             <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700, opacity: 0.9 }}>
-              ACROSS 3 EVENT DAYS
+              TIME SLOTS, SPEAKERS & LOCATIONS
             </span>
           </motion.div>
 
@@ -394,16 +384,16 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--color-kiwi, #abf139)", display: "inline-block", boxShadow: "0 0 8px var(--color-kiwi)" }} />
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, letterSpacing: 0.5 }}>
-                MONGODB LIVE SYNCHRONIZATION ACTIVE
+                EVENT DETAILS AND SCHEDULES
               </span>
             </div>
 
             <div style={{ display: "flex", gap: 16, fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700, opacity: 0.85 }}>
-              <span>LATENCY: &lt; 20MS</span>
-              <span>•</span>
-              <span>ZERO DATA DRIFT</span>
-              <span>•</span>
-              <span>ENCRYPTED TELEMETRY</span>
+              <span>EXPO INFORMATION</span>
+              <span>-</span>
+              <span>BOOTH ALLOCATIONS</span>
+              <span>-</span>
+              <span>SESSION SCHEDULES</span>
             </div>
           </div>
         </div>

@@ -3,17 +3,17 @@ import { RecordingCard } from "../cards/RecordingCard";
 
 const EXPO_RECORDINGS = [
   {
-    tagText: "KEYNOTE • 45 MIN",
+    tagText: "KEYNOTE - 45 MIN",
     title: "Automating Large-Scale Expo Operations & Booth Allocations",
     name: "Sofia Rahman (Operations Lead)",
   },
   {
-    tagText: "WORKSHOP • 60 MIN",
+    tagText: "WORKSHOP - 60 MIN",
     title: "Exhibitor B2B Lead Capture & Smart Floor Plan Optimization",
     name: "Noah Islam (Exhibitor Relations)",
   },
   {
-    tagText: "PANEL • 50 MIN",
+    tagText: "PANEL - 50 MIN",
     title: "The Future of Hybrid Trade Shows & Real-Time Engagement Analytics",
     name: "Ethan Karim (Platform Architect) & Guests",
   },
