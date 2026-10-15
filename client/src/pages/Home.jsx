@@ -19,6 +19,7 @@ import { StatsCounterSection } from "../components/landing/sections/StatsCounter
 import { UpcomingExposSection } from "../components/landing/sections/UpcomingExposSection";
 import { AgendaSection } from "../components/landing/sections/AgendaSection";
 import { FloorPlanSection } from "../components/landing/sections/FloorPlanSection";
+import { RecordingsSection } from "../components/landing/sections/RecordingsSection";
 import { ExhibitorsSection } from "../components/landing/sections/ExhibitorsSection";
 import { TicketSection } from "../components/landing/sections/TicketSection";
 import { TestimonialsDeckSection } from "../components/landing/sections/TestimonialsDeckSection";
@@ -266,15 +267,16 @@ export default function Home() {
           <StatsCounterSection stats={landingData.stats} />
         </div>
 
-        {/* 5. Expos Section */}
+        {/* 5. Expos Section - show no more than six expos */}
         <div id="expos">
-          <UpcomingExposSection expos={landingData.allExpos} />
+          <UpcomingExposSection expos={(landingData.allExpos || []).slice(0, 6)} />
         </div>
 
         {/* 6. Agenda Section */}
         <div id="agenda">
           <AgendaSection sessions={landingData.sessions} />
         </div>
+        
 
         {/* 7. Exhibitors Showcase */}
         <div id="exhibitors">

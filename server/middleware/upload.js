@@ -15,10 +15,20 @@ const storage = multer.diskStorage({
 
 // File validation filter
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = /jpeg|jpg|png|webp|pdf|doc|docx/;
   const ext = path.extname(file.originalname).toLowerCase();
 
-  if (allowedExtensions.test(ext)) {
+  if (file.fieldname === "image") {
+    const allowedImageExtensions = [".jpeg", ".jpg", ".png", ".webp"];
+    if (allowedImageExtensions.includes(ext) && file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Expo banner must be a JPEG, PNG, or WebP image."), false);
+    }
+    return;
+  }
+
+  const allowedExtensions = [".jpeg", ".jpg", ".png", ".webp", ".pdf", ".doc", ".docx"];
+  if (allowedExtensions.includes(ext)) {
     cb(null, true);
   } else {
     cb(new Error("Only images (jpg, png, webp) and documents (pdf, doc, docx) are allowed!"), false);

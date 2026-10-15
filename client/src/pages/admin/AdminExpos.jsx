@@ -16,6 +16,8 @@ const AdminExpos = () => {
     description: "",
     theme: "",
     location: "",
+    image: "",
+    imageFile: null,
     startDate: "",
     endDate: "",
     boothCount: 20,
@@ -50,6 +52,8 @@ const AdminExpos = () => {
       description: "",
       theme: "",
       location: "",
+      image: "",
+      imageFile: null,
       startDate: "",
       endDate: "",
       boothCount: 20,
@@ -71,11 +75,26 @@ const AdminExpos = () => {
     }
 
     try {
+      const { imageFile, ...expoData } = formData;
+      let submissionData = expoData;
+
+      if (imageFile) {
+        submissionData = new FormData();
+        Object.entries(expoData).forEach(([key, value]) => {
+          submissionData.append(key, String(value));
+        });
+        submissionData.append("image", imageFile);
+      }
+
       if (editingId) {
-        await api.put(`/expos/${editingId}`, formData);
+        await api.put(`/expos/${editingId}`, submissionData, imageFile
+          ? { headers: { "Content-Type": "multipart/form-data" } }
+          : undefined);
         setSuccess("Expo updated successfully!");
       } else {
-        await api.post("/expos", formData);
+        await api.post("/expos", submissionData, imageFile
+          ? { headers: { "Content-Type": "multipart/form-data" } }
+          : undefined);
         setSuccess("Expo and interactive booths created successfully!");
       }
       resetForm();
@@ -92,6 +111,8 @@ const AdminExpos = () => {
       description: expo.description || "",
       theme: expo.theme || "",
       location: expo.location || "",
+      image: expo.image || "",
+      imageFile: null,
       startDate: expo.startDate ? expo.startDate.split("T")[0] : "",
       endDate: expo.endDate ? expo.endDate.split("T")[0] : "",
       boothCount: 20,
@@ -221,6 +242,46 @@ const AdminExpos = () => {
               value={formData.endDate}
               onChange={handleChange}
               style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
+            />
+          </div>
+
+          <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, textTransform: "uppercase" }}>
+              Expo Banner Image (Upload File or Enter URL)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const imageFile = e.target.files?.[0] || null;
+                setFormData((previous) => ({ ...previous, imageFile }));
+              }}
+              style={{
+                padding: "8px",
+                border: "2px solid #000",
+                borderRadius: 4,
+                fontFamily: "'Satoshi', sans-serif",
+                fontSize: 13,
+                flex: 1,
+                backgroundColor: "#fff",
+              }}
+            />
+            <input
+              type="url"
+              name="image"
+              value={formData.image || ""}
+              onChange={(e) => setFormData((previous) => ({ ...previous, image: e.target.value, imageFile: null }))}
+              placeholder="Or paste image URL (e.g. https://images.unsplash.com/...)"
+              style={{
+                padding: "10px 14px",
+                border: "2px solid #000",
+                borderRadius: 4,
+                fontFamily: "'Satoshi', sans-serif",
+                fontSize: 14,
+                fontWeight: 600,
+                marginTop: 4,
+                backgroundColor: "#fff",
+              }}
             />
           </div>
 

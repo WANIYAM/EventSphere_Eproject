@@ -61,7 +61,7 @@ export default function Exhibitors() {
       <CustomCursor />
       <Navigation />
 
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "130px clamp(16px, 4vw, 56px) 60px clamp(16px, 4vw, 56px)" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "110px clamp(16px, 4vw, 56px) 60px clamp(16px, 4vw, 56px)" }}>
         
         {/* Header Banner */}
         <div style={{ marginBottom: 36 }}>
@@ -256,11 +256,15 @@ export default function Exhibitors() {
                           flexShrink: 0,
                         }}
                       >
-                        {ex.logo ? (
-                          <img src={`${BASE}${ex.logo}`} alt={ex.company} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        ) : (
-                          <span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>EXPO</span>
-                        )}
+                    {ex.logo ? (
+  <img 
+    src={ex.logo.startsWith("http") ? ex.logo : `${BASE}${ex.logo.startsWith("/") ? "" : "/"}${ex.logo}`} 
+    alt={ex.company} 
+    style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+  />
+) : (
+  <span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>EXPO</span>
+)}
                       </div>
 
                       <div>

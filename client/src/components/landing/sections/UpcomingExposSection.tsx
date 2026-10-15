@@ -93,6 +93,18 @@ const ExpoCredentialBadge: React.FC<ExpoCardProps> = ({
         <div style={{ position: "absolute", bottom: -5, left: -5, width: 9, height: 9, backgroundColor: "#ffffff", border: "1.5px solid #000", zIndex: 20 }} />
         <div style={{ position: "absolute", bottom: -5, right: -5, width: 9, height: 9, backgroundColor: "#ffffff", border: "1.5px solid #000", zIndex: 20 }} />
 
+        <div
+          style={{
+            width: "100%",
+            height: 160,
+            backgroundColor: "#000",
+            backgroundImage: `url(${expo.image || "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=600&q=80"})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderBottom: "2.5px solid var(--color-dark, #231e25)",
+          }}
+        />
+
         {/* =========================================================
             CARD CONTENT
         ========================================================== */}
@@ -330,6 +342,29 @@ export const UpcomingExposSection: React.FC<{ expos?: any[] }> = ({ expos = [] }
               isManualStacked={isManualStacked}
             />
           ))}
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 40 }}>
+          <Link
+            to="/expos"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "var(--color-dark, #231e25)",
+              color: "var(--color-light, #fff8eb)",
+              border: "2px solid #000",
+              boxShadow: "3px 3px 0px #000",
+              padding: "12px 24px",
+              borderRadius: 40,
+              fontFamily: "'Satoshi', sans-serif",
+              fontSize: 14,
+              fontWeight: 800,
+              textDecoration: "none",
+            }}
+          >
+            EXPLORE MORE EVENTS
+          </Link>
         </div>
 
       </div>

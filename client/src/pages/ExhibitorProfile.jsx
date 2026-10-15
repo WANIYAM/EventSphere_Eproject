@@ -3,8 +3,6 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { Navigation } from "../components/landing/navigation/Navigation";
-import { CustomCursor } from "../components/landing/common/CustomCursor";
 
 const BASE = "http://localhost:5000";
 
@@ -60,8 +58,6 @@ export default function ExhibitorProfile() {
   if (error || !profile) {
     return (
       <div className="landing-page-root" style={{ minHeight: "100vh", backgroundColor: "var(--color-light, #fff8eb)", paddingBottom: 100 }}>
-        <CustomCursor />
-        <Navigation />
         <main style={{ maxWidth: 640, margin: "140px auto 0 auto", padding: 32, backgroundColor: "#fff", border: "3px solid #000" }}>
           <h3 style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--color-primary, #ff3e33)", margin: "0 0 10px 0" }}>NOTICE</h3>
           <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 600, color: "#374151" }}>{error || "Exhibitor not found."}</p>
@@ -85,11 +81,15 @@ export default function ExhibitorProfile() {
     );
   }
 
+  // Helper to handle both external URLs (http/https) and local server uploads (/uploads/...)
+  const getLogoSrc = (logo) => {
+    if (!logo) return "";
+    if (logo.startsWith("http://") || logo.startsWith("https://")) return logo;
+    return `${BASE}${logo.startsWith("/") ? "" : "/"}${logo}`;
+  };
+
   return (
     <div className="landing-page-root" style={{ minHeight: "100vh", backgroundColor: "var(--color-light, #fff8eb)", paddingBottom: 100 }}>
-      <CustomCursor />
-      <Navigation />
-
       <main style={{ maxWidth: 1100, margin: "0 auto", padding: "130px clamp(16px, 4vw, 48px) 60px clamp(16px, 4vw, 48px)" }}>
         
         {/* Back Link */}
@@ -146,7 +146,11 @@ export default function ExhibitorProfile() {
               }}
             >
               {profile.logo ? (
-                <img src={`${BASE}${profile.logo}`} alt={profile.company} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img
+                  src={getLogoSrc(profile.logo)}
+                  alt={profile.company || profile.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
               ) : (
                 <span style={{ fontSize: 20, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>EXHIBITOR</span>
               )}

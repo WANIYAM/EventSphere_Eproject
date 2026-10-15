@@ -66,20 +66,31 @@ function AppContent() {
     "/register",
     "/forgot-password",
   ].includes(location.pathname) || location.pathname.startsWith("/reset-password");
+  const hasPageNavigation = [
+    "/",
+    "/expos",
+    "/exhibitors",
+    "/about",
+    "/contact",
+    "/schedule",
+  ].includes(location.pathname) ||
+    location.pathname.startsWith("/expos/") ||
+    location.pathname.startsWith("/schedule/");
+  const hasPageTopSpacing = hasPageNavigation || location.pathname.startsWith("/exhibitors/");
 
   return (
     <>
       <ServerStatusBanner />
 
       {/* Render the exact same Home Page Navigation (Floating Pills + Retro TV) everywhere except auth screens */}
-      {!isAuthPage && (
+      {!isAuthPage && !hasPageNavigation && (
         <>
           <CustomCursor />
           <Navigation />
         </>
       )}
 
-      <main className="landing-wrapper" style={{ paddingTop: isAuthPage ? 0 : 90 }}>
+      <main className="landing-wrapper" style={{ paddingTop: isAuthPage || hasPageTopSpacing ? 0 : 90 }}>
         <Routes>
           {/* Public & Attendee Routes */}
           <Route path="/" element={<Home />} />

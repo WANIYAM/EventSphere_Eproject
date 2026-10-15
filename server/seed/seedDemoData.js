@@ -92,30 +92,222 @@ const rotateIndex = (offset, k, length) => (offset + k) % length;
 /* ------------------------------------------------------------------ */
 
 const EXHIBITORS = [
-  { company: "Bush Babe Displays", email: "bushbabe@demo.com", category: "Exhibition Technology", website: "https://bushbabe-displays.com", description: "Their packaging design for our ziplock bags and adorable print collaterals have our customers falling in love!", products: "Modular trade show booths and RFID-enabled badges" },
-  { company: "Wilder Ness Digital", email: "wilderness@demo.com", category: "Smart Signage", website: "https://wilderness-digital.com", description: "BYOOOOOB breathed life into Wilderness! From brand identity to iSUP surfboards and packaging design!", products: "Digital wayfinding totems and synchronized LED screens" },
-  { company: "EPYC Systems", email: "epyc@demo.com", category: "Cloud Infrastructure", website: "https://epyc-systems.com", description: "They are fast & affordable for a growing business. Would continue to work with them as long as possible!", products: "High-throughput cloud registration nodes with 99.9% uptime" },
-  { company: "SpeckLes IoT", email: "speckles@demo.com", category: "Smart IoT & Packaging", website: "https://speckles-iot.com", description: "Super professional bunch, sticks to timelines! My go-to team for all our packaging design.", products: "Smart IoT touch surfaces and real-time booth lead scanners" },
-  { company: "Orchid Foods Sdn Bhd", email: "orchid@demo.com", category: "Food & Beverage", website: "https://orchidfoods.com.my", description: "Premium Malaysian snacks and ready-to-drink beverages crafted from local ingredients.", products: "Artisan snacks, sambal sauces, and cold-brew white coffee" },
-  { company: "Batik Bloom Atelier", email: "batikbloom@demo.com", category: "Fashion & Textiles", website: "https://batikbloom.my", description: "Contemporary batik and songket fashion designed for the modern wardrobe.", products: "Batik apparel, scarves, and accessories" },
-  { company: "VitaCare Wellness", email: "vitacare@demo.com", category: "Health & Wellness", website: "https://vitacare-wellness.com", description: "Preventive health screening and wellness products for families.", products: "Health screening kiosks and herbal supplements" },
-  { company: "BrightPath Academy", email: "brightpath@demo.com", category: "Education & Training", website: "https://brightpath-academy.edu.my", description: "Skills training and certification programmes for working professionals.", products: "Digital skills courses and corporate training packages" },
-  { company: "VoltDrive Motors", email: "voltdrive@demo.com", category: "Automotive & EV", website: "https://voltdrive-motors.com", description: "Electric mobility solutions and public charging infrastructure.", products: "EV chargers, electric scooters, and fleet conversion kits" },
-  { company: "SolarNest Energy", email: "solarnest@demo.com", category: "Renewable Energy", website: "https://solarnest-energy.com", description: "Rooftop solar and battery storage for homes and factories.", products: "Solar panels, inverters, and battery storage systems" },
-  { company: "SwiftHaul Logistics", email: "swifthaul@demo.com", category: "Logistics & Supply Chain", website: "https://swifthaul-logistics.com", description: "End-to-end freight, warehousing, and last-mile delivery across ASEAN.", products: "Freight forwarding, warehousing, and a delivery tracking platform" },
-  { company: "Langkawi Escapes", email: "langkawi@demo.com", category: "Hospitality & Travel", website: "https://langkawi-escapes.com", description: "Boutique island resorts and curated travel experiences.", products: "Resort packages and guided adventure tours" },
-  { company: "PayNimbus", email: "paynimbus@demo.com", category: "Fintech", website: "https://paynimbus.io", description: "Payments and invoicing tools built for small merchants.", products: "QR payment terminals and merchant dashboards" },
-  { company: "GreenHarvest Agritech", email: "greenharvest@demo.com", category: "Agritech", website: "https://greenharvest-agritech.com", description: "Smart farming sensors and farm-to-market platforms.", products: "Soil sensors, drone mapping, and crop analytics" },
-  { company: "PrintPeak Studio", email: "printpeak@demo.com", category: "Print & Packaging", website: "https://printpeak-studio.com", description: "Custom packaging, large-format printing, and branded merchandise.", products: "Eco packaging, banners, and branded merchandise" },
-  { company: "StageCraft Events", email: "stagecraft@demo.com", category: "Event Services", website: "https://stagecraft-events.com", description: "Staging, lighting, and AV production for exhibitions and conferences.", products: "Stage builds, LED walls, and sound systems" },
-  { company: "CloudBridge Networks", email: "cloudbridge@demo.com", category: "Cloud Infrastructure", website: "https://cloudbridge-networks.com", description: "Managed cloud hosting and connectivity for growing businesses.", products: "Managed hosting, VPN, and disaster recovery" },
-  { company: "PixelForge Interactive", email: "pixelforge@demo.com", category: "Exhibition Technology", website: "https://pixelforge-interactive.com", description: "AR and VR experiences for product demos and brand activations.", products: "AR product demos and VR showrooms" },
-  { company: "AquaPure Systems", email: "aquapure@demo.com", category: "Water & Environment", website: "https://aquapure-systems.com", description: "Water purification and wastewater treatment systems.", products: "Filtration units and water quality monitors" },
-  { company: "Kopi Kita Roasters", email: "kopikita@demo.com", category: "Food & Beverage", website: "https://kopikita-roasters.com", description: "Single-origin coffee roasted in small batches in Sabah.", products: "Roasted beans, drip bags, and cafe equipment" },
-  { company: "SafeGate Security", email: "safegate@demo.com", category: "Cybersecurity", website: "https://safegate-security.com", description: "Cybersecurity consulting and managed detection services.", products: "Security audits, endpoint protection, and 24/7 monitoring" },
-  { company: "TerraBuild Materials", email: "terrabuild@demo.com", category: "Construction & Materials", website: "https://terrabuild-materials.com", description: "Sustainable building materials and prefab solutions.", products: "Eco bricks, prefab panels, and insulation" },
-  { company: "LuminaRetail Tech", email: "luminaretail@demo.com", category: "Retail Technology", website: "https://luminaretail.tech", description: "Smart shelves, point of sale, and in-store analytics.", products: "POS systems, smart shelf labels, and footfall analytics" },
-  { company: "NusaCraft Collective", email: "nusacraft@demo.com", category: "Handicrafts & Design", website: "https://nusacraft-collective.com", description: "Handmade crafts and design pieces from Borneo artisans.", products: "Wood carvings, woven goods, and home decor" },
+  {
+    company: "Bush Babe Displays",
+    email: "bushbabe@demo.com",
+    category: "Exhibition Technology",
+    website: "https://bushbabe-displays.com",
+    description: "Their packaging design for our ziplock bags and adorable print collaterals have our customers falling in love!",
+    products: "Modular trade show booths and RFID-enabled badges",
+    logo: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "Wilder Ness Digital",
+    email: "wilderness@demo.com",
+    category: "Smart Signage",
+    website: "https://wilderness-digital.com",
+    description: "BYOOOOOB breathed life into Wilderness! From brand identity to iSUP surfboards and packaging design!",
+    products: "Digital wayfinding totems and synchronized LED screens",
+    logo: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "EPYC Systems",
+    email: "epyc@demo.com",
+    category: "Cloud Infrastructure",
+    website: "https://epyc-systems.com",
+    description: "They are fast & affordable for a growing business. Would continue to work with them as long as possible!",
+    products: "High-throughput cloud registration nodes with 99.9% uptime",
+    logo: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "SpeckLes IoT",
+    email: "speckles@demo.com",
+    category: "Smart IoT & Packaging",
+    website: "https://speckles-iot.com",
+    description: "Super professional bunch, sticks to timelines! My go-to team for all our packaging design.",
+    products: "Smart IoT touch surfaces and real-time booth lead scanners",
+    logo: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "Orchid Foods Sdn Bhd",
+    email: "orchid@demo.com",
+    category: "Food & Beverage",
+    website: "https://orchidfoods.com.my",
+    description: "Premium Malaysian snacks and ready-to-drink beverages crafted from local ingredients.",
+    products: "Artisan snacks, sambal sauces, and cold-brew white coffee",
+    logo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "Batik Bloom Atelier",
+    email: "batikbloom@demo.com",
+    category: "Fashion & Textiles",
+    website: "https://batikbloom.my",
+    description: "Contemporary batik and songket fashion designed for the modern wardrobe.",
+    products: "Batik apparel, scarves, and accessories",
+    logo: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "VitaCare Wellness",
+    email: "vitacare@demo.com",
+    category: "Health & Wellness",
+    website: "https://vitacare-wellness.com",
+    description: "Preventive health screening and wellness products for families.",
+    products: "Health screening kiosks and herbal supplements",
+    logo: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "BrightPath Academy",
+    email: "brightpath@demo.com",
+    category: "Education & Training",
+    website: "https://brightpath-academy.edu.my",
+    description: "Skills training and certification programmes for working professionals.",
+    products: "Digital skills courses and corporate training packages",
+    logo: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "VoltDrive Motors",
+    email: "voltdrive@demo.com",
+    category: "Automotive & EV",
+    website: "https://voltdrive-motors.com",
+    description: "Electric mobility solutions and public charging infrastructure.",
+    products: "EV chargers, electric scooters, and fleet conversion kits",
+    logo: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "SolarNest Energy",
+    email: "solarnest@demo.com",
+    category: "Renewable Energy",
+    website: "https://solarnest-energy.com",
+    description: "Rooftop solar and battery storage for homes and factories.",
+    products: "Solar panels, inverters, and battery storage systems",
+    logo: "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "SwiftHaul Logistics",
+    email: "swifthaul@demo.com",
+    category: "Logistics & Supply Chain",
+    website: "https://swifthaul-logistics.com",
+    description: "End-to-end freight, warehousing, and last-mile delivery across ASEAN.",
+    products: "Freight forwarding, warehousing, and a delivery tracking platform",
+    logo: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "Langkawi Escapes",
+    email: "langkawi@demo.com",
+    category: "Hospitality & Travel",
+    website: "https://langkawi-escapes.com",
+    description: "Boutique island resorts and curated travel experiences.",
+    products: "Resort packages and guided adventure tours",
+    logo: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "PayNimbus",
+    email: "paynimbus@demo.com",
+    category: "Fintech",
+    website: "https://paynimbus.io",
+    description: "Payments and invoicing tools built for small merchants.",
+    products: "QR payment terminals and merchant dashboards",
+    logo: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "GreenHarvest Agritech",
+    email: "greenharvest@demo.com",
+    category: "Agritech",
+    website: "https://greenharvest-agritech.com",
+    description: "Smart farming sensors and farm-to-market platforms.",
+    products: "Soil sensors, drone mapping, and crop analytics",
+    logo: "https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "PrintPeak Studio",
+    email: "printpeak@demo.com",
+    category: "Print & Packaging",
+    website: "https://printpeak-studio.com",
+    description: "Custom packaging, large-format printing, and branded merchandise.",
+    products: "Eco packaging, banners, and branded merchandise",
+    logo: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "StageCraft Events",
+    email: "stagecraft@demo.com",
+    category: "Event Services",
+    website: "https://stagecraft-events.com",
+    description: "Staging, lighting, and AV production for exhibitions and conferences.",
+    products: "Stage builds, LED walls, and sound systems",
+    logo: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "CloudBridge Networks",
+    email: "cloudbridge@demo.com",
+    category: "Cloud Infrastructure",
+    website: "https://cloudbridge-networks.com",
+    description: "Managed cloud hosting and connectivity for growing businesses.",
+    products: "Managed hosting, VPN, and disaster recovery",
+    logo: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "PixelForge Interactive",
+    email: "pixelforge@demo.com",
+    category: "Exhibition Technology",
+    website: "https://pixelforge-interactive.com",
+    description: "AR and VR experiences for product demos and brand activations.",
+    products: "AR product demos and VR showrooms",
+    logo: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "AquaPure Systems",
+    email: "aquapure@demo.com",
+    category: "Water & Environment",
+    website: "https://aquapure-systems.com",
+    description: "Water purification and wastewater treatment systems.",
+    products: "Filtration units and water quality monitors",
+    logo: "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "Kopi Kita Roasters",
+    email: "kopikita@demo.com",
+    category: "Food & Beverage",
+    website: "https://kopikita-roasters.com",
+    description: "Single-origin coffee roasted in small batches in Sabah.",
+    products: "Roasted beans, drip bags, and cafe equipment",
+    logo: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "SafeGate Security",
+    email: "safegate@demo.com",
+    category: "Cybersecurity",
+    website: "https://safegate-security.com",
+    description: "Cybersecurity consulting and managed detection services.",
+    products: "Security audits, endpoint protection, and 24/7 monitoring",
+    logo: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "TerraBuild Materials",
+    email: "terrabuild@demo.com",
+    category: "Construction & Materials",
+    website: "https://terrabuild-materials.com",
+    description: "Sustainable building materials and prefab solutions.",
+    products: "Eco bricks, prefab panels, and insulation",
+    logo: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "LuminaRetail Tech",
+    email: "luminaretail@demo.com",
+    category: "Retail Technology",
+    website: "https://luminaretail.tech",
+    description: "Smart shelves, point of sale, and in-store analytics.",
+    products: "POS systems, smart shelf labels, and footfall analytics",
+    logo: "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?auto=format&fit=crop&w=300&h=300&q=80"
+  },
+  {
+    company: "NusaCraft Collective",
+    email: "nusacraft@demo.com",
+    category: "Handicrafts & Design",
+    website: "https://nusacraft-collective.com",
+    description: "Handmade crafts and design pieces from Borneo artisans.",
+    products: "Wood carvings, woven goods, and home decor",
+    logo: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=300&h=300&q=80"
+  },
 ];
 
 const ATTENDEE_NAMES = [
@@ -166,6 +358,7 @@ const EXPOS = [
     theme: "Reinventing Trade Shows for Asia",
     location: "Putrajaya International Convention Centre, Putrajaya, Malaysia",
     description: "A three-day summit on smart venues, exhibitor onboarding at scale, and real-time analytics for organizers. This edition has already taken place.",
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
     startOffset: -45, days: 3, boothCount: 24, speakerOffset: 0,
     offset: 6, counts: { booked: 10, reserved: 0, approved: 0, pending: 0, rejected: 2 },
     sessions: [
@@ -182,6 +375,7 @@ const EXPOS = [
     theme: "Next-Gen Trade Shows & Digital Floor Plans",
     location: "KOMCA DPS 1, Penang, Malaysia",
     description: "Overcoming traditional trade show hurdles through automated registration, interactive floor plans, and real-time analytics across 150,000 sq ft.",
+    image: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
     startOffset: 2, days: 3, boothCount: 30, speakerOffset: 0,
     prefix: [{ i: 0, state: "booked" }, { i: 1, state: "reserved" }, { i: 2, state: "booked" }, { i: 3, state: "booked" }],
     offset: 4, counts: { booked: 8, reserved: 2, approved: 2, pending: 4, rejected: 1 },
@@ -199,6 +393,7 @@ const EXPOS = [
     theme: "Selling Smarter Across ASEAN",
     location: "Kuala Lumpur Convention Centre, Kuala Lumpur, Malaysia",
     description: "E-commerce platforms, payment providers, and logistics partners meet online merchants to talk cross-border selling, social commerce, and AI-driven retail.",
+    image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
     startOffset: 21, days: 3, boothCount: 30, speakerOffset: 3,
     offset: 8, counts: { booked: 9, reserved: 3, approved: 2, pending: 4, rejected: 2 },
     sessions: [
@@ -215,6 +410,7 @@ const EXPOS = [
     theme: "Powering and Feeding a Sustainable Borneo",
     location: "Borneo Convention Centre Kuching, Sarawak, Malaysia",
     description: "Renewable energy providers, agritech innovators, and sustainability advocates show practical solutions for farms, factories, and rural communities.",
+    image: "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80",
     startOffset: 45, days: 2, boothCount: 24, speakerOffset: 6,
     offset: 14, counts: { booked: 6, reserved: 2, approved: 1, pending: 3, rejected: 1 },
     sessions: [
@@ -229,6 +425,7 @@ const EXPOS = [
     theme: "Building ASEAN's Industrial Supply Chain",
     location: "Persada Johor International Convention Centre, Johor Bahru, Malaysia",
     description: "Manufacturers, freight operators, and automation vendors meet to discuss Industry 4.0, cold chain, and export readiness for SMEs.",
+    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80",
     startOffset: 70, days: 3, boothCount: 30, speakerOffset: 9,
     offset: 3, counts: { booked: 8, reserved: 3, approved: 2, pending: 3, rejected: 2 },
     sessions: [
@@ -245,6 +442,7 @@ const EXPOS = [
     theme: "Growing Sabah's Visitor Economy",
     location: "Sabah International Convention Centre, Kota Kinabalu, Malaysia",
     description: "Resorts, tour operators, and tourism boards share strategies for eco-tourism, guest experience, and digital marketing for hotels and homestays.",
+    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
     startOffset: 100, days: 2, boothCount: 24, speakerOffset: 12,
     offset: 18, counts: { booked: 5, reserved: 2, approved: 1, pending: 3, rejected: 1 },
     sessions: [
@@ -252,6 +450,70 @@ const EXPOS = [
       ["Panel: Digital Marketing for Hotels and Homestays", "Hospitality Marketing"], ["Chefs' Showcase & Networking Evening", "Culinary Tourism"],
       ["Workshop: Guest Experience and Service Design", "Guest Experience"], ["Talk: Marine Conservation and Dive Tourism", "Conservation"],
       ["Panel: Sustainable Tourism Certification", "Sustainability"], ["Closing Keynote & Hospitality Awards", "Awards"],
+    ],
+  },
+];
+
+const demoExpos = [
+  {
+    title: "Global Tech & AI Innovation Expo 2025",
+    description: "The world's leading exhibition for artificial intelligence, robotics, and enterprise cloud architecture.",
+    theme: "Artificial Intelligence & Cloud",
+    location: "Kuala Lumpur Convention Centre (KLCC)",
+    startDate: new Date("2025-06-10"),
+    endDate: new Date("2025-06-13"),
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
+    days: 4, boothCount: 24, speakerOffset: 1,
+    offset: 2, counts: { booked: 7, reserved: 3, approved: 2, pending: 3, rejected: 1 },
+    sessions: [
+      ["Opening Keynote: Building Responsible AI at Scale", "Artificial Intelligence"], ["Robotics Showcase: Automation in Practice", "Robotics"],
+      ["Panel: Enterprise Cloud Architecture", "Cloud Computing"], ["Networking Reception: AI Innovators", "Networking"],
+      ["Workshop: Deploying Generative AI Safely", "Responsible AI"], ["Live Demo: Collaborative Service Robots", "Robotics"],
+      ["Panel: Cloud Security and Data Sovereignty", "Cybersecurity"], ["Startup Pitches: Applied AI", "Startups"],
+      ["Keynote: The Future of Human-AI Collaboration", "Future Technology"], ["Workshop: Scaling Machine Learning", "Machine Learning"],
+      ["Panel: AI Regulation and Governance", "Policy"], ["Technology Partner Showcase", "Enterprise Technology"],
+      ["Talk: Sustainable Data Centres", "Cloud Sustainability"], ["Workshop: From AI Pilot to Production", "AI Operations"],
+      ["Panel: Investing in Deep Tech", "Venture Capital"], ["Closing Keynote: Innovation for Everyone", "Innovation"],
+    ],
+  },
+  {
+    title: "Penang Green Energy & Smart Cities Summit",
+    description: "Showcasing sustainable energy solutions, EV mobility infrastructure, and IoT urban management.",
+    theme: "Renewable Energy & IoT",
+    location: "Setia SPICE Convention Centre, Penang",
+    startDate: new Date("2025-07-22"),
+    endDate: new Date("2025-07-24"),
+    image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80",
+    days: 3, boothCount: 24, speakerOffset: 4,
+    offset: 10, counts: { booked: 6, reserved: 3, approved: 3, pending: 2, rejected: 1 },
+    sessions: [
+      ["Opening Keynote: Powering the Smart City", "Smart Cities"], ["Showcase: Grid-Scale Renewable Energy", "Renewable Energy"],
+      ["Panel: EV Charging Networks for Malaysia", "Electric Mobility"], ["Green Cities Networking Reception", "Networking"],
+      ["Workshop: IoT for Urban Energy Management", "Internet of Things"], ["Talk: Solar and Battery Storage", "Energy Storage"],
+      ["Panel: Financing Sustainable Infrastructure", "Green Finance"], ["Smart Mobility Product Showcase", "Urban Mobility"],
+      ["Keynote: Resilient Cities and Climate Adaptation", "Climate Resilience"], ["Workshop: Measuring City Carbon Emissions", "Sustainability"],
+      ["Panel: Connected Buildings and Public Services", "Urban Technology"], ["Closing Session: A Greener Penang", "City Planning"],
+    ],
+  },
+  {
+    title: "Silicon Valley Future Tech & Fintech Forum",
+    description: "Connecting fintech disruptors, venture capitalists, and cybersecurity pioneers in Northern California.",
+    theme: "Fintech & Cybersecurity",
+    location: "Moscone Center, San Francisco",
+    startDate: new Date("2025-09-15"),
+    endDate: new Date("2025-09-18"),
+    image: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
+    days: 4, boothCount: 24, speakerOffset: 8,
+    offset: 18, counts: { booked: 7, reserved: 2, approved: 3, pending: 2, rejected: 1 },
+    sessions: [
+      ["Opening Keynote: The Next Wave of Financial Technology", "Fintech"], ["Showcase: Secure Digital Payments", "Payments"],
+      ["Panel: Protecting the Global Financial System", "Cybersecurity"], ["Investor and Founder Welcome Reception", "Networking"],
+      ["Workshop: Building Compliant Fintech Products", "Financial Regulation"], ["Talk: Identity, Fraud, and Trust", "Digital Identity"],
+      ["Panel: AI in Financial Services", "Artificial Intelligence"], ["Startup Pitch: Future of Finance", "Startups"],
+      ["Keynote: Open Banking and Embedded Finance", "Open Finance"], ["Workshop: Cloud Security for Fintech", "Cloud Security"],
+      ["Panel: Venture Capital and Deep Tech", "Venture Capital"], ["Product Showcase: Wealth Technology", "WealthTech"],
+      ["Talk: Cross-Border Payments at Scale", "Payments"], ["Workshop: Incident Response for Startups", "Cybersecurity"],
+      ["Panel: Responsible AI in Financial Decisions", "Responsible AI"], ["Closing Forum: Building Trusted Finance", "Future of Finance"],
     ],
   },
 ];
@@ -368,8 +630,19 @@ const seedDemoData = async () => {
     const exhibitorUsers = await createMany(
       User,
       EXHIBITORS.map((e, idx) => ({
-        name: e.company, email: e.email, password: DEMO_PASSWORD, role: "exhibitor",
-        company: e.company, category: e.category, website: e.website, description: e.description,
+        name: e.company,
+        email: e.email,
+        password: DEMO_PASSWORD,
+        role: "exhibitor",
+        company: e.company,
+        category: e.category,
+        website: e.website,
+        description: e.description,
+        // Added logo fields:
+        logo: e.logo,
+        avatar: e.logo,
+        profileImage: e.logo,
+        image: e.logo,
         phone: `+60 12-345 ${String(idx + 1).padStart(4, "0")}`,
       })),
       "exhibitors"
@@ -392,12 +665,15 @@ const seedDemoData = async () => {
     const sessionsByExpo = {};
     const applicationRecords = []; // used for notifications
 
-    for (const cfg of EXPOS) {
+    for (const cfg of [...EXPOS, ...demoExpos]) {
       console.log(`Seeding expo: ${cfg.title}`);
+      const expoStartDate = cfg.startDate || atUTC(cfg.startOffset, 4, 0);
+      const expoEndDate = cfg.endDate || atUTC(cfg.startOffset + cfg.days - 1, 14, 0);
       const expo = await Expo.create({
         title: cfg.title, theme: cfg.theme, location: cfg.location, description: cfg.description,
-        startDate: atUTC(cfg.startOffset, 4, 0),
-        endDate: atUTC(cfg.startOffset + cfg.days - 1, 14, 0),
+        image: cfg.image,
+        startDate: expoStartDate,
+        endDate: expoEndDate,
         createdBy: admin._id,
       });
       createdExpos.push({ doc: expo, cfg });
@@ -453,7 +729,9 @@ const seedDemoData = async () => {
       for (let d = 0; d < cfg.days; d++) {
         for (const slot of SLOTS) {
           const [title, topic] = cfg.sessions[n];
-          const start = atUTC(cfg.startOffset + d, slot.hour, slot.minute);
+          const start = new Date(expoStartDate);
+          start.setUTCDate(start.getUTCDate() + d);
+          start.setUTCHours(slot.hour, slot.minute, 0, 0);
           sessionDocs.push({
             expo: expo._id, title, topic, location: slot.location,
             speaker: SPEAKERS[(n + cfg.speakerOffset) % SPEAKERS.length],

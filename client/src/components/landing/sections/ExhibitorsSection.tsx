@@ -2,8 +2,13 @@ import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api")
+  .replace(/\/api\/?$/, "")
+  .replace(/\/$/, "");
+
 export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors = [] }) => {
   const [shuffleKey, setShuffleKey] = useState(0);
+  const [failedLogos, setFailedLogos] = useState<Set<string>>(() => new Set());
 
   // Randomly select 3 unique exhibitors on load or when shuffle is clicked
   const featuredExhibitors = useMemo(() => {
@@ -103,6 +108,12 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
           <AnimatePresence mode="popLayout">
             {featuredExhibitors.map((ex, idx) => {
               const palette = cardPalettes[(idx + shuffleKey) % cardPalettes.length];
+              const logoKey = String(ex._id || ex.company || idx);
+              const logoSrc = ex.logo
+                ? /^https?:\/\//i.test(ex.logo)
+                  ? ex.logo
+                  : `${API_BASE_URL}${ex.logo.startsWith("/") ? "" : "/"}${ex.logo}`
+                : null;
 
               return (
                 <motion.div
@@ -158,8 +169,13 @@ export const ExhibitorsSection: React.FC<{ exhibitors?: any[] }> = ({ exhibitors
                           boxShadow: "2px 2px 0px #000",
                         }}
                       >
-                        {ex.logo ? (
-                          <img src={`http://localhost:5000${ex.logo}`} alt={ex.company} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                        {logoSrc && !failedLogos.has(logoKey) ? (
+                          <img
+                            src={logoSrc}
+                            alt={ex.company}
+                            onError={() => setFailedLogos((previous) => new Set(previous).add(logoKey))}
+                            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                          />
                         ) : (
                           <span style={{ fontSize: 12, fontWeight: 800 }}>No logo</span>
                         )}

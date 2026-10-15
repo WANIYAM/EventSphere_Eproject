@@ -30,6 +30,8 @@ export const createExpo = async (req, res) => {
       return res.status(400).json({ message: "End date cannot be before start date" });
     }
 
+    const image = req.file ? `/uploads/${req.file.filename}` : (req.body.image || "");
+
     // Check for location and date overlap with existing expos
     if (location && location.trim()) {
       const trimmedLocation = location.trim();
@@ -54,6 +56,7 @@ export const createExpo = async (req, res) => {
       location,
       startDate: newStart,
       endDate: newEnd,
+      image,
       createdBy: req.user._id
     });
 
@@ -224,6 +227,11 @@ export const updateExpo = async (req, res) => {
     if (req.body.title !== undefined) existingExpo.title = req.body.title;
     if (req.body.description !== undefined) existingExpo.description = req.body.description;
     if (req.body.theme !== undefined) existingExpo.theme = req.body.theme;
+    if (req.file) {
+      existingExpo.image = `/uploads/${req.file.filename}`;
+    } else if (req.body.image !== undefined) {
+      existingExpo.image = req.body.image;
+    }
     existingExpo.location = targetLocation;
     existingExpo.startDate = newStart;
     existingExpo.endDate = newEnd;

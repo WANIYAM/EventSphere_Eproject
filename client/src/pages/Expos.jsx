@@ -58,7 +58,7 @@ export default function Expos() {
       <CustomCursor />
       <Navigation />
 
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px clamp(16px, 4vw, 56px) 60px clamp(16px, 4vw, 56px)" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "110px clamp(16px, 4vw, 56px) 60px clamp(16px, 4vw, 56px)" }}>
         
         {/* Header */}
         <div style={{ marginBottom: 40 }}>
@@ -165,37 +165,42 @@ export default function Expos() {
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
-                      minHeight: 380,
+                      minHeight: 440,
                       position: "relative",
                       overflow: "hidden",
                     }}
                   >
-                    <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 44, height: 7, backgroundColor: "var(--color-dark)", borderRadius: "0 0 4px 4px", zIndex: 20 }} />
+                    {/* Expo Card Image Banner */}
+                    <div
+                      style={{
+                        width: "100%",
+                        height: 160,
+                        backgroundColor: "#000",
+                        backgroundImage: `url(${expo.image || "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=600&q=80"})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        borderBottom: "2.5px solid var(--color-dark, #231e25)",
+                      }}
+                    />
 
-                    <div style={{ padding: "26px 22px 18px 22px", display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div style={{ padding: "20px 22px 18px 22px", display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ backgroundColor: "#000", color: "#fff", padding: "4px 10px", borderRadius: 3, fontSize: 11, fontWeight: 800 }}>
+                        <span style={{ backgroundColor: "#000", color: "#fff", padding: "3px 10px", borderRadius: 3, fontSize: 11, fontWeight: 800 }}>
                           {expo.theme || "TRADE SHOW"}
                         </span>
-                        <span style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 900, opacity: 0.8 }}>
+                        <span style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 900, opacity: 0.8 }}>
                           0{idx + 1}
                         </span>
                       </div>
 
-                      <h3 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(30px, 3vw, 40px)", lineHeight: 0.92, margin: "4px 0 0 0" }}>
+                      <h3 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px, 2.8vw, 36px)", lineHeight: 0.92, margin: "2px 0 0 0" }}>
                         {expo.title}
                       </h3>
 
-                      <div style={{ display: "flex", flexDirection: "column", gap: 3, fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 700, opacity: 0.9 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2, fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 700, opacity: 0.9 }}>
                         <span>Location: {expo.location || "Convention Hall"}</span>
                         <span>Dates: {new Date(expo.startDate).toLocaleDateString()} to {new Date(expo.endDate).toLocaleDateString()}</span>
                       </div>
-
-                      {expo.description && (
-                        <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, lineHeight: 1.45, margin: 0, opacity: 0.95 }}>
-                          {expo.description.substring(0, 115)}...
-                        </p>
-                      )}
                     </div>
 
                     <div style={{ borderTop: "2px dashed var(--color-dark, #231e25)", padding: "14px 18px", backgroundColor: "rgba(0,0,0,0.06)", display: "flex" }}>
