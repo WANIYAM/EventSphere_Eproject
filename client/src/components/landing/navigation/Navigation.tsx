@@ -4,7 +4,9 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { useSocket } from "../../../context/SocketContext.jsx";
 import api from "../../../services/api.js";
+import NotificationBell from "../../../components/NotificationBell.jsx";
 
+// Compact Interactive Retro TV with Channel Switcher
 const RetroTvLogo: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [channel, setChannel] = useState<"noise" | "bars" | "wave">("noise");
@@ -168,13 +170,12 @@ export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-  const socketContext = useSocket() as {
-    socket?: {
-      on: (event: string, listener: () => void) => void;
-      off: (event: string, listener: () => void) => void;
-    };
-  } | null;
-  const socket = socketContext?.socket ?? null;
+  const { socket } = useSocket() as unknown as {
+    socket: {
+      on: (event: string, handler: () => void) => void;
+      off: (event: string, handler: () => void) => void;
+    } | null;
+  };
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -332,18 +333,25 @@ export const Navigation: React.FC = () => {
           pointerEvents,
         }}
       >
-        {navItems.map((item) => (
-          <NavButton
-            key={item.id}
-            name={item.name}
-            href={item.href}
-            bg={item.bg}
-            textColor={item.textColor}
-            badge={item.badge}
-            isActive={item.isRoute && location.pathname === item.href}
-            onClick={(e) => handleItemClick(e, item)}
-          />
+        {/* Render Nav Items with Notification Bell placed right next to My Schedule */}
+        {navItems.map((item, idx) => (
+          <React.Fragment key={item.id}>
+            <NavButton
+              name={item.name}
+              href={item.href}
+              bg={item.bg}
+              textColor={item.textColor}
+              badge={item.badge}
+              isActive={item.isRoute && location.pathname === item.href}
+              onClick={(e) => handleItemClick(e, item)}
+            />
+            {/* Place Notification Bell right after My Schedule */}
+            {user && item.id === "schedule" && <NotificationBell />}
+          </React.Fragment>
         ))}
+
+        {/* Fallback Notification Bell if My Schedule isn't in nav (e.g. Admin/Exhibitor) */}
+        {user && !navItems.some(i => i.id === "schedule") && <NotificationBell />}
 
         {user && (
           <motion.button
@@ -354,15 +362,17 @@ export const Navigation: React.FC = () => {
               navigate("/login");
             }}
             style={{
-              padding: "4px 12px",
+              padding: "6px 14px",
               borderRadius: 9999,
               backgroundColor: "var(--color-dark, #231e25)",
               color: "var(--color-light, #fff8eb)",
-              border: "1.2px solid rgba(255,255,255,0.4)",
+              border: "1.5px solid var(--color-dark, #231e25)",
+              boxShadow: "2.5px 2.5px 0px var(--color-dark, #231e25)",
               fontFamily: "'Satoshi', sans-serif",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 800,
               cursor: "pointer",
+              marginTop: 2,
             }}
           >
             Logout ({user.name?.split(" ")[0]})
@@ -413,6 +423,12 @@ export const Navigation: React.FC = () => {
               zIndex: 150,
             }}
           >
+            {user && (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <NotificationBell />
+              </div>
+            )}
+
             {navItems.map((item) => (
               <a
                 key={item.id}
@@ -444,7 +460,7 @@ export const Navigation: React.FC = () => {
                 }}
                 style={{
                   marginTop: 6,
-                  padding: "8px",
+                  padding: "10px",
                   backgroundColor: "var(--color-dark, #231e25)",
                   color: "#fff",
                   border: "none",
@@ -464,7 +480,7 @@ export const Navigation: React.FC = () => {
       <style>{`
         @media (max-width: 860px) {
           .desktop-menu-column { display: none !important; }
-          .mobile-toggle-btn { display: block !important; }
+          .mobile-toggle-btn { display: flex !important; }
         }
         @media (min-width: 861px) {
           .mobile-toggle-btn { display: none !important; }

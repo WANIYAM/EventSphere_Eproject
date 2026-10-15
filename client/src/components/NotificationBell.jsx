@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/api.js";
 import { useSocket } from "../context/SocketContext.jsx";
 
@@ -14,8 +15,8 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     try {
       const res = await api.get("/notifications");
-      setNotifications(res.data);
-      const unread = res.data.filter((n) => !n.read).length;
+      setNotifications(res.data || []);
+      const unread = (res.data || []).filter((n) => !n.read).length;
       setUnreadCount(unread);
     } catch (err) {
       console.error("Error fetching notifications", err);
@@ -81,73 +82,126 @@ const NotificationBell = () => {
 
   return (
     <div className="notif-bell-container" ref={dropdownRef} style={{ position: "relative" }}>
-      <button
+      <motion.button
         onClick={() => setIsOpen(!isOpen)}
+        whileTap={{ scale: 0.96 }}
         title="Notifications"
         style={{
-          background: "none",
-          border: "1.5px solid var(--color-dark, #231e25)",
-          borderRadius: 4,
-          padding: "5px 10px",
-          fontFamily: "'Satoshi', sans-serif",
-          fontSize: 12,
-          fontWeight: 800,
-          cursor: "pointer",
           display: "inline-flex",
           alignItems: "center",
+          justifyContent: "center",
           gap: 6,
+          padding: "6px 16px",
+          borderRadius: 9999,
+          backgroundColor: isOpen ? "var(--color-dark, #231e25)" : "var(--color-light-salmon, #ffa490)",
+          color: isOpen ? "var(--color-light, #fff8eb)" : "var(--color-dark, #231e25)",
+          textDecoration: "none",
+          border: "1.5px solid var(--color-dark, #231e25)",
+          boxShadow: "2.5px 2.5px 0px var(--color-dark, #231e25)",
+          fontFamily: "'Satoshi', sans-serif",
+          fontSize: 14,
+          fontWeight: 800,
+          cursor: "pointer",
+          whiteSpace: "nowrap",
         }}
       >
-        <span>Alerts</span>
+        <span>🔔</span>
         {unreadCount > 0 && (
           <span
             style={{
               backgroundColor: "var(--color-primary, #ff3e33)",
               color: "#ffffff",
               fontSize: 10,
-              fontWeight: 800,
+              fontWeight: 900,
               borderRadius: 10,
               padding: "1px 5px",
+              border: "1px solid #000",
             }}
           >
             {unreadCount}
           </span>
         )}
-      </button>
+      </motion.button>
 
-      {isOpen && (
-        <div className="notif-dropdown">
-          <div className="notif-dropdown-header">
-            <h4>Notifications</h4>
-            {unreadCount > 0 && (
-              <button className="btn-link" onClick={handleMarkAllRead}>
-                Mark all as read
-              </button>
-            )}
-          </div>
-          <div className="notif-dropdown-list">
-            {notifications.length === 0 ? (
-              <div className="notif-empty">No notifications</div>
-            ) : (
-              notifications.map((notif) => (
-                <div
-                  key={notif._id}
-                  className={`notif-item ${!notif.read ? "unread" : ""}`}
-                  onClick={() => handleItemClick(notif)}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: "120%",
+              width: 320,
+              backgroundColor: "#ffffff",
+              border: "2.5px solid var(--color-dark, #231e25)",
+              boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
+              borderRadius: 4,
+              zIndex: 1000,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px 14px",
+                backgroundColor: "#f9fafb",
+                borderBottom: "2px solid var(--color-dark, #231e25)",
+                fontFamily: "'Satoshi', sans-serif",
+              }}
+            >
+              <h4 style={{ fontSize: 14, margin: 0, fontWeight: 800 }}>Notifications</h4>
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllRead}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--color-primary, #ff3e33)",
+                    fontSize: 12,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
                 >
-                  <p className="notif-msg">{notif.message}</p>
-                  <span className="notif-time">
-                    {new Date(notif.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+                  Mark all as read
+                </button>
+              )}
+            </div>
+
+            <div style={{ maxHeight: 300, overflowY: "auto" }}>
+              {notifications.length === 0 ? (
+                <div style={{ padding: 24, textAlign: "center", fontFamily: "'Satoshi', sans-serif", fontSize: 13, color: "#6b7280" }}>
+                  No notifications
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+              ) : (
+                notifications.map((notif) => (
+                  <div
+                    key={notif._id}
+                    onClick={() => handleItemClick(notif)}
+                    style={{
+                      padding: "12px 14px",
+                      borderBottom: "1.5px dashed #e5e7eb",
+                      cursor: "pointer",
+                      backgroundColor: notif.read ? "#ffffff" : "var(--color-light, #fff8eb)",
+                      fontFamily: "'Satoshi', sans-serif",
+                    }}
+                  >
+                    <p style={{ fontSize: 13, color: "var(--color-dark)", fontWeight: notif.read ? 600 : 800, margin: "0 0 4px 0" }}>
+                      {notif.message}
+                    </p>
+                    <span style={{ fontSize: 11, color: "#6b7280" }}>
+                      {new Date(notif.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

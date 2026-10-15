@@ -2,9 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { SocketProvider } from "./context/SocketContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
-import Navbar from "./components/Navbar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import ServerStatusBanner from "./components/ServerStatusBanner.jsx";
+import { CustomCursor } from "./components/landing/common/CustomCursor";
+import { Navigation } from "./components/landing/navigation/Navigation";
 
 // Public Pages
 import Home from "./pages/Home.jsx";
@@ -53,34 +54,34 @@ const AttendeeExhibitorRedirect = () => {
   return <Navigate to={`/exhibitors/${id}`} replace />;
 };
 
+// Inside client/src/App.jsx
+
 function AppContent() {
   const location = useLocation();
 
-  // Public pages that mount the landing navigation or don't use the dashboard navbar
-  const isPublicPage = [
-    "/",
-    "/expos",
-    "/exhibitors",
-    "/about",
-    "/contact",
+  // Determine if we should hide the white dashboard navbar (since we are using the landing Navigation everywhere)
+  // We hide Navbar.jsx entirely across the app so the floating pill Navigation is the universal header.
+  const isAuthPage = [
     "/login",
     "/register",
     "/forgot-password",
-  ].includes(location.pathname) ||
-    location.pathname.startsWith("/reset-password") ||
-    location.pathname.startsWith("/expos/") ||
-    location.pathname.startsWith("/exhibitors/");
+  ].includes(location.pathname) || location.pathname.startsWith("/reset-password");
 
   return (
     <>
       <ServerStatusBanner />
 
-      {/* Dashboard navbar rendered only on internal dashboards */}
-      {!isPublicPage && <Navbar />}
+      {/* Render the exact same Home Page Navigation (Floating Pills + Retro TV) everywhere except auth screens */}
+      {!isAuthPage && (
+        <>
+          <CustomCursor />
+          <Navigation />
+        </>
+      )}
 
-      <main className={isPublicPage ? "landing-wrapper" : ""}>
+      <main className="landing-wrapper" style={{ paddingTop: isAuthPage ? 0 : 90 }}>
         <Routes>
-          {/* Public Routes */}
+          {/* Public & Attendee Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/expos" element={<Expos />} />
           <Route path="/expos/:id" element={<ExpoDetails />} />
@@ -88,6 +89,14 @@ function AppContent() {
           <Route path="/exhibitors/:id" element={<ExhibitorProfile />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route
+              path="/messages"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "exhibitor", "attendee"]}>
+                  <Messages />
+                </ProtectedRoute>
+              }
+            />
 
           {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
@@ -96,7 +105,7 @@ function AppContent() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Attendee Protected */}
+          {/* Attendee Schedule */}
           <Route
             path="/schedule"
             element={
@@ -105,29 +114,11 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-
-          {/* Shared Authenticated Routes */}
-          <Route
-            path="/messages"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "exhibitor", "attendee"]}>
-                <Messages />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/feedback"
             element={
               <ProtectedRoute allowedRoles={["admin", "exhibitor", "attendee"]}>
                 <Feedback />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "exhibitor", "attendee"]}>
-                <Notifications />
               </ProtectedRoute>
             }
           />
