@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/api.js";
 import { Navigation } from "../components/landing/navigation/Navigation";
 import { CustomCursor } from "../components/landing/common/CustomCursor";
+import { ShineSweep, PulseDot, RotatingBadge } from "../components/common/NeoBrutalKit.jsx";
 
 export default function Expos() {
   const [expos, setExpos] = useState([]);
@@ -76,6 +77,7 @@ export default function Expos() {
               marginBottom: 12,
             }}
           >
+            <PulseDot color="#fff" glow={false} size={6} />
             <span>PUBLIC EXPO DIRECTORY</span>
           </div>
 
@@ -101,7 +103,7 @@ export default function Expos() {
               <motion.button
                 key={tab.id}
                 onClick={() => setActiveFilter(tab.id)}
-                whileHover={{ y: -2 }}
+                whileHover={{ y: -3, rotate: -1 }}
                 whileTap={{ scale: 0.96 }}
                 style={{
                   padding: "8px 18px",
@@ -114,9 +116,12 @@ export default function Expos() {
                   fontSize: 18,
                   letterSpacing: 0.5,
                   cursor: "pointer",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                {tab.label}
+                {isActive && <ShineSweep duration={1.2} opacity={0.3} />}
+                <span style={{ position: "relative", zIndex: 7 }}>{tab.label}</span>
               </motion.button>
             );
           })}
@@ -170,6 +175,8 @@ export default function Expos() {
                       overflow: "hidden",
                     }}
                   >
+                    <ShineSweep duration={1.6} delay={idx * 0.08} opacity={0.3} />
+                    {idx === 0 && <RotatingBadge text="NEXT UP" size={72} bg="var(--color-kiwi, #abf139)" color="#000" top={-18} right={-18} duration={15} />}
                     {/* Expo Card Image Banner */}
                     <div
                       style={{

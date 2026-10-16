@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { useAuth } from "../context/AuthContext.jsx";
 import api from "../services/api.js";
+import { CornerBrackets, ShineSweep, PulseDot, TickerStrip, RotatingBadge, Scanline } from "../components/common/NeoBrutalKit.jsx";
 
 // Attendee Time & Schedule Distribution for Pie Chart
 const SCHEDULE_PIE_DATA = [
@@ -62,13 +63,22 @@ const AttendeeDashboard = () => {
           display: "block",
           flexWrap: "wrap",
           gap: 20,
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        <CornerBrackets color="#000" inset={8} size={12} thickness={2.5} />
+        <ShineSweep duration={1.5} />
+        <RotatingBadge text="LIVE" size={78} bg="var(--color-kiwi, #abf139)" color="#000" top={-18} right={-18} duration={14} />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "var(--color-dark, #231e25)", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-              ATTENDEE ACCOUNT
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PulseDot color="#000" glow={false} size={6} /> ATTENDEE ACCOUNT</span>
             </span>
+          </div>
+
+          <div style={{ backgroundColor: "var(--color-dark, #231e25)", borderRadius: 4, padding: "5px 0", border: "2px solid #000" }}>
+            <TickerStrip items={["REAL-TIME EXPOS · BOOTH ALLOCATIONS · SCHEDULE UPDATES", "PENDING APPLICATIONS REVIEWED", "ANALYTICS SYNCED"]} color="var(--color-kiwi, #abf139)" duration={24} />
           </div>
 
           <h1 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(42px, 5.5vw, 60px)", color: "var(--color-dark, #231e25)", lineHeight: 0.88, margin: "4px 0 0 0" }}>
@@ -118,8 +128,12 @@ const AttendeeDashboard = () => {
               boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
               padding: "24px 28px",
               display: "block",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <ShineSweep duration={1.4} delay={0.15} opacity={0.3} />
+            <div style={{ position: "absolute", top: 10, right: 10 }}><PulseDot color="var(--color-primary, #ff3e33)" size={9} /></div>
             <div>
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#000" }}>
                 REGISTERED EXPOS
@@ -138,8 +152,12 @@ const AttendeeDashboard = () => {
               boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
               padding: "24px 28px",
               display: "block",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <ShineSweep duration={1.4} delay={0.15} opacity={0.3} />
+            <div style={{ position: "absolute", top: 10, right: 10 }}><PulseDot color="var(--color-primary, #ff3e33)" size={9} /></div>
             <div>
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#fff" }}>
                 BOOKMARKED SESSIONS
@@ -161,8 +179,12 @@ const AttendeeDashboard = () => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
+          <Scanline color="rgba(20,166,234,0.3)" height={70} />
+          <CornerBrackets color="#000" inset={8} size={10} thickness={2} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <span style={{ fontFamily: "var(--font-display)", fontSize: 24, letterSpacing: 1, color: "var(--color-dark)" }}>
@@ -286,8 +308,10 @@ const AttendeeDashboard = () => {
                 display: "flex",
                 flexDirection: "column",
                 position: "relative",
+                overflow: "hidden",
               }}
             >
+              <ShineSweep duration={1.6} delay={0.08} opacity={0.25} />
               <div
                 style={{
                   backgroundColor: item.bg,
@@ -335,7 +359,7 @@ const AttendeeDashboard = () => {
                     marginTop: 8,
                   }}
                 >
-                  <span>LAUNCH MODULE</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><span>LAUNCH MODULE</span><span style={{ fontSize: 14 }}>→</span></span>
                 </Link>
               </div>
             </motion.div>

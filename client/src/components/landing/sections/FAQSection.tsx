@@ -40,15 +40,47 @@ export const FAQSection: React.FC = () => {
   return (
     <section id="faq" style={{ maxWidth: 1040, margin: "0 auto", padding: "80px 24px 120px 24px" }}>
       <div style={{ textAlign: "center", marginBottom: 50 }}>
-        <span style={{ color: "var(--color-cerulean)", fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase" }}>
-          EVENT MANAGEMENT HELP
-        </span>
+        <motion.span
+          animate={{ rotate: [-2, 2, -2], scale: [1, 1.04, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            display: "inline-block",
+            color: "var(--color-cerulean)",
+            fontFamily: "'Satoshi', sans-serif",
+            fontSize: 13,
+            fontWeight: 800,
+            letterSpacing: 1.5,
+            textTransform: "uppercase",
+            border: "2px solid var(--color-dark)",
+            padding: "4px 12px",
+            borderRadius: 30,
+            background: "rgba(20,166,234,0.12)",
+          }}
+        >
+          ● EVENT MANAGEMENT HELP
+        </motion.span>
         <h2 className="style-display" style={{ fontSize: "clamp(46px, 7vw, 84px)", color: "var(--color-dark)", marginTop: 6 }}>
           EVENTSPHERE &#123; QUESTIONS &#125; & ANSWERS
         </h2>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, position: "relative" }}>
+        <motion.div
+          initial={{ scaleY: 0 }}
+          whileInView={{ scaleY: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          style={{
+            position: "absolute",
+            top: 18,
+            bottom: 18,
+            left: 19,
+            width: 3,
+            background: "var(--color-primary)",
+            transformOrigin: "top",
+            zIndex: 1,
+          }}
+        />
         {EXPO_FAQS.map((item, idx) => {
           const isOpen = openIndex === idx;
 
@@ -59,7 +91,7 @@ export const FAQSection: React.FC = () => {
                 whileHover={{ x: -2 }}
                 style={{
                   width: "100%",
-                  padding: "24px 28px",
+                  padding: "20px 24px",
                   backgroundColor: "var(--color-light)",
                   border: "2px solid var(--color-dark)",
                   boxShadow: isOpen ? "none" : "4px 4px 0px var(--color-dark)",
@@ -70,10 +102,33 @@ export const FAQSection: React.FC = () => {
                   textAlign: "left",
                   position: "relative",
                   zIndex: 2,
+                  gap: 16,
                 }}
               >
-                <span className="style-p2" style={{ fontSize: "clamp(18px, 2.5vw, 26px)", color: "var(--color-dark)" }}>
-                  {item.q}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 14 }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: 20,
+                      background: "var(--color-dark)",
+                      color: "var(--color-light)",
+                      width: 40,
+                      height: 40,
+                      borderRadius: 6,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "2px solid var(--color-dark)",
+                      flexShrink: 0,
+                      position: "relative",
+                      zIndex: 2,
+                    }}
+                  >
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                  <span className="style-p2" style={{ fontSize: "clamp(18px, 2.5vw, 26px)", color: "var(--color-dark)" }}>
+                    {item.q}
+                  </span>
                 </span>
                 <motion.span
                   animate={{ rotate: isOpen ? 45 : 0, backgroundColor: isOpen ? "var(--color-primary)" : "var(--color-kiwi)" }}
@@ -113,6 +168,10 @@ export const FAQSection: React.FC = () => {
                       zIndex: 1,
                     }}
                   >
+                    <div style={{ position: "absolute", top: 8, left: 8, width: 12, height: 12, borderTop: "2.5px solid #000", borderLeft: "2.5px solid #000" }} />
+                    <div style={{ position: "absolute", top: 8, right: 8, width: 12, height: 12, borderTop: "2.5px solid #000", borderRight: "2.5px solid #000" }} />
+                    <div style={{ position: "absolute", bottom: 8, left: 8, width: 12, height: 12, borderBottom: "2.5px solid #000", borderLeft: "2.5px solid #000" }} />
+                    <div style={{ position: "absolute", bottom: 8, right: 8, width: 12, height: 12, borderBottom: "2.5px solid #000", borderRight: "2.5px solid #000" }} />
                     <p className="style-p3" style={{ color: "var(--color-dark)" }}>{item.a}</p>
                   </motion.div>
                 )}

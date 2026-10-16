@@ -324,6 +324,14 @@ export const Navigation: React.FC = () => {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  const usesRoleNavbar =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/exhibitor") ||
+    ((location.pathname === "/messages" || location.pathname === "/feedback") &&
+      (user?.role === "admin" || user?.role === "exhibitor"));
+
+  if (usesRoleNavbar) return null;
+
   const getNavItems = (): NavItem[] => {
     if (!user) {
       return [
@@ -565,6 +573,18 @@ export const Navigation: React.FC = () => {
           aria-label="EventSphere home"
         >
           <RetroTvLogo />
+          <motion.span
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.8, repeat: Infinity }}
+            style={{
+              width: 7, height: 7, borderRadius: "50%",
+              background: "var(--color-kiwi, #abf139)",
+              border: "1.5px solid #000",
+              boxShadow: "0 0 8px var(--color-kiwi, #abf139)",
+              marginLeft: 6,
+              flexShrink: 0,
+            }}
+          />
         </Link>
 
         <div

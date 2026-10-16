@@ -27,16 +27,37 @@ export const Menu: React.FC<MenuProps> = ({ activePage = "Home" }) => {
   };
 
   return (
-    <nav style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-      {links.map((link) => (
-        <NavButton
-          key={link.name}
-          navText={link.name}
-          bgColor={link.bg}
-          link={link.href}
-          active={activePage.toLowerCase() === link.name.toLowerCase()}
-          onClick={(e) => handleSmoothScroll(e, link.href)}
-        />
+    <nav
+      style={{
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        flexWrap: "wrap",
+        padding: "8px 0",
+      }}
+    >
+      {links.map((link, i) => (
+        <React.Fragment key={link.name}>
+          <NavButton
+            navText={link.name}
+            bgColor={link.bg}
+            link={link.href}
+            active={activePage.toLowerCase() === link.name.toLowerCase()}
+            onClick={(e) => handleSmoothScroll(e, link.href)}
+          />
+          {i < links.length - 1 && (
+            <span
+              aria-hidden
+              style={{
+                width: 4,
+                height: 4,
+                borderRadius: "50%",
+                backgroundColor: "var(--color-dark, #231e25)",
+                opacity: 0.35,
+              }}
+            />
+          )}
+        </React.Fragment>
       ))}
     </nav>
   );

@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
+import {
+  CornerBrackets, ShineSweep, PulseDot, RotatingBadge, TickerStrip, Scanline, GrainOverlay, TickStrip,
+} from "../../components/common/NeoBrutalKit.jsx";
 
 const ExhibitorExpos = () => {
   const { user } = useAuth();
@@ -12,12 +15,10 @@ const ExhibitorExpos = () => {
   const [success, setSuccess] = useState("");
 
   const [selectedExpo, setSelectedExpo] = useState(null);
-  const [formData, setFormData] = useState({
-    companyName: "",
-    products: "",
-  });
+  const [formData, setFormData] = useState({ companyName: "", products: "" });
   const [documents, setDocuments] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [focused, setFocused] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -30,25 +31,23 @@ const ExhibitorExpos = () => {
       setMyApplications(appsRes.data);
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to load expos");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
+
+  useEffect(() => { fetchData(); }, []);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!success) return;
+    const t = setTimeout(() => setSuccess(""), 5000);
+    return () => clearTimeout(t);
+  }, [success]);
 
-  const hasApplied = (expoId) => {
-    return myApplications.some((app) => (app.expo?._id || app.expo) === expoId);
-  };
+  const hasApplied = (expoId) =>
+    myApplications.some((app) => (app.expo?._id || app.expo) === expoId);
 
   const handleOpenApplyModal = (expo) => {
     setSelectedExpo(expo);
-    setFormData({
-      companyName: user?.company || "",
-      products: "",
-    });
+    setFormData({ companyName: user?.company || "", products: "" });
     setDocuments([]);
     setError("");
     setSuccess("");
@@ -56,10 +55,7 @@ const ExhibitorExpos = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 3) {
-      setError("Maximum 3 documents allowed");
-      return;
-    }
+    if (files.length > 3) { setError("Maximum 3 documents allowed"); return; }
     setError("");
     setDocuments(files);
   };
@@ -67,176 +63,150 @@ const ExhibitorExpos = () => {
   const handleSubmitApplication = async (e) => {
     e.preventDefault();
     if (!selectedExpo) return;
-
-    setSubmitting(true);
-    setError("");
-    setSuccess("");
+    setSubmitting(true); setError(""); setSuccess("");
 
     const data = new FormData();
     data.append("expo", selectedExpo._id);
     data.append("companyName", formData.companyName);
     data.append("products", formData.products);
-
-    documents.forEach((doc) => {
-      data.append("documents", doc);
-    });
+    documents.forEach((doc) => data.append("documents", doc));
 
     try {
-      await api.post("/applications", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
+      await api.post("/applications", data, { headers: { "Content-Type": "multipart/form-data" } });
       setSuccess(`Application submitted successfully for ${selectedExpo.title}!`);
       setSelectedExpo(null);
       fetchData();
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to submit application");
-    } finally {
-      setSubmitting(false);
-    }
+    } finally { setSubmitting(false); }
   };
 
+  const inputStyle = (name) => ({
+    width: "100%", padding: "10px 12px", border: "2px solid #000",
+    borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600,
+    fontSize: 14, marginTop: 4, background: "#fff", outline: "none",
+    boxSizing: "border-box",
+    boxShadow: focused === name ? "4px 4px 0 var(--color-kiwi, #abf139)" : "2px 2px 0 #000",
+    transition: "box-shadow 0.2s ease",
+  });
+  const labelStyle = { fontFamily: "'Satoshi', sans-serif", fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: 1, color: "#231e25", display: "inline-flex", alignItems: "center", gap: 6 };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28, padding: "10px 0" }}>
-      {/* Header */}
-      <div
-        style={{
-          backgroundColor: "#ffffff",
-          border: "3px solid var(--color-dark, #231e25)",
-          boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
-          padding: "24px 28px",
-        }}
-      >
-        <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "#000", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-          [ EXHIBITION OPPORTUNITIES ]
-        </span>
-        <h1 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(36px, 5vw, 48px)", color: "var(--color-dark, #231e25)", lineHeight: 0.9, margin: "6px 0 0 0" }}>
-          BROWSE UPCOMING EXPOS & TRADE SHOWS
-        </h1>
-        <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, color: "#6b7280", margin: "4px 0 0 0", fontWeight: 500 }}>
-          Apply for commercial booth space and showcase your products to thousands of registered buyers.
-        </p>
+    <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22, paddingBottom: 40 }}>
+      <div style={{ background: "var(--color-dark, #231e25)", border: "2px solid #000", borderRadius: 4, padding: "5px 0", boxShadow: "3px 3px 0 #000" }}>
+        <TickerStrip items={["EXHIBITION OPPORTUNITIES", `${expos.length} EXPOS OPEN`, `${myApplications.length} APPLICATIONS`, "BOOTH APPLICATIONS LIVE"]} color="var(--color-kiwi, #abf139)" duration={26} fontSize={11} />
       </div>
 
-      {error && (
-        <div style={{ backgroundColor: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "3px 3px 0px var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          Error: {error}
-        </div>
-      )}
-      {success && (
-        <div style={{ backgroundColor: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)", padding: "12px 16px", color: "#000000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 14 }}>
-          Success: {success}
-        </div>
-      )}
+      <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+        style={{ background: "#fff", border: "3px solid var(--color-dark, #231e25)", boxShadow: "8px 8px 0 var(--color-dark, #231e25)", padding: "24px 28px", position: "relative", overflow: "hidden" }}>
+        <CornerBrackets color="#000" inset={9} size={12} thickness={2.5} />
+        <ShineSweep duration={1.7} delay={0.2} opacity={0.22} />
+        <TickStrip color="rgba(0,0,0,0.3)" gap={14} />
+        <GrainOverlay opacity={0.1} />
+        <RotatingBadge text="APPLY NOW" size={92} bg="var(--color-kiwi, #abf139)" color="#000" top={-20} right={-20} duration={17} />
 
-      {/* Expo Cards Grid */}
+        <div style={{ position: "relative", zIndex: 2, maxWidth: 720 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--color-kiwi, #abf139)", color: "#000", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontWeight: 800, letterSpacing: 0.8, border: "1.5px solid #000", boxShadow: "2px 2px 0 #000" }}>
+            <PulseDot color="#000" size={6} glow={false} />
+            [ EXHIBITION OPPORTUNITIES ]
+          </span>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(30px, 4vw, 46px)", color: "var(--color-dark, #231e25)", lineHeight: 0.95, margin: "10px 0 6px 0", letterSpacing: 1 }}>
+            BROWSE UPCOMING EXPOS & TRADE SHOWS
+          </h1>
+          <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13.5, color: "#6b7280", margin: 0, fontWeight: 600 }}>
+            Apply for commercial booth space and showcase your products to thousands of registered buyers.
+          </p>
+        </div>
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+        {error && (
+          <motion.div key="err" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0, x: [0, -5, 5, -3, 0] }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}
+            style={{ background: "#fee2e2", border: "2.5px solid var(--color-primary, #ff3e33)", boxShadow: "4px 4px 0 var(--color-primary, #ff3e33)", padding: "12px 16px", color: "#991b1b", fontWeight: 700, fontFamily: "'Satoshi', sans-serif", fontSize: 13, display: "flex", alignItems: "center", gap: 10 }}>
+            <PulseDot color="var(--color-primary, #ff3e33)" size={9} /> Error: {error}
+          </motion.div>
+        )}
+        {success && (
+          <motion.div key="suc" initial={{ opacity: 0, y: -8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }} transition={{ type: "spring", stiffness: 320, damping: 22 }}
+            style={{ background: "var(--color-kiwi, #abf139)", border: "2.5px solid var(--color-dark, #231e25)", boxShadow: "4px 4px 0 var(--color-dark, #231e25)", padding: "12px 16px", color: "#000", fontWeight: 800, fontFamily: "'Satoshi', sans-serif", fontSize: 13, display: "flex", alignItems: "center", gap: 10, position: "relative", overflow: "hidden" }}>
+            <ShineSweep duration={1.6} delay={0.2} opacity={0.4} />
+            <span style={{ width: 22, height: 22, borderRadius: "50%", background: "#000", color: "var(--color-kiwi, #abf139)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 900, border: "2px solid #000", flexShrink: 0 }}>✓</span>
+            {success}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {loading ? (
-        <p style={{ padding: 32, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>Loading trade show expos...</p>
+        <div style={{ background: "#fff", border: "3px solid #000", boxShadow: "8px 8px 0 #000", padding: 50, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+          <CornerBrackets color="#000" inset={8} size={11} thickness={2.5} />
+          <Scanline color="rgba(171,241,57,0.3)" height={70} />
+          <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid #231e25", borderTopColor: "var(--color-kiwi, #abf139)", animation: "spin 0.9s linear infinite" }} />
+          <p style={{ fontFamily: "var(--font-display)", fontSize: 22, letterSpacing: 1, margin: 0 }}>LOADING EXPO OPPORTUNITIES...</p>
+          <style>{`@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}`}</style>
+        </div>
       ) : expos.length === 0 ? (
-        <div style={{ backgroundColor: "#ffffff", border: "2.5px solid #000", padding: 32, textAlign: "center", fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
+        <div style={{ background: "#fff", border: "2.5px solid #000", boxShadow: "4px 4px 0 #000", padding: 40, textAlign: "center", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, color: "#6b7280", position: "relative", overflow: "hidden" }}>
+          <CornerBrackets color="#000" inset={8} size={10} thickness={2} />
           No expos currently available for application.
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(320px, 100%), 1fr))", gap: 22 }}>
           {expos.map((expo, idx) => {
             const applied = hasApplied(expo._id);
-            const bannerColors = ["var(--color-purple-mimosa, #a67eff)", "var(--color-selective-yellow, #feb804)", "var(--color-primary, #ff3e33)", "var(--color-kiwi, #abf139)"];
-            const bannerBg = bannerColors[idx % bannerColors.length];
+            const palette = [
+              { bg: "var(--color-purple-mimosa, #a67eff)", fg: "#fff" },
+              { bg: "var(--color-selective-yellow, #feb804)", fg: "#000" },
+              { bg: "var(--color-primary, #ff3e33)", fg: "#fff" },
+              { bg: "var(--color-kiwi, #abf139)", fg: "#000" },
+            ][idx % 4];
 
             return (
-              <motion.div
-                key={expo._id}
-                whileHover={{ y: -6, boxShadow: "8px 8px 0px var(--color-dark, #231e25)" }}
-                style={{
-                  backgroundColor: "#ffffff",
-                  border: "3px solid var(--color-dark, #231e25)",
-                  boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
-                  display: "flex",
-                  flexDirection: "column",
-                  position: "relative",
-                }}
-              >
-                {/* 4 Corner Viewfinders */}
-                <div style={{ position: "absolute", top: -5, left: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 10 }} />
-                <div style={{ position: "absolute", top: -5, right: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 10 }} />
+              <motion.div key={expo._id}
+                initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: idx * 0.06 }}
+                whileHover={{ y: -6, boxShadow: "10px 10px 0 var(--color-dark, #231e25)", rotate: -0.4 }}
+                style={{ background: "#fff", border: "3px solid var(--color-dark, #231e25)", boxShadow: "5px 5px 0 var(--color-dark, #231e25)", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+                <CornerBrackets color="#000" inset={7} size={10} thickness={2} />
+                <ShineSweep duration={1.7} delay={idx * 0.05} opacity={0.2} />
 
-                {/* Banner Header */}
-                <div
-                  style={{
-                    backgroundColor: bannerBg,
-                    color: bannerBg === "var(--color-selective-yellow, #feb804)" || bannerBg === "var(--color-kiwi, #abf139)" ? "#000" : "#fff",
-                    borderBottom: "2.5px solid var(--color-dark, #231e25)",
-                    padding: "10px 18px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: 18, letterSpacing: 0.5 }}>
+                <div style={{ background: palette.bg, color: palette.fg, borderBottom: "2.5px solid var(--color-dark, #231e25)", padding: "10px 18px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", zIndex: 2 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "var(--font-display)", fontSize: 16, letterSpacing: 0.6 }}>
+                    <PulseDot color={palette.fg} size={6} glow={false} />
                     {expo.theme || "TRADE SHOW"}
                   </span>
                   {applied && (
-                    <span style={{ backgroundColor: "#000", color: "#fff", fontSize: 10, fontWeight: 800, padding: "2px 6px", borderRadius: 2 }}>
+                    <span style={{ background: "#000", color: "#fff", fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 3, letterSpacing: 0.6, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      <PulseDot color="var(--color-kiwi, #abf139)" size={5} glow={false} />
                       APPLIED
                     </span>
                   )}
                 </div>
 
-                {/* Body */}
-                <div style={{ padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1, gap: 16 }}>
+                <div style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1, gap: 16, position: "relative", zIndex: 2 }}>
                   <div>
-                    <h3 style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--color-dark, #231e25)", margin: "0 0 8px 0", lineHeight: 0.95 }}>
+                    <h3 style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "var(--color-dark, #231e25)", margin: "0 0 8px 0", lineHeight: 0.95, letterSpacing: 0.5 }}>
                       {expo.title}
                     </h3>
-                    <div style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, color: "#6b7280", fontWeight: 700, marginBottom: 12 }}>
-                      Dates: {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()} <br />
-                      Location: {expo.location || "TBA"}
+                    <div style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12.5, color: "#6b7280", fontWeight: 700, marginBottom: 12, lineHeight: 1.6 }}>
+                      🗓 {new Date(expo.startDate).toLocaleDateString()} – {new Date(expo.endDate).toLocaleDateString()}<br />
+                      📍 {expo.location || "TBA"}
                     </div>
                     {expo.description && (
-                      <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, color: "#4b5563", lineHeight: 1.45, margin: 0 }}>
-                        {expo.description.substring(0, 110)}...
+                      <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13.5, color: "#4b5563", lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
+                        {expo.description.substring(0, 130)}{expo.description.length > 130 ? "..." : ""}
                       </p>
                     )}
                   </div>
 
                   <div style={{ borderTop: "1.5px dashed var(--color-dark, #231e25)", paddingTop: 14 }}>
                     {applied ? (
-                      <button
-                        disabled
-                        style={{
-                          width: "100%",
-                          backgroundColor: "#e5e7eb",
-                          color: "#6b7280",
-                          border: "2px solid #9ca3af",
-                          padding: "10px",
-                          borderRadius: 3,
-                          fontFamily: "var(--font-display)",
-                          fontSize: 18,
-                          cursor: "not-allowed",
-                        }}
-                      >
-                        Application Submitted
+                      <button disabled style={{ width: "100%", background: "#e5e7eb", color: "#6b7280", border: "2px solid #9ca3af", padding: "11px", borderRadius: 3, fontFamily: "var(--font-display)", fontSize: 18, letterSpacing: 0.6, cursor: "not-allowed", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                        ✓ APPLICATION SUBMITTED
                       </button>
                     ) : (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleOpenApplyModal(expo)}
-                        style={{
-                          width: "100%",
-                          backgroundColor: "var(--color-primary, #ff3e33)",
-                          color: "#ffffff",
-                          border: "2px solid var(--color-dark, #231e25)",
-                          boxShadow: "2px 2px 0px var(--color-dark, #231e25)",
-                          padding: "10px",
-                          borderRadius: 3,
-                          fontFamily: "var(--font-display)",
-                          fontSize: 20,
-                          letterSpacing: 0.5,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Apply for Booth Space
+                      <motion.button whileHover={{ y: -3, boxShadow: "5px 5px 0 #000" }} whileTap={{ y: 1 }} onClick={() => handleOpenApplyModal(expo)}
+                        style={{ position: "relative", overflow: "hidden", width: "100%", background: "var(--color-primary, #ff3e33)", color: "#fff", border: "2.5px solid #000", boxShadow: "3px 3px 0 #000", padding: "11px", borderRadius: 3, fontFamily: "var(--font-display)", fontSize: 18, letterSpacing: 0.6, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                        <ShineSweep duration={1.4} delay={0} opacity={0.35} />
+                        APPLY FOR BOOTH SPACE →
                       </motion.button>
                     )}
                   </div>
@@ -247,113 +217,70 @@ const ExhibitorExpos = () => {
         </div>
       )}
 
-      {/* Application Modal */}
+      {/* MODAL */}
       <AnimatePresence>
         {selectedExpo && (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              backgroundColor: "rgba(35, 30, 37, 0.75)",
-              backdropFilter: "blur(6px)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 1000,
-              padding: 20,
-            }}
-            onClick={() => setSelectedExpo(null)}
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{ position: "fixed", inset: 0, background: "rgba(35, 30, 37, 0.78)", backdropFilter: "blur(6px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, padding: 20 }}
+            onClick={() => !submitting && setSelectedExpo(null)}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 20 }}
+              initial={{ opacity: 0, scale: 0.94, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.94, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              style={{
-                backgroundColor: "var(--color-light, #fff8eb)",
-                border: "3px solid var(--color-dark, #231e25)",
-                boxShadow: "10px 10px 0px var(--color-dark, #231e25)",
-                width: "100%",
-                maxWidth: 540,
-                maxHeight: "90vh",
-                overflowY: "auto",
-                padding: "28px",
-                position: "relative",
-              }}
-            >
-              {/* Corner Handles */}
-              <div style={{ position: "absolute", top: -6, left: -6, width: 12, height: 12, backgroundColor: "var(--color-primary, #ff3e33)", border: "2px solid #000" }} />
-              <div style={{ position: "absolute", top: -6, right: -6, width: 12, height: 12, backgroundColor: "var(--color-primary, #ff3e33)", border: "2px solid #000" }} />
+              style={{ background: "var(--color-light, #fff8eb)", border: "3px solid var(--color-dark, #231e25)", boxShadow: "12px 12px 0 var(--color-dark, #231e25)", width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", padding: "26px", position: "relative" }}>
+              <CornerBrackets color="#000" inset={10} size={13} thickness={3} />
+              <Scanline color="rgba(171,241,57,0.28)" height={70} duration={2.4} />
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid var(--color-dark, #231e25)", paddingBottom: 12 }}>
-                <h3 style={{ fontFamily: "var(--font-display)", fontSize: 28, margin: 0 }}>
-                  BOOTH APPLICATION // {selectedExpo.title}
-                </h3>
-                <button
-                  onClick={() => setSelectedExpo(null)}
-                  style={{ background: "none", border: "2px solid #000", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", fontWeight: 900, fontSize: 16 }}
-                >
-                  Close
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2.5px solid #000", paddingBottom: 14, marginBottom: 16, position: "relative", zIndex: 2, flexWrap: "wrap", gap: 10 }}>
+                <div>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--color-kiwi, #abf139)", color: "#000", padding: "3px 10px", borderRadius: 3, fontSize: 10, fontWeight: 900, letterSpacing: 1, border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", marginBottom: 6, fontFamily: "'Satoshi', sans-serif" }}>
+                    <PulseDot color="#000" size={6} glow={false} />
+                    BOOTH APPLICATION
+                  </div>
+                  <h3 style={{ fontFamily: "var(--font-display)", fontSize: 24, margin: 0, letterSpacing: 1, lineHeight: 1 }}>
+                    {selectedExpo.title}
+                  </h3>
+                </div>
+                <button onClick={() => !submitting && setSelectedExpo(null)} disabled={submitting}
+                  style={{ background: "#fff", border: "2px solid #000", boxShadow: "2px 2px 0 #000", width: 32, height: 32, borderRadius: "50%", cursor: submitting ? "not-allowed" : "pointer", fontFamily: "var(--font-display)", fontSize: 16, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                  ✕
                 </button>
               </div>
 
-              <form onSubmit={handleSubmitApplication} style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 18 }}>
+              <form onSubmit={handleSubmitApplication} style={{ display: "flex", flexDirection: "column", gap: 14, position: "relative", zIndex: 2 }}>
                 <div>
-                  <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Company Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.companyName}
-                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                    placeholder="Enter your registered company name"
-                    style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
-                  />
+                  <label style={labelStyle}>Company Name *</label>
+                  <input type="text" required value={formData.companyName} onChange={(e) => setFormData({ ...formData, companyName: e.target.value })} onFocus={() => setFocused("cn")} onBlur={() => setFocused(null)} placeholder="Enter your registered company name" style={inputStyle("cn")} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Products / Showcase Description</label>
+                  <textarea rows="3" value={formData.products} onChange={(e) => setFormData({ ...formData, products: e.target.value })} onFocus={() => setFocused("pr")} onBlur={() => setFocused(null)} placeholder="Describe the products, prototypes, or services you plan to exhibit" style={{ ...inputStyle("pr"), resize: "vertical", lineHeight: 1.55 }} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Supporting Documents (Max 3)</label>
+                  <input type="file" multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp" onChange={handleFileChange}
+                    style={{ width: "100%", padding: "10px 12px", border: "2px solid #000", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 12, marginTop: 4, background: "#fff", boxShadow: "2px 2px 0 #000", boxSizing: "border-box" }} />
+                  {documents.length > 0 && (
+                    <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {documents.map((d, i) => (
+                        <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "3px 8px", borderRadius: 3, fontSize: 10.5, fontWeight: 800, border: "1.5px solid #000", boxShadow: "1.5px 1.5px 0 #000" }}>
+                          📄 {d.name.length > 20 ? d.name.slice(0, 20) + "…" : d.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div>
-                  <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Products / Showcase Description</label>
-                  <textarea
-                    rows="3"
-                    value={formData.products}
-                    onChange={(e) => setFormData({ ...formData, products: e.target.value })}
-                    placeholder="Describe the products, prototypes, or services you plan to exhibit"
-                    style={{ width: "100%", padding: "10px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontWeight: 600, marginTop: 4, backgroundColor: "#fff" }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Supporting Documents (Max 3: PDF, DOC, Images)</label>
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
-                    onChange={handleFileChange}
-                    style={{ width: "100%", padding: "8px", border: "2px solid var(--color-dark, #231e25)", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 12, marginTop: 4, backgroundColor: "#fff" }}
-                  />
-                </div>
-
-                <motion.button
-                  type="submit"
-                  disabled={submitting}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                  style={{
-                    backgroundColor: "var(--color-kiwi, #abf139)",
-                    color: "#000000",
-                    border: "2px solid #000",
-                    boxShadow: "3px 3px 0px #000",
-                    padding: "12px",
-                    fontFamily: "var(--font-display)",
-                    fontSize: 22,
-                    cursor: submitting ? "not-allowed" : "pointer",
-                    marginTop: 8,
-                  }}
-                >
+                <motion.button type="submit" disabled={submitting}
+                  whileHover={submitting ? {} : { y: -3, boxShadow: "6px 6px 0 #000" }}
+                  whileTap={submitting ? {} : { y: 1 }}
+                  style={{ position: "relative", overflow: "hidden", background: submitting ? "#9ca3af" : "var(--color-kiwi, #abf139)", color: "#000", border: "2.5px solid #000", boxShadow: "4px 4px 0 #000", padding: "12px", fontFamily: "var(--font-display)", fontSize: 20, letterSpacing: 1, cursor: submitting ? "not-allowed" : "pointer", marginTop: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                  {!submitting && <ShineSweep duration={1.4} delay={0} opacity={0.35} />}
+                  {submitting && <PulseDot color="#000" size={7} glow={false} />}
                   {submitting ? "SUBMITTING APPLICATION..." : "SUBMIT BOOTH APPLICATION"}
                 </motion.button>
               </form>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

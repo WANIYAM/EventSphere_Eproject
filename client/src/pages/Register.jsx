@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext.jsx";
+import { CornerBrackets, ShineSweep, PulseDot, RotatingBadge, TickerStrip } from "../components/common/NeoBrutalKit.jsx";
 
 const isRoutePermitted = (role, target) => {
   if (!target || typeof target !== "string") return false;
@@ -103,11 +104,14 @@ const Register = () => {
         position: "relative",
       }}
     >
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, backgroundColor: "var(--color-dark, #231e25)", padding: "5px 0", borderBottom: "2px solid #000", zIndex: 9 }}>
+        <TickerStrip items={["NEW EXPO ACCOUNTS", "ATTENDEE · EXHIBITOR ROLES", "JOIN EVENTSPHERE 2026"]} color="var(--color-selective-yellow, #feb804)" duration={22} />
+      </div>
       <Link
         to="/"
         style={{
           position: "absolute",
-          top: 24,
+          top: 40,
           left: 24,
           textDecoration: "none",
           color: "var(--color-dark, #231e25)",
@@ -141,6 +145,9 @@ const Register = () => {
           boxSizing: "border-box",
         }}
       >
+        <CornerBrackets color="#000" inset={8} size={12} thickness={2.5} />
+        <ShineSweep />
+        <RotatingBadge text="JOIN US" size={72} bg="var(--color-primary, #ff3e33)" color="#fff" top={-18} right={-18} duration={15} />
         <div
           style={{
             display: "inline-block",
@@ -200,9 +207,11 @@ const Register = () => {
               Select Your Expo Role
             </label>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setRole("attendee")}
+                whileHover={{ y: -3, rotate: -1 }}
+                whileTap={{ scale: 0.96 }}
                 style={{
                   padding: "12px 14px",
                   borderRadius: 4,
@@ -214,14 +223,22 @@ const Register = () => {
                   fontWeight: 800,
                   cursor: "pointer",
                   boxShadow: formData.role === "attendee" ? "3px 3px 0px #000" : "none",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                Attendee Pass
-              </button>
+                {formData.role === "attendee" && <ShineSweep opacity={0.35} />}
+                <span style={{ position: "relative", zIndex: 7, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  {formData.role === "attendee" && <PulseDot color="#000" size={8} glow={false} />}
+                  Attendee Pass
+                </span>
+              </motion.button>
 
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setRole("exhibitor")}
+                whileHover={{ y: -3, rotate: -1 }}
+                whileTap={{ scale: 0.96 }}
                 style={{
                   padding: "12px 14px",
                   borderRadius: 4,
@@ -233,10 +250,16 @@ const Register = () => {
                   fontWeight: 800,
                   cursor: "pointer",
                   boxShadow: formData.role === "exhibitor" ? "3px 3px 0px #000" : "none",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                Exhibitor Booth
-              </button>
+                {formData.role === "exhibitor" && <ShineSweep opacity={0.35} />}
+                <span style={{ position: "relative", zIndex: 7, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  {formData.role === "exhibitor" && <PulseDot color="#000" size={8} glow={false} />}
+                  Exhibitor Booth
+                </span>
+              </motion.button>
             </div>
           </div>
 
@@ -295,8 +318,13 @@ const Register = () => {
               fontSize: 24,
               letterSpacing: 1.5,
               cursor: submitting ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 10,
             }}
           >
+            {submitting && <PulseDot color="#000" glow={false} size={8} />}
             {submitting ? "CREATING PASS..." : "CREATE EXPO ACCOUNT"}
           </motion.button>
         </form>

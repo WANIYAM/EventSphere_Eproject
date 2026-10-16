@@ -1,32 +1,94 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
+const stickerFrameStyle: React.CSSProperties = {
+  position: "relative",
+  backgroundColor: "#ffffff",
+  border: "2.5px solid #000000",
+  boxShadow: "4px 4px 0 #000000",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  textAlign: "center",
+  fontFamily: "'Satoshi', sans-serif",
+  fontWeight: 900,
+  fontSize: 14,
+  letterSpacing: 0.6,
+  color: "#000",
+  padding: 8,
+};
+
+const StickerPulse: React.FC<{ color: string }> = ({ color }) => (
+  <motion.div
+    animate={{ scale: [1, 1.4, 1], opacity: [0.6, 1, 0.6] }}
+    transition={{ duration: 1.8, repeat: Infinity }}
+    style={{
+      position: "absolute", top: -6, right: -6, width: 10, height: 10, borderRadius: "50%",
+      background: color, border: "2px solid #000", boxShadow: "0 0 8px " + color,
+    }}
+  />
+);
+
 const LaptopSticker: React.FC = () => (
-  <div style={{ position: "relative", width: 140, height: 120, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, textAlign: "center" }}>
-    Expo Live
-  </div>
+  <motion.div
+    animate={{ rotate: [-3, 3, -3] }}
+    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+    style={{ ...stickerFrameStyle, width: 140, height: 120 }}
+  >
+    <StickerPulse color="#abf139" />
+    <div>
+      <div style={{ fontSize: 11, opacity: 0.7 }}>★ LIVE ★</div>
+      <div style={{ fontFamily: "var(--font-display)", fontSize: 22, letterSpacing: 1 }}>EXPO LIVE</div>
+      <div style={{ fontSize: 10, opacity: 0.7, marginTop: 4 }}>20.04.26 / 09:00</div>
+    </div>
+  </motion.div>
 );
 
 const WaveSticker: React.FC = () => (
-  <div style={{ position: "relative", width: 130, height: 130, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontWeight: 900, textAlign: "center" }}>
-    <span>SMART SIGNAGE</span>
-    <span>EXPO NETWORK</span>
-  </div>
+  <motion.div
+    animate={{ rotate: [4, -4, 4] }}
+    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+    style={{ ...stickerFrameStyle, width: 130, height: 130 }}
+  >
+    <StickerPulse color="#feb804" />
+    <div style={{ lineHeight: 1.15 }}>
+      <div style={{ fontFamily: "var(--font-display)", fontSize: 16 }}>SMART</div>
+      <div style={{ fontFamily: "var(--font-display)", fontSize: 16 }}>SIGNAGE</div>
+      <div style={{ width: 40, height: 3, background: "#000", margin: "4px auto" }} />
+      <div style={{ fontSize: 9 }}>EXPO NETWORK</div>
+    </div>
+  </motion.div>
 );
 
 const EpycSticker: React.FC = () => (
-  <div style={{ position: "relative", width: 135, height: 120, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontWeight: 900, textAlign: "center" }}>
-    <span>CLOUD INFRA</span>
-    <span>Epyc Cloud</span>
-  </div>
+  <motion.div
+    animate={{ rotate: [-2, 2, -2] }}
+    transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+    style={{ ...stickerFrameStyle, width: 135, height: 120 }}
+  >
+    <StickerPulse color="#ff55f8" />
+    <div>
+      <div style={{ fontFamily: "var(--font-display)", fontSize: 24, letterSpacing: 1 }}>EPYC</div>
+      <div style={{ fontSize: 10, marginTop: 2 }}>CLOUD INFRA</div>
+      <div style={{ fontSize: 9, opacity: 0.7, marginTop: 4 }}>99.99% UPTIME</div>
+    </div>
+  </motion.div>
 );
 
 const CoolBeanSticker: React.FC = () => (
-  <div style={{ position: "relative", width: 135, height: 135, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, textAlign: "center" }}>
-    SMART IOT
-  </div>
+  <motion.div
+    animate={{ rotate: [3, -3, 3] }}
+    transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
+    style={{ ...stickerFrameStyle, width: 135, height: 135 }}
+  >
+    <StickerPulse color="#14a6ea" />
+    <div>
+      <div style={{ fontFamily: "var(--font-display)", fontSize: 16 }}>IOT</div>
+      <div style={{ fontFamily: "var(--font-display)", fontSize: 16 }}>SENSORS</div>
+      <div style={{ fontSize: 9, marginTop: 4 }}>REAL-TIME</div>
+    </div>
+  </motion.div>
 );
-
 export const StackingSponsorsSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -104,29 +166,15 @@ export const StackingSponsorsSection: React.FC = () => {
         }}
       >
         <div style={{ maxWidth: 1120, width: "100%", margin: "0 auto" }}>
-          <div style={{ marginBottom: 32 }}>
-            <h2
-              className="style-display"
-              style={{
-                fontSize: "clamp(52px, 7.5vw, 100px)",
-                color: "var(--color-dark)",
-                lineHeight: 0.9,
-                letterSpacing: 2,
-                margin: 0,
-              }}
-            >
+          <div style={{ marginBottom: 32, position: "relative" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 8, padding: "3px 12px", background: "#000", color: "#fff", fontFamily: "'Satoshi', sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 1, transform: "rotate(-1.2deg)" }}>
+              <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.6, repeat: Infinity }} style={{ width: 6, height: 6, background: "#abf139", borderRadius: "50%" }} />
+              PARTNER NETWORK / 2026
+            </div>
+            <h2 className="style-display" style={{ fontSize: "clamp(52px, 7.5vw, 100px)", color: "var(--color-dark)", lineHeight: 0.9, letterSpacing: 2, margin: 0 }}>
               OUR &#123; PARTNERS &#125;
             </h2>
-            <h2
-              className="style-display"
-              style={{
-                fontSize: "clamp(52px, 7.5vw, 100px)",
-                color: "var(--color-dark)",
-                lineHeight: 0.9,
-                letterSpacing: 2,
-                margin: 0,
-              }}
-            >
+            <h2 className="style-display" style={{ fontSize: "clamp(52px, 7.5vw, 100px)", color: "var(--color-dark)", lineHeight: 0.9, letterSpacing: 2, margin: 0 }}>
               POWER THE EXPO
             </h2>
           </div>

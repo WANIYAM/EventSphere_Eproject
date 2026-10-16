@@ -11,16 +11,39 @@ export const RunningTicker: React.FC = () => {
   ];
 
   return (
-    <div style={{
-      overflow: "hidden",
-      whiteSpace: "nowrap",
-      maxWidth: 260,
-      maskImage: "linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent)",
-      WebkitMaskImage: "linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent)",
-    }}>
+    <div
+      style={{
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        maxWidth: 260,
+        maskImage: "linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent)",
+        WebkitMaskImage: "linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent)",
+      }}
+    >
       <div className="marquee-track" style={{ animationDuration: "12s" }}>
         {[...items, ...items].map((txt, i) => (
-          <span key={i} className="style-p6" style={{ fontSize: 13, marginRight: 16, display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <span
+            key={i}
+            className="style-p6"
+            style={{
+              fontSize: 13,
+              marginRight: 16,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span
+              style={{
+                width: 5,
+                height: 5,
+                borderRadius: "50%",
+                backgroundColor: "var(--color-primary, #ff3e33)",
+                border: "1px solid #000",
+                display: "inline-block",
+                flexShrink: 0,
+              }}
+            />
             {txt}
           </span>
         ))}

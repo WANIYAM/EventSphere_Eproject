@@ -31,6 +31,55 @@ const ScallopEdge: React.FC<{ side: "left" | "right"; count?: number }> = ({ sid
   </div>
 );
 
+const Barcode: React.FC<{ color?: string }> = ({ color = "#231e25" }) => (
+  <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 38 }}>
+    {[3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 2, 4, 1, 2, 3, 1, 4, 2, 1, 3, 2, 1, 4, 1, 2].map((width, index) => (
+      <motion.div
+        key={index}
+        initial={{ scaleY: 0 }}
+        whileInView={{ scaleY: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: index * 0.012, duration: 0.25 }}
+        style={{
+          width,
+          height: `${60 + (index % 3) * 15}%`,
+          background: color,
+          transformOrigin: "bottom",
+        }}
+      />
+    ))}
+  </div>
+);
+
+const StampSeal: React.FC = () => (
+  <motion.div
+    animate={{ rotate: 360 }}
+    transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+    style={{
+      position: "absolute",
+      top: "50%",
+      right: 28,
+      y: "-50%",
+      width: 108,
+      height: 108,
+      borderRadius: "50%",
+      border: "3px dashed var(--color-primary)",
+      opacity: 0.35,
+      pointerEvents: "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "var(--color-primary)",
+      fontFamily: "var(--font-display)",
+      fontSize: 14,
+      letterSpacing: 1,
+      zIndex: 0,
+    }}
+  >
+    EVENTSPHERE ★ 2026
+  </motion.div>
+);
+
 export const TicketSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -200,6 +249,20 @@ export const TicketSection: React.FC = () => {
             }}
           >
             <ScallopEdge side="left" count={14} />
+            <StampSeal />
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: 12,
+                bottom: 12,
+                left: 6,
+                width: 2,
+                backgroundImage: "repeating-linear-gradient(180deg, #000 0 4px, transparent 4px 10px)",
+                opacity: 0.3,
+                pointerEvents: "none",
+              }}
+            />
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20, flexWrap: "wrap" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -236,9 +299,18 @@ export const TicketSection: React.FC = () => {
               </h1>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 18 }}>
               <div style={{ backgroundColor: "var(--color-dark)", color: "var(--color-light)", padding: "8px 20px", borderRadius: 24, fontSize: 14, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
                 Organizer, exhibitor, and attendee access
+              </div>
+
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 16 }}>
+                <div>
+                  <Barcode />
+                  <div style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 10, letterSpacing: 2, marginTop: 4, fontWeight: 800 }}>
+                    ES-2026-EXPO-0042
+                  </div>
+                </div>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>

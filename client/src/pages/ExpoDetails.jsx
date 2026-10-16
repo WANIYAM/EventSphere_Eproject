@@ -7,6 +7,7 @@ import { useSocket } from "../context/SocketContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { Navigation } from "../components/landing/navigation/Navigation";
 import { CustomCursor } from "../components/landing/common/CustomCursor";
+import { CornerBrackets, ShineSweep, PulseDot, Scanline } from "../components/common/NeoBrutalKit.jsx";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api")
   .replace(/\/api\/?$/, "")
@@ -356,11 +357,13 @@ export default function ExpoDetails() {
             }}
           >
             <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.35)" }} />
+            <Scanline color="rgba(255,255,255,0.25)" height={90} />
             <div style={{ position: "absolute", bottom: 20, left: 24, zIndex: 2, display: "flex", gap: 10, flexWrap: "wrap" }}>
               <span style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#ffffff", padding: "4px 12px", borderRadius: 3, fontFamily: "'Satoshi', sans-serif", fontSize: 11, fontWeight: 900, border: "1.5px solid #000" }}>
                 {expoData.theme || "TRADE SHOW"}
               </span>
               <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "#000", border: "1.5px solid #000", padding: "3px 10px", borderRadius: 3, fontSize: 11, fontWeight: 800 }}>
+                <PulseDot color="#000" glow={false} size={6} />{" "}
                 {isExpoEnded ? "STATUS: ENDED" : "STATUS: CONFIRMED"}
               </span>
             </div>
@@ -404,9 +407,11 @@ export default function ExpoDetails() {
           ].map((t) => {
             const isActive = activeTab === t.id;
             return (
-              <button
+              <motion.button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 1 }}
                 style={{
                   padding: "10px 22px",
                   borderRadius: 30,
@@ -421,10 +426,13 @@ export default function ExpoDetails() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 8,
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                <span>{t.label}</span>
-              </button>
+                {isActive && <ShineSweep duration={1.4} opacity={0.3} />}
+                <span style={{ position: "relative", zIndex: 7 }}>{t.label}</span>
+              </motion.button>
             );
           })}
         </div>
@@ -497,8 +505,10 @@ export default function ExpoDetails() {
                               alignItems: "center",
                               flexWrap: "wrap",
                               gap: 14,
+                              position: "relative",
                             }}
                           >
+                            <CornerBrackets color="#000" inset={6} size={9} thickness={2} />
                             <div style={{ display: "flex", flexDirection: "column", gap: 4, maxWidth: 640 }}>
                               <h4 style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 17, fontWeight: 800, margin: 0 }}>
                                 {s.title}
@@ -851,12 +861,15 @@ export default function ExpoDetails() {
               >
                 <span style={{ fontFamily: "var(--font-display)", fontSize: 18 }}>BOOTH STATUS:</span>
                 <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, fontFamily: "'Satoshi', sans-serif" }}>
+                  <PulseDot color="#000" glow={false} size={6} />
                   <span style={{ width: 12, height: 12, backgroundColor: "var(--color-kiwi, #abf139)", border: "1.5px solid #000" }} /> Available ({availableBooths})
                 </span>
                 <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, fontFamily: "'Satoshi', sans-serif" }}>
+                  <PulseDot color="#000" glow={false} size={6} />
                   <span style={{ width: 12, height: 12, backgroundColor: "var(--color-selective-yellow, #feb804)", border: "1.5px solid #000" }} /> Reserved
                 </span>
                 <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, fontFamily: "'Satoshi', sans-serif" }}>
+                  <PulseDot color="#000" glow={false} size={6} />
                   <span style={{ width: 12, height: 12, backgroundColor: "var(--color-primary, #ff3e33)", border: "1.5px solid #000" }} /> Booked ({bookedBooths})
                 </span>
               </div>
@@ -893,8 +906,11 @@ export default function ExpoDetails() {
                           flexDirection: "column",
                           justifyContent: "space-between",
                           minHeight: 84,
+                          position: "relative",
+                          overflow: "hidden",
                         }}
                       >
+                        {isSelected && <Scanline color="rgba(0,0,0,0.25)" height={40} duration={1.4} />}
                         <div style={{ fontFamily: "var(--font-display)", fontSize: 22 }}>{b.boothNumber}</div>
                         <div style={{ fontSize: 10, fontFamily: "'Satoshi', sans-serif", fontWeight: 800, textTransform: "uppercase" }}>
                           {b.status}
@@ -927,6 +943,7 @@ export default function ExpoDetails() {
                       BOOTH #{selectedBooth.boothNumber} ({selectedBooth.size || "3x3 m"})
                     </h4>
                     <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, margin: 0, fontWeight: 700 }}>
+                      <PulseDot color="#000" glow={false} size={6} />{" "}
                       Status: <strong style={{ textTransform: "uppercase" }}>{selectedBooth.status}</strong> - Price: ${selectedBooth.price || "500"}
                       {selectedBooth.exhibitor && ` - Reserved by: ${selectedBooth.exhibitor.company || selectedBooth.exhibitor.name}`}
                     </p>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Navigation } from "../components/landing/navigation/Navigation";
 import { CustomCursor } from "../components/landing/common/CustomCursor";
+import { CornerBrackets, ShineSweep, PulseDot, RotatingBadge } from "../components/common/NeoBrutalKit.jsx";
 
 export default function About() {
   return (
@@ -30,22 +31,26 @@ export default function About() {
               border: "1.5px solid #000",
             }}
           >
+            <PulseDot color="var(--color-primary, #ff3e33)" size={7} glow={false} />
             <span>ABOUT EVENTSPHERE MANAGEMENT</span>
           </div>
 
-          <h1
-            className="style-display"
-            style={{
-              fontSize: "clamp(54px, 8.5vw, 116px)",
-              color: "var(--color-dark, #231e25)",
-              margin: 0,
-              lineHeight: 0.9,
-              letterSpacing: 2,
-            }}
-          >
-            EXPO & TRADE SHOW <br />
-            <span style={{ color: "var(--color-primary, #ff3e33)" }}>MANAGEMENT</span>
-          </h1>
+            <div style={{ position: "relative", display: "inline-block" }}>
+              <h1
+                className="style-display"
+                style={{
+                  fontSize: "clamp(54px, 8.5vw, 116px)",
+                  color: "var(--color-dark, #231e25)",
+                  margin: 0,
+                  lineHeight: 0.9,
+                  letterSpacing: 2,
+                }}
+              >
+                EXPO & TRADE SHOW <br />
+                <span style={{ color: "var(--color-primary, #ff3e33)" }}>MANAGEMENT</span>
+              </h1>
+              <RotatingBadge text="ABOUT" size={100} bg="var(--color-kiwi, #abf139)" color="#000" top={-20} right={-20} duration={18} />
+            </div>
         </div>
 
         {/* 2-Column Manifesto Story */}
@@ -68,10 +73,13 @@ export default function About() {
               boxShadow: "8px 8px 0px var(--color-dark)",
               padding: "36px",
               position: "relative",
+              overflow: "hidden",
             }}
           >
-            <div style={{ position: "absolute", top: -6, left: -6, width: 12, height: 12, backgroundColor: "var(--color-kiwi)", border: "2px solid #000" }} />
-            <div style={{ position: "absolute", top: -6, right: -6, width: 12, height: 12, backgroundColor: "var(--color-kiwi)", border: "2px solid #000" }} />
+            <div style={{ position: "absolute", top: 8, left: 26, width: 12, height: 12, backgroundColor: "var(--color-kiwi)", border: "2px solid #000" }} />
+            <div style={{ position: "absolute", top: 8, right: 26, width: 12, height: 12, backgroundColor: "var(--color-kiwi)", border: "2px solid #000" }} />
+            <CornerBrackets color="#000" inset={8} size={11} thickness={2.5} />
+            <ShineSweep duration={1.5} delay={0} />
 
             <h3 style={{ fontFamily: "var(--font-display)", fontSize: 36, margin: "0 0 16px 0" }}>
               THE EVENTSPHERE STORY
@@ -91,10 +99,13 @@ export default function About() {
               boxShadow: "8px 8px 0px var(--color-dark)",
               padding: "36px",
               position: "relative",
+              overflow: "hidden",
             }}
           >
-            <div style={{ position: "absolute", top: -6, left: -6, width: 12, height: 12, backgroundColor: "var(--color-primary)", border: "2px solid #000" }} />
-            <div style={{ position: "absolute", top: -6, right: -6, width: 12, height: 12, backgroundColor: "var(--color-primary)", border: "2px solid #000" }} />
+            <div style={{ position: "absolute", top: 8, left: 26, width: 12, height: 12, backgroundColor: "var(--color-primary)", border: "2px solid #000" }} />
+            <div style={{ position: "absolute", top: 8, right: 26, width: 12, height: 12, backgroundColor: "var(--color-primary)", border: "2px solid #000" }} />
+            <CornerBrackets color="#000" inset={8} size={11} thickness={2.5} />
+            <ShineSweep duration={1.5} delay={0.15} />
 
             <h3 style={{ fontFamily: "var(--font-display)", fontSize: 36, margin: "0 0 16px 0", color: "#000" }}>
               MISSION & TECHNOLOGY
@@ -131,11 +142,16 @@ export default function About() {
                 flexDirection: "column",
                 justifyContent: "space-between",
                 gap: 20,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
+              <CornerBrackets color="#000" inset={8} size={11} thickness={2.5} />
+              <ShineSweep duration={1.4} delay={i * 0.1} opacity={0.35} />
               <div>
-                <span style={{ fontSize: 24, fontFamily: "var(--font-display)", fontWeight: 900, opacity: 0.85 }}>
-                  //{pillar.tag}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <PulseDot color={pillar.text === "#fff" ? "#fff" : "#000"} glow={false} size={8} />
+                  <span style={{ fontSize: 24, fontFamily: "var(--font-display)", fontWeight: 900, opacity: 0.85 }}>//{pillar.tag}</span>
                 </span>
                 <h3 style={{ fontFamily: "var(--font-display)", fontSize: 32, margin: "8px 0 10px 0" }}>
                   {pillar.title}

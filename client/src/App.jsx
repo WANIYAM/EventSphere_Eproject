@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext.jsx";
+import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { SocketProvider } from "./context/SocketContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import ServerStatusBanner from "./components/ServerStatusBanner.jsx";
 import { CustomCursor } from "./components/landing/common/CustomCursor";
 import { Navigation } from "./components/landing/navigation/Navigation";
+import Navbar from "./components/Navbar.jsx";
 
 // Public Pages
 import Home from "./pages/Home.jsx";
@@ -57,40 +58,58 @@ const AttendeeExhibitorRedirect = () => {
 // Inside client/src/App.jsx
 
 function AppContent() {
+  const { user } = useAuth();
   const location = useLocation();
 
-  // Determine if we should hide the white dashboard navbar (since we are using the landing Navigation everywhere)
-  // We hide Navbar.jsx entirely across the app so the floating pill Navigation is the universal header.
   const isAuthPage = [
     "/login",
     "/register",
     "/forgot-password",
   ].includes(location.pathname) || location.pathname.startsWith("/reset-password");
-  const hasPageNavigation = [
+  const isPublicPage = [
     "/",
     "/expos",
     "/exhibitors",
     "/about",
     "/contact",
-    "/schedule",
   ].includes(location.pathname) ||
     location.pathname.startsWith("/expos/") ||
-    location.pathname.startsWith("/schedule/");
-  const hasPageTopSpacing = hasPageNavigation || location.pathname.startsWith("/exhibitors/");
+    location.pathname.startsWith("/exhibitors/");
+
+  const isWorkspacePage =
+    location.pathname.startsWith("/admin") ||
+    location.pathname === "/exhibitor" ||
+    location.pathname.startsWith("/exhibitor/") ||
+    location.pathname === "/messages" ||
+    location.pathname === "/feedback";
+
+  const showWorkspaceNavbar =
+    user &&
+    (user.role === "admin" || user.role === "exhibitor") &&
+    isWorkspacePage;
 
   return (
     <>
       <ServerStatusBanner />
 
-      {/* Render the exact same Home Page Navigation (Floating Pills + Retro TV) everywhere except auth screens */}
-      {!isAuthPage && !hasPageNavigation && (
+      {!isAuthPage && showWorkspaceNavbar && <Navbar />}
+
+      {!isAuthPage && !showWorkspaceNavbar && (
         <>
           <CustomCursor />
           <Navigation />
         </>
       )}
 
-      <main className="landing-wrapper" style={{ paddingTop: isAuthPage || hasPageTopSpacing ? 0 : 90 }}>
+      <main
+        className={isPublicPage ? "landing-wrapper" : "main-content"}
+        style={{
+          paddingTop:
+            !isPublicPage && !showWorkspaceNavbar && !isAuthPage
+              ? 90
+              : undefined,
+        }}
+      >
         <Routes>
           {/* Public & Attendee Routes */}
           <Route path="/" element={<Home />} />

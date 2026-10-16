@@ -60,6 +60,24 @@ const EXPO_TESTIMONIALS: Testimonial[] = [
   },
 ];
 
+const DeckBrackets: React.FC<{ accent: string }> = ({ accent }) => (
+  <>
+    {[
+      { top: 8, left: 8, borderTop: `3px solid ${accent}`, borderLeft: `3px solid ${accent}` },
+      { top: 8, right: 8, borderTop: `3px solid ${accent}`, borderRight: `3px solid ${accent}` },
+      { bottom: 8, left: 8, borderBottom: `3px solid ${accent}`, borderLeft: `3px solid ${accent}` },
+      { bottom: 8, right: 8, borderBottom: `3px solid ${accent}`, borderRight: `3px solid ${accent}` },
+    ].map((style, index) => (
+      <motion.div
+        key={index}
+        animate={{ rotate: [0, 90, 180, 270, 360] }}
+        transition={{ duration: 12, delay: index * 0.15, repeat: Infinity, ease: "linear" }}
+        style={{ position: "absolute", width: 14, height: 14, zIndex: 3, ...style }}
+      />
+    ))}
+  </>
+);
+
 export const TestimonialsDeckSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
@@ -69,6 +87,7 @@ export const TestimonialsDeckSection: React.FC = () => {
     target: containerRef,
     offset: ["start start", "end end"],
   });
+
 
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 85,
@@ -227,8 +246,23 @@ export const TestimonialsDeckSection: React.FC = () => {
             }
 
             return (
+              <React.Fragment key={t.id}>
               <motion.div
-                key={t.id}
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  x: isHovered || isPinned ? 0 : peelX,
+                  rotate: isHovered || isPinned ? 0 : peelRot,
+                  opacity: isPinned ? 0.7 : peelOpacity * 0.55,
+                  zIndex: t.id,
+                  y: isPinned ? -7 : isHovered ? -5 : 7,
+                  backgroundColor: "var(--color-dark)",
+                  border: "3px solid var(--color-dark)",
+                  pointerEvents: "none",
+                }}
+              />
+              <motion.div
                 onMouseEnter={() => setHoveredCard(t.id)}
                 onMouseLeave={() => setHoveredCard(null)}
                 onClick={() => setPinnedCard(pinnedCard === t.id ? null : t.id)}
@@ -252,14 +286,27 @@ export const TestimonialsDeckSection: React.FC = () => {
                   userSelect: "none",
                   scale: isPinned ? 1.05 : isHovered ? 1.03 : 1,
                   y: isPinned ? -15 : isHovered ? -12 : 0,
+                  overflow: "hidden",
                   transition: "scale 0.25s ease, y 0.25s ease, box-shadow 0.25s ease",
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <DeckBrackets accent={t.accentColor} />
+                <motion.div
+                  animate={isPinned ? { y: ["-100%", "120%"] } : { y: "-120%" }}
+                  transition={{ duration: 1.6, repeat: isPinned ? Infinity : 0, repeatDelay: 0.4, ease: "easeInOut" }}
+                  style={{
+                    position: "absolute", left: 0, right: 0, height: 60,
+                    background: `linear-gradient(180deg, transparent, ${t.accentColor}22, transparent)`,
+                    pointerEvents: "none", zIndex: 1,
+                  }}
+                />
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", zIndex: 2 }}>
                   <div style={{ display: "flex", color: "var(--color-primary)", fontSize: 12, fontWeight: 800 }}>
                     WORKFLOW {String(t.id + 1).padStart(2, "0")}
                   </div>
-                  <span
+                  <motion.span
+                    animate={{ rotate: isHovered || isPinned ? [-4, 4, -4] : 0 }}
+                    transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
                     style={{
                       fontFamily: "'Satoshi', sans-serif",
                       fontSize: 11,
@@ -269,14 +316,17 @@ export const TestimonialsDeckSection: React.FC = () => {
                       padding: "2px 8px",
                       borderRadius: 4,
                       border: "1px solid var(--color-dark)",
+                      display: "inline-block",
                     }}
                   >
-                    CORE FEATURE
-                  </span>
+                    ● CORE FEATURE
+                  </motion.span>
                 </div>
 
                 <p
                   style={{
+                    position: "relative",
+                    zIndex: 2,
                     fontFamily: "'Satoshi', sans-serif",
                     fontSize: "clamp(16px, 1.4vw, 19px)",
                     fontWeight: 600,
@@ -291,6 +341,8 @@ export const TestimonialsDeckSection: React.FC = () => {
 
                 <div
                   style={{
+                    position: "relative",
+                    zIndex: 2,
                     display: "flex",
                     alignItems: "center",
                     gap: 14,
@@ -336,6 +388,7 @@ export const TestimonialsDeckSection: React.FC = () => {
                   </div>
                 </div>
               </motion.div>
+              </React.Fragment>
             );
           })}
         </div>

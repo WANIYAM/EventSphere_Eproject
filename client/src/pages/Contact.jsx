@@ -5,6 +5,7 @@ import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { Navigation } from "../components/landing/navigation/Navigation";
 import { CustomCursor } from "../components/landing/common/CustomCursor";
+import { CornerBrackets, ShineSweep, PulseDot, RotatingBadge, TickerStrip } from "../components/common/NeoBrutalKit.jsx";
 
 export default function Contact() {
   const { user } = useAuth();
@@ -102,6 +103,9 @@ export default function Contact() {
       <Navigation />
 
       <main style={{ maxWidth: 940, margin: "0 auto", padding: "140px clamp(20px, 4vw, 56px) 60px clamp(20px, 4vw, 56px)" }}>
+        <div style={{ position: "absolute", top: 80, left: 0, right: 0, backgroundColor: "var(--color-dark, #231e25)", padding: "5px 0", borderTop: "2px solid #000", borderBottom: "2px solid #000", zIndex: 8 }}>
+          <TickerStrip items={["EVENTSPHERE SUPPORT DESK", "RESPONSE WINDOW 24H", "ORGANIZER COMMUNICATION"]} color="var(--color-selective-yellow, #feb804)" duration={24} />
+        </div>
         
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 44 }}>
@@ -149,8 +153,12 @@ export default function Contact() {
             boxShadow: "8px 8px 0px var(--color-dark, #231e25)",
             padding: "clamp(28px, 5vw, 48px)",
             position: "relative",
+            overflow: "hidden",
           }}
         >
+          <CornerBrackets color="#000" inset={8} size={12} thickness={2.5} />
+          <ShineSweep duration={1.6} delay={0.4} />
+          <RotatingBadge text="SUPPORT" size={76} bg="var(--color-selective-yellow, #feb804)" color="#000" top={-18} right={-18} duration={15} />
           {error && (
             <div
               style={{
@@ -260,10 +268,12 @@ export default function Contact() {
                         { id: "exhibitor", label: "Exhibitor Inquiries" },
                         { id: "schedule", label: "Schedule Coordination" },
                       ].map((cat) => (
-                        <button
+                        <motion.button
                           key={cat.id}
                           type="button"
                           onClick={() => setFormData({ ...formData, category: cat.id })}
+                          whileHover={{ y: -3, rotate: -1 }}
+                          whileTap={{ scale: 0.96 }}
                           style={{
                             padding: "8px 16px",
                             borderRadius: 20,
@@ -274,10 +284,13 @@ export default function Contact() {
                             fontSize: 13,
                             fontWeight: 800,
                             cursor: "pointer",
+                            position: "relative",
+                            overflow: "hidden",
                           }}
                         >
-                          {cat.label}
-                        </button>
+                          {formData.category === cat.id && <ShineSweep duration={1.2} delay={0} opacity={0.3} />}
+                          <span style={{ position: "relative", zIndex: 7 }}>{cat.label}</span>
+                        </motion.button>
                       ))}
                     </div>
                   </div>
@@ -354,8 +367,13 @@ export default function Contact() {
                       letterSpacing: 1,
                       cursor: submitting ? "not-allowed" : "pointer",
                       marginTop: 4,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 10,
                     }}
                   >
+                    {submitting && <PulseDot color="#fff" glow={false} size={8} />}
                     {submitting ? "SENDING MESSAGE..." : "DISPATCH MESSAGE TO ORGANIZERS"}
                   </motion.button>
                 </form>

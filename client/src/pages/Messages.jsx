@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import Loading from "../components/Loading.jsx";
+import { CornerBrackets, ShineSweep, PulseDot, TickerStrip, RotatingBadge } from "../components/common/NeoBrutalKit.jsx";
 
 const Messages = () => {
   const { user } = useAuth();
@@ -137,14 +138,23 @@ const Messages = () => {
           border: "3px solid var(--color-dark, #231e25)",
           boxShadow: "6px 6px 0px var(--color-dark, #231e25)",
           padding: "24px 28px",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        <CornerBrackets color="#000" inset={8} size={11} thickness={2.5} />
+        <ShineSweep duration={1.4} />
+        <RotatingBadge text={`${unreadCount} UNREAD`} size={70} bg="var(--color-cerulean, #14a6ea)" color="#fff" top={-18} right={-18} duration={16} />
         <span style={{ backgroundColor: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
           EVENT COMMUNICATION
         </span>
         <h1 style={{ fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)", fontSize: "clamp(36px, 5vw, 48px)", color: "var(--color-dark, #231e25)", lineHeight: 0.9, margin: "6px 0 0 0" }}>
           MESSAGES & INBOX
         </h1>
+      </div>
+
+      <div style={{ backgroundColor: "var(--color-dark, #231e25)", borderRadius: 4, padding: "5px 0", border: "2px solid #000" }}>
+        <TickerStrip items={["EVENT COMMUNICATION BUS", "ORGANIZERS · EXHIBITORS · ATTENDEES", "SECURE DISPATCH"]} color="var(--color-cerulean, #14a6ea)" duration={24} />
       </div>
 
       {error && (
@@ -190,9 +200,12 @@ const Messages = () => {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <span>{t.label}</span>
+              {isActive && <ShineSweep duration={1.4} delay={0} opacity={0.3} />}
+              <span style={{ position: "relative", zIndex: 7 }}>{t.label}</span>
             </motion.button>
           );
         })}
@@ -255,9 +268,13 @@ const Messages = () => {
                           {new Date(msg.createdAt).toLocaleDateString()}
                         </span>
                         <div>
-                          <span style={{ color: "var(--color-primary, #ff3e33)", fontSize: 12, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>
-                            Read
-                          </span>
+                          {!msg.read ? (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--color-primary, #ff3e33)", fontSize: 12, fontWeight: 800 }}>
+                              <PulseDot color="var(--color-primary, #ff3e33)" size={7} glow={false} /> New
+                            </span>
+                          ) : (
+                            <span style={{ color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800 }}>Read</span>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -320,8 +337,8 @@ const Messages = () => {
                           {new Date(msg.createdAt).toLocaleDateString()}
                         </span>
                         <div>
-                          <span style={{ color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800, fontFamily: "'Satoshi', sans-serif" }}>
-                            View Details
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800 }}>
+                            ↗ View Details
                           </span>
                         </div>
                       </div>
@@ -407,8 +424,12 @@ const Messages = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 16,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
+              <CornerBrackets color="#000" inset={8} size={11} thickness={2.5} />
+              <ShineSweep duration={1.5} delay={0.3} opacity={0.25} />
               <h3 style={{ fontFamily: "var(--font-display)", fontSize: 28, margin: 0 }}>
                 COMPOSE NEW TRANSMISSION
               </h3>
@@ -484,8 +505,13 @@ const Messages = () => {
                   fontFamily: "var(--font-display)",
                   fontSize: 22,
                   cursor: sending ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 10,
                 }}
               >
+                {sending && <PulseDot color="#fff" glow={false} size={8} />}
                 {sending ? "SENDING..." : "DISPATCH MESSAGE"}
               </motion.button>
             </form>

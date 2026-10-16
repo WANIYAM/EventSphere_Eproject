@@ -1,36 +1,27 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { CornerBrackets, ShineSweep, PulseDot, RotatingBadge } from "../components/common/NeoBrutalKit.jsx";
 
 const NotFound = () => {
   return (
-    <div
-      style={{
-        minHeight: "80vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "40px 20px",
-        textAlign: "center",
-      }}
-    >
+    <div style={{ minHeight: "80vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "40px 20px", textAlign: "center" }}>
       <motion.div
         initial={{ opacity: 0, scale: 0.92, rotate: -2 }}
         animate={{ opacity: 1, scale: 1, rotate: -2 }}
-        whileHover={{ rotate: 0 }}
+        whileHover={{ rotate: 0, y: -4 }}
         style={{
           backgroundColor: "var(--color-selective-yellow, #feb804)",
           border: "3px solid var(--color-dark, #231e25)",
           boxShadow: "8px 8px 0px var(--color-dark, #231e25)",
-          padding: "48px 36px",
-          maxWidth: 500,
-          position: "relative",
+          padding: "48px 36px", maxWidth: 500, position: "relative", overflow: "hidden",
         }}
       >
-        <div style={{ position: "absolute", top: -6, left: -6, width: 12, height: 12, backgroundColor: "#000", border: "2px solid #fff" }} />
-        <div style={{ position: "absolute", top: -6, right: -6, width: 12, height: 12, backgroundColor: "#000", border: "2px solid #fff" }} />
+        <CornerBrackets color="#000" inset={8} size={12} thickness={2.5} />
+        <ShineSweep duration={1.5} />
+        <RotatingBadge text="404 ERROR" size={84} bg="var(--color-primary, #ff3e33)" color="#fff" top={-22} right={-22} duration={14} />
 
-        <div style={{ display: "inline-block", backgroundColor: "var(--color-dark, #231e25)", color: "#fff", padding: "4px 12px", borderRadius: 4, fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 800, marginBottom: 14 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, backgroundColor: "var(--color-dark, #231e25)", color: "#fff", padding: "4px 12px", borderRadius: 4, fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 800, marginBottom: 14 }}>
+          <PulseDot color="var(--color-primary, #ff3e33)" size={7} glow={false} />
           [ ERROR 404 // MISSING TARGET ]
         </div>
 
@@ -42,23 +33,16 @@ const NotFound = () => {
           The trade show booth or directory page you are looking for does not exist or has been relocated.
         </p>
 
-        <Link
-          to="/"
-          style={{
-            backgroundColor: "var(--color-primary, #ff3e33)",
-            color: "#ffffff",
-            border: "2px solid var(--color-dark, #231e25)",
-            boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
-            padding: "12px 26px",
-            borderRadius: 4,
-            textDecoration: "none",
-            fontFamily: "var(--font-display)",
-            fontSize: 22,
-            display: "inline-block",
-          }}
-        >
-          BACK TO HOMEPAGE
-        </Link>
+        <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.96 }} style={{ display: "inline-block" }}>
+          <Link to="/" style={{
+            backgroundColor: "var(--color-primary, #ff3e33)", color: "#ffffff",
+            border: "2px solid var(--color-dark, #231e25)", boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
+            padding: "12px 26px", borderRadius: 4, textDecoration: "none",
+            fontFamily: "var(--font-display)", fontSize: 22, display: "inline-block",
+          }}>
+            BACK TO HOMEPAGE
+          </Link>
+        </motion.div>
       </motion.div>
     </div>
   );

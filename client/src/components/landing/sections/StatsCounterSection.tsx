@@ -8,7 +8,19 @@ interface LiveStats {
   totalAttendees?: number;
   occupancyRate?: number;
 }
-
+const BentoShine: React.FC = () => (
+  <motion.div
+    initial={{ x: "-120%" }}
+    whileInView={{ x: "180%" }}
+    viewport={{ once: true }}
+    transition={{ duration: 1.6, delay: 0.3, ease: "easeOut" }}
+    style={{
+      position: "absolute", top: 0, bottom: 0, width: "45%",
+      background: "linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%)",
+      pointerEvents: "none", transform: "skewX(-18deg)",
+    }}
+  />
+);
 // 60FPS Smooth Count-Up Component
 const AnimatedNumber: React.FC<{ target: number; suffix?: string }> = ({
   target,
@@ -130,6 +142,16 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
             {/* Corner Viewfinders */}
             <div style={{ position: "absolute", top: -5, left: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 10 }} />
             <div style={{ position: "absolute", top: -5, right: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 10 }} />
+            <BentoShine />
+            <motion.div
+              animate={{ opacity: [0.3, 1, 0.3], scale: [1, 1.4, 1] }}
+              transition={{ duration: 1.6, repeat: Infinity }}
+              style={{
+                position: "absolute", top: 14, right: 14, width: 10, height: 10,
+                borderRadius: "50%", background: "#abf139", border: "2px solid #000",
+                boxShadow: "0 0 10px #abf139",
+              }}
+            />
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
               <div>
@@ -191,6 +213,7 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
           >
             <div style={{ position: "absolute", top: -5, left: -5, width: 9, height: 9, backgroundColor: "#000", border: "1.5px solid #fff", zIndex: 10 }} />
             <div style={{ position: "absolute", top: -5, right: -5, width: 9, height: 9, backgroundColor: "#000", border: "1.5px solid #fff", zIndex: 10 }} />
+            <BentoShine />
 
             <div>
               <span style={{ backgroundColor: "#000", color: "#fff", padding: "3px 10px", borderRadius: 2, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
@@ -214,6 +237,18 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 800, textTransform: "uppercase", opacity: 0.8 }}>
                 BOOTH SPACES ALLOCATED
               </span>
+              <div style={{ display: "flex", gap: 4, marginTop: 10, justifyContent: "center" }}>
+                {[0.9, 0.7, 0.85, 1, 0.6, 0.75, 0.95, 0.5].map((height, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ scaleY: 0 }}
+                    whileInView={{ scaleY: height }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.06, type: "spring", stiffness: 220, damping: 20 }}
+                    style={{ width: 8, height: 28, background: "#000", transformOrigin: "bottom", borderRadius: 1 }}
+                  />
+                ))}
+              </div>
             </div>
 
             <div style={{ backgroundColor: "#000", color: "#fff", padding: "8px 12px", borderRadius: 3, textAlign: "center", fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>
@@ -242,6 +277,7 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
             className="bento-col-4"
           >
             <div style={{ position: "absolute", top: -5, left: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 10 }} />
+            <BentoShine />
 
             <div>
               <span style={{ backgroundColor: "#fff", color: "#000", padding: "3px 8px", borderRadius: 2, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
@@ -289,6 +325,7 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
             className="bento-col-4"
           >
             <div style={{ position: "absolute", top: -5, left: -5, width: 9, height: 9, backgroundColor: "#000", border: "1.5px solid #fff", zIndex: 10 }} />
+            <BentoShine />
 
             <div>
               <span style={{ backgroundColor: "#000", color: "#fff", padding: "3px 8px", borderRadius: 2, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
@@ -336,6 +373,7 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
             className="bento-col-4"
           >
             <div style={{ position: "absolute", top: -5, right: -5, width: 9, height: 9, backgroundColor: "#fff", border: "1.5px solid #000", zIndex: 10 }} />
+            <BentoShine />
 
             <div>
               <span style={{ backgroundColor: "#000", color: "#fff", padding: "3px 8px", borderRadius: 2, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
@@ -381,6 +419,7 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
             }}
             className="bento-col-12"
           >
+            <BentoShine />
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--color-kiwi, #abf139)", display: "inline-block", boxShadow: "0 0 8px var(--color-kiwi)" }} />
               <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, letterSpacing: 0.5 }}>
@@ -388,13 +427,37 @@ export const StatsCounterSection: React.FC<{ stats?: LiveStats }> = ({
               </span>
             </div>
 
-            <div style={{ display: "flex", gap: 16, fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700, opacity: 0.85 }}>
-              <span>EXPO INFORMATION</span>
-              <span>-</span>
-              <span>BOOTH ALLOCATIONS</span>
-              <span>-</span>
-              <span>SESSION SCHEDULES</span>
+            <div style={{ display: "flex", gap: 16, fontFamily: "'Satoshi', sans-serif", fontSize: 12, fontWeight: 700, opacity: 0.85, overflow: "hidden", flex: 1, maxWidth: 520 }}>
+              <motion.div
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                style={{ display: "flex", gap: 16, whiteSpace: "nowrap" }}
+              >
+                {[...Array(2)].flatMap((_, key) => (
+                  <React.Fragment key={key}>
+                    <span>EXPO INFORMATION</span><span>◆</span>
+                    <span>BOOTH ALLOCATIONS</span><span>◆</span>
+                    <span>SESSION SCHEDULES</span><span>◆</span>
+                  </React.Fragment>
+                ))}
+              </motion.div>
             </div>
+
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              aria-hidden="true"
+              style={{
+                width: 24,
+                height: 24,
+                flexShrink: 0,
+                borderTop: "3px solid var(--color-primary, #ff3e33)",
+                borderRight: "3px solid var(--color-dark, #231e25)",
+                borderBottom: "3px solid transparent",
+                borderLeft: "3px solid transparent",
+                transform: "rotate(45deg)",
+              }}
+            />
           </div>
         </div>
       </div>

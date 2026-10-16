@@ -12,6 +12,7 @@ import "../styles/animations.css";
 import { Navigation } from "../components/landing/navigation/Navigation";
 import { CustomCursor } from "../components/landing/common/CustomCursor";
 import { GlobalBackground } from "../components/landing/common/GlobalBackground";
+import { ShineSweep, PulseDot, TickerStrip } from "../components/common/NeoBrutalKit.jsx";
 import { HeroSection } from "../components/landing/sections/HeroSection";
 import { HorizontalScrollSection } from "../components/landing/sections/HorizontalScrollSection";
 import { AboutSection } from "../components/landing/sections/AboutSection";
@@ -119,11 +120,14 @@ export default function Home() {
             }}
           >
             <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", flexDirection: "column", gap: 36 }}>
+              <div style={{ backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "4px 0", border: "1px solid rgba(255,255,255,0.15)", marginBottom: 8 }}>
+                <TickerStrip items={["ATTENDEE BRIEFING", "NEXT SESSIONS LIVE", "REGISTERED EXPOS", "SESSION BOOKMARKS"]} color="var(--color-kiwi, #abf139)" duration={24} fontSize={10} />
+              </div>
 
               {/* Header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "var(--color-kiwi, #abf139)" }} />
+                  <PulseDot color="var(--color-kiwi, #abf139)" size={10} />
                   <span style={{ fontFamily: "var(--font-display, 'Bebas Neue')", fontSize: 26, letterSpacing: 1 }}>
                     YOUR ATTENDEE BRIEFING // WELCOME {user.name.toUpperCase()}
                   </span>
@@ -168,8 +172,11 @@ export default function Home() {
                           flexDirection: "column",
                           justifyContent: "space-between",
                           gap: 10,
+                          position: "relative",
+                          overflow: "hidden",
                         }}
                       >
+                        <ShineSweep duration={1.6} delay={idx * 0.1} opacity={0.25} />
                         <div>
                           <span style={{ fontSize: 11, fontWeight: 800, color: "var(--color-primary, #ff3e33)", textTransform: "uppercase" }}>
                             Time: {s.startTime ? new Date(s.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Scheduled"}
