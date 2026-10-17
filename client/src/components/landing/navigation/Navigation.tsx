@@ -326,7 +326,8 @@ export const Navigation: React.FC = () => {
 
   const usesRoleNavbar =
     location.pathname.startsWith("/admin") ||
-    location.pathname.startsWith("/exhibitor") ||
+    location.pathname === "/exhibitor" ||
+    location.pathname.startsWith("/exhibitor/") ||
     ((location.pathname === "/messages" || location.pathname === "/feedback") &&
       (user?.role === "admin" || user?.role === "exhibitor"));
 

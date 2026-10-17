@@ -310,13 +310,29 @@ cd EventSphere_Eproject
 
 ## 🔑 Demo Login Credentials
 
-You can use the 1-click login buttons on the `/login` page or use these credentials:
+The test database is populated with deterministic accounts generated via `npm run seed:demo`. You can use the quick login buttons on the `/login` gateway or the credentials below:
 
-| Role | Email | Password | Access Rights |
+| Role | Email Address | Password | Access Rights & Modules |
 | :--- | :--- | :--- | :--- |
-| **Admin / Organizer** | `admin@eventsphere.com` | `admin123` | Full control: Expo CRUD, booth allocation, session schedules, applications, analytics |
-| **Exhibitor** | `exhibitor@eventsphere.com` | `exhibitor123` | Booth self-selection, company profile, booth staff roster, direct chat |
-| **Attendee** | `attendee@eventsphere.com` | `attendee123` | Expo registration, session bookmarking, attendee timetable, exhibitor inquiries |
+| **Admin / Organizer** | `admin@eventsphere.com` | `Admin@123` | Full administrative control: Expo CRUD, booth allocations, session scheduler, application approvals, analytics telemetry, feedback inbox. |
+| **Exhibitor** | `bushbabe@demo.com` | `Demo@123` | Bush Babe Displays: Booth self-selection, company profile, staff management, document applications, organizer messaging. |
+| **Exhibitor** | `epyc@demo.com` | `Demo@123` | EPYC Systems: Cloud infrastructure showcase, booth reservations, application tracker. |
+| **Attendee** | `attendee1@demo.com` | `Demo@123` | Aisha Khan: Expo pass claiming, session registration and bookmarking, personal schedule, exhibitor inquiries. |
+| **Attendee** | `attendee2@demo.com` | `Demo@123` | Daniel Tan: Conference pass, session scheduling, in-app notifications. |
+
+*(All 24 seeded exhibitors and 40 seeded attendees use password `Demo@123`).*
+
+---
+
+## 📚 Project Documentation
+
+Comprehensive technical, functional, and quality documentation is maintained in the [`docs/`](docs/) directory:
+
+- [User Guide & FAQs](docs/USER_GUIDE.md) — Step-by-step user manuals for Visitors, Attendees, Exhibitors, and Administrators, with 25 code-accurate FAQs.
+- [Developer & Technical Architecture Guide](docs/DEVELOPER_GUIDE.md) — Architectural overview, real folder tree, Mongoose schema dictionary, Mermaid ERD, complete API reference, and non-functional requirements status.
+- [Manual Test Cases Matrix](docs/TEST_CASES.md) — 64 detailed test cases covering authentication, floor plans, sessions, messaging, and resilience.
+- [Screenshot Checklist](docs/SCREENSHOT_CHECKLIST.md) — Numbered reference guide for all 24 UI demonstration screenshots.
+- [Demonstration Video Script](docs/DEMO_VIDEO_SCRIPT.md) — A 7-minute scene-by-scene walkthrough script covering all user roles and multi-window WebSocket synchronization.
 
 ---
 

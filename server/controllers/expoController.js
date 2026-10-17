@@ -2,6 +2,8 @@ import Expo from "../models/Expo.js";
 import Booth from "../models/Booth.js";
 import Session from "../models/Session.js";
 import Application from "../models/Application.js";
+import Registration from "../models/Registration.js";
+import { emitToAll } from "../utils/socket.js";
 
 // @desc    Create a new expo & auto-generate booths
 // @route   POST /api/expos
@@ -30,9 +32,6 @@ export const createExpo = async (req, res) => {
       return res.status(400).json({ message: "End date cannot be before start date" });
     }
 
-    const image = req.file ? `/uploads/${req.file.filename}` : (req.body.image || "");
-
-    // Check for location and date overlap with existing expos
     if (location && location.trim()) {
       const trimmedLocation = location.trim();
       const escapedLocation = trimmedLocation.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -49,6 +48,8 @@ export const createExpo = async (req, res) => {
       }
     }
 
+    const image = req.file ? `/uploads/${req.file.filename}` : (req.body.image || "");
+
     const expo = await Expo.create({
       title,
       description,
@@ -60,7 +61,6 @@ export const createExpo = async (req, res) => {
       createdBy: req.user._id
     });
 
-    // Auto-create booths
     const count = parseInt(boothCount) || 20;
     const price = parseFloat(boothPrice) || 500;
     const size = boothSize || "3x3 m";
@@ -78,63 +78,73 @@ export const createExpo = async (req, res) => {
 
     await Booth.insertMany(boothsToCreate);
 
+    // Emit real-time creation event
+    emitToAll("expo:updated", { expoId: expo._id, action: "created" });
+
     return res.status(201).json(expo);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Get all expos (Public)
+// @desc    Get all expos (Public with optional pagination)
 // @route   GET /api/expos
 export const getExpos = async (req, res) => {
   try {
+    const { page, limit } = req.query;
+
+    if (page && limit) {
+      const pageNum = parseInt(page) || 1;
+      const limitNum = parseInt(limit) || 10;
+      const skip = (pageNum - 1) * limitNum;
+
+      const [expos, total] = await Promise.all([
+        Expo.find().sort({ startDate: 1 }).skip(skip).limit(limitNum),
+        Expo.countDocuments()
+      ]);
+
+      return res.status(200).json({
+        expos,
+        total,
+        page: pageNum,
+        totalPages: Math.ceil(total / limitNum)
+      });
+    }
+
+    // Default: return array directly for full backward compatibility
     const expos = await Expo.find().sort({ startDate: 1 });
     return res.status(200).json(expos);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
-
-// @desc    Get complete expo data including booths, sessions & exhibitors
+// @desc    Get complete expo data (Public/Attendee view - sanitized)
 // @route   GET /api/expos/:id  AND  GET /api/expos/:id/public
 export const getPublicExpoDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("➡️ [getPublicExpoDetails] HIT! Requested Expo ID:", id);
 
-    const expo = await Expo.findById(id).populate("createdBy", "name email");
+    const expo = await Expo.findById(id).populate("createdBy", "name company category logo");
     if (!expo) {
-      console.log("❌ Expo not found for ID:", id);
       return res.status(404).json({ message: "Expo not found" });
     }
 
-    // 1. Fetch booths
     const booths = await Booth.find({ expo: id })
-      .populate("exhibitor", "name email company")
+      .populate("exhibitor", "name company category logo")
       .sort({ boothNumber: 1 });
-    console.log(`➡️ Booths found: ${booths.length} (Assigned exhibitors: ${booths.filter(b => b.exhibitor).length})`);
 
-    // 2. Fetch applications (accept pending & approved so exhibitors always show)
     const applications = await Application.find({ expo: id })
-      .populate("exhibitor", "name email company")
+      .populate("exhibitor", "name company category logo")
       .populate("booth", "boothNumber size price status");
-    console.log(`➡️ Applications found in DB for this expo: ${applications.length}`);
 
-    applications.forEach((a, i) => {
-      console.log(`   [${i + 1}] Company: "${a.companyName}", Status: "${a.status}", Rep: "${a.exhibitor?.name}"`);
-    });
-
-    // 3. Build unified Exhibitors list
     const exhibitorMap = new Map();
 
-    // From Applications
     applications.forEach((app) => {
       const exhibitorId = app.exhibitor?._id?.toString() || app._id.toString();
       exhibitorMap.set(exhibitorId, {
         id: exhibitorId,
-        company: app.companyName || app.exhibitor?.company || app.exhibitor?.name || "Company Name Pending",
+        company: app.companyName || app.exhibitor?.company || app.exhibitor?.name || "Exhibitor",
         representative: app.exhibitor?.name || "Representative",
-        email: app.exhibitor?.email || "",
         products: app.products || "Exhibitor Showroom & Services",
         status: app.status,
         boothNumber: app.booth?.boothNumber || null,
@@ -142,7 +152,6 @@ export const getPublicExpoDetails = async (req, res) => {
       });
     });
 
-    // From assigned Booths
     booths.forEach((booth) => {
       if (booth.exhibitor) {
         const exhibitorId = booth.exhibitor._id?.toString();
@@ -151,7 +160,6 @@ export const getPublicExpoDetails = async (req, res) => {
             id: exhibitorId,
             company: booth.exhibitor.company || booth.exhibitor.name,
             representative: booth.exhibitor.name,
-            email: booth.exhibitor.email,
             products: booth.details || "Showcase Products",
             status: "approved",
             boothNumber: booth.boothNumber,
@@ -166,12 +174,8 @@ export const getPublicExpoDetails = async (req, res) => {
     });
 
     const exhibitors = Array.from(exhibitorMap.values());
-    console.log(`➡️ Total exhibitors being sent to frontend: ${exhibitors.length}`);
-
-    // 4. Fetch schedule sessions
     const sessions = await Session.find({ expo: id }).sort({ startTime: 1 });
 
-    // Backwards-compatible response object
     return res.status(200).json({
       ...expo.toObject(),
       expo,
@@ -180,12 +184,10 @@ export const getPublicExpoDetails = async (req, res) => {
       exhibitors,
     });
   } catch (error) {
-    console.error("❌ Error in getPublicExpoDetails:", error);
     return res.status(500).json({ message: error.message });
   }
 };
 
-// getExpo delegates to getPublicExpoDetails so both GET /api/expos/:id and GET /api/expos/:id/public return full data
 export const getExpo = getPublicExpoDetails;
 
 // @desc    Update expo
@@ -206,7 +208,6 @@ export const updateExpo = async (req, res) => {
 
     const targetLocation = req.body.location !== undefined ? req.body.location : existingExpo.location;
 
-    // Check for location and date overlap with other expos
     if (targetLocation && targetLocation.trim()) {
       const trimmedLocation = targetLocation.trim();
       const escapedLocation = trimmedLocation.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -227,16 +228,20 @@ export const updateExpo = async (req, res) => {
     if (req.body.title !== undefined) existingExpo.title = req.body.title;
     if (req.body.description !== undefined) existingExpo.description = req.body.description;
     if (req.body.theme !== undefined) existingExpo.theme = req.body.theme;
+    existingExpo.location = targetLocation;
+    existingExpo.startDate = newStart;
+    existingExpo.endDate = newEnd;
+
     if (req.file) {
       existingExpo.image = `/uploads/${req.file.filename}`;
     } else if (req.body.image !== undefined) {
       existingExpo.image = req.body.image;
     }
-    existingExpo.location = targetLocation;
-    existingExpo.startDate = newStart;
-    existingExpo.endDate = newEnd;
 
     await existingExpo.save();
+
+    // Emit real-time update event
+    emitToAll("expo:updated", { expoId: existingExpo._id, action: "updated" });
 
     return res.status(200).json(existingExpo);
   } catch (error) {
@@ -244,7 +249,7 @@ export const updateExpo = async (req, res) => {
   }
 };
 
-// @desc    Delete expo & related booths/applications/sessions
+// @desc    Delete expo & related booths/applications/sessions/registrations
 // @route   DELETE /api/expos/:id
 export const deleteExpo = async (req, res) => {
   try {
@@ -255,12 +260,17 @@ export const deleteExpo = async (req, res) => {
       return res.status(404).json({ message: "Expo not found" });
     }
 
+    // Cascade delete ALL dependent records, including attendee registrations
     await Booth.deleteMany({ expo: expoId });
     await Application.deleteMany({ expo: expoId });
     await Session.deleteMany({ expo: expoId });
+    await Registration.deleteMany({ expo: expoId });
     await expo.deleteOne();
 
-    return res.status(200).json({ message: "Expo and related booths & applications deleted" });
+    // Emit real-time deletion event
+    emitToAll("expo:updated", { expoId, action: "deleted" });
+
+    return res.status(200).json({ message: "Expo and all related booths, applications, sessions, and registrations deleted" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

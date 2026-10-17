@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/api.js";
-import { Navigation } from "../components/landing/navigation/Navigation";
-import { CustomCursor } from "../components/landing/common/CustomCursor";
 import {
   CornerBrackets,
   ShineSweep,
@@ -82,9 +80,6 @@ export default function Exhibitors() {
         overflow: "hidden",
       }}
     >
-      <CustomCursor />
-      <Navigation />
-
       {/* ───────────────────── TICKER BAND ───────────────────── */}
       <div
         style={{

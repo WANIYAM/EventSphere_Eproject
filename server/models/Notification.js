@@ -11,4 +11,7 @@ const notificationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Notification bell badge & unread counter index
+notificationSchema.index({ user: 1, read: 1 });
+
 export default mongoose.model("Notification", notificationSchema);

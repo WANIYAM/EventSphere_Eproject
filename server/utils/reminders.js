@@ -15,10 +15,10 @@ export const startReminders = () => {
       });
 
       for (const session of upcomingSessions) {
-        // Find registered attendees for this session
+        // Find both registered and bookmarked attendees for this session
         const registrations = await Registration.find({
           session: session._id,
-          registered: true
+          $or: [{ registered: true }, { bookmarked: true }]
         }).select("user");
 
         const userIds = registrations.map((r) => r.user);

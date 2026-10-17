@@ -24,6 +24,12 @@ body {
   line-height: 1.5;
 }
 
+/* Accessibility Focus Ring */
+:focus-visible {
+  outline: 2.5px solid var(--color-dark, #231e25);
+  outline-offset: 2px;
+}
+
 .server-status-banner {
   position: sticky;
   top: 0;
@@ -628,9 +634,7 @@ body {
   margin-bottom: 1rem;
 }
 
-/* ==============================
-   Phase 5: Session Cards
-   ============================== */
+/* Session Cards */
 .session-card {
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
@@ -648,7 +652,6 @@ body {
   margin-bottom: 0.35rem;
 }
 
-/* Schedule day grouping headers */
 .schedule-day-header {
   background: var(--primary);
   color: white;
@@ -658,9 +661,7 @@ body {
   font-size: 0.95rem;
 }
 
-/* ==============================
-   Phase 5: Bookmark / Star Button
-   ============================== */
+/* Bookmark / Star Button */
 .btn-bookmark {
   background: none;
   border: 1px solid var(--border-color);
@@ -684,9 +685,7 @@ body {
   background: #fffbeb;
 }
 
-/* ==============================
-   Phase 5: Exhibitor Cards Grid
-   ============================== */
+/* Exhibitor Cards Grid */
 .exhibitor-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -731,9 +730,7 @@ body {
   margin-bottom: 0.25rem;
 }
 
-/* ==============================
-   Phase 5: Exhibitor Profile Header
-   ============================== */
+/* Exhibitor Profile Header */
 .exhibitor-profile-header {
   display: flex;
   gap: 1.5rem;
@@ -760,15 +757,11 @@ body {
   font-size: 2.5rem;
 }
 
-/* ==============================
-   Phase 5: Feedback Badges
-   ============================== */
+/* Feedback Badges */
 .badge-suggestion { background-color: #d1fae5; color: #065f46; }
 .badge-issue { background-color: #fee2e2; color: #991b1b; }
 
-/* ==============================
-   Phase 6: Notifications & Dropdown
-   ============================== */
+/* Notifications & Dropdown */
 .notification-container {
   position: relative;
   display: inline-block;
@@ -908,9 +901,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* ==============================
-   Phase 6: Toasts
-   ============================== */
+/* Toasts */
 .toast-container {
   position: fixed;
   top: 1rem;
@@ -957,9 +948,7 @@ body {
   white-space: nowrap;
 }
 
-/* ==============================
-   Phase 6: Loading Spinner & Empty States
-   ============================== */
+/* Loading Spinner & Empty States */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -995,9 +984,7 @@ body {
   margin-top: 1rem;
 }
 
-/* ==============================
-   Phase 6: Analytics Page Charts
-   ============================== */
+/* Analytics Page Charts */
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -1018,9 +1005,7 @@ body {
   color: var(--text-main);
 }
 
-/* ==============================
-   Phase 6: Responsive Navbar & Mobile Adjustments
-   ============================== */
+/* Responsive Navbar & Mobile Adjustments */
 .mobile-menu-button {
   display: none;
   background: none;
@@ -1037,45 +1022,6 @@ body {
   overflow-x: auto;
 }
 
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 1rem;
-  }
-
-  .w-full-mobile {
-    width: 100%;
-  }
-
-  .mobile-menu-button {
-    display: block;
-  }
-
-  .nav-links {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    gap: 0.75rem;
-    margin-top: 1rem;
-  }
-
-  .nav-links.open {
-    display: flex;
-  }
-
-  .main-content {
-    padding: 1rem;
-  }
-
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stat-number {
-    font-size: 1.8rem;
-  }
-}
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;

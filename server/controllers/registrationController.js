@@ -2,7 +2,7 @@ import Registration from "../models/Registration.js";
 import Session from "../models/Session.js";
 import Expo from "../models/Expo.js";
 
-// @desc    Register for an expo
+// @desc    Register for an expo (with date & capacity validation)
 // @route   POST /api/registrations
 export const registerForExpo = async (req, res) => {
   try {
@@ -15,6 +15,18 @@ export const registerForExpo = async (req, res) => {
     // Reject registration if expo has already ended
     if (expoDoc.endDate && new Date(expoDoc.endDate) < new Date()) {
       return res.status(400).json({ message: "This expo has already ended" });
+    }
+
+    // Capacity enforcement
+    if (expoDoc.capacity) {
+      const currentRegistrations = await Registration.countDocuments({
+        expo,
+        type: "expo",
+        registered: true
+      });
+      if (currentRegistrations >= expoDoc.capacity) {
+        return res.status(400).json({ message: "This expo is at full capacity" });
+      }
     }
 
     // Pre-check for duplicate registration
@@ -42,7 +54,7 @@ export const registerForExpo = async (req, res) => {
   }
 };
 
-// @desc    Register for a session (auto-register expo too, with overlap warning)
+// @desc    Register for a session (with date, overlap warning & capacity validation)
 // @route   POST /api/registrations/session
 export const registerForSession = async (req, res) => {
   try {
@@ -55,6 +67,18 @@ export const registerForSession = async (req, res) => {
     // Reject registration if session has already ended
     if (sess.endTime && new Date(sess.endTime) < new Date()) {
       return res.status(400).json({ message: "This session has already ended" });
+    }
+
+    // Capacity enforcement for session
+    if (sess.capacity) {
+      const currentAttendees = await Registration.countDocuments({
+        session,
+        type: "session",
+        registered: true
+      });
+      if (currentAttendees >= sess.capacity) {
+        return res.status(400).json({ message: "This session is at full capacity" });
+      }
     }
 
     // Auto-create expo registration if missing
@@ -152,7 +176,6 @@ export const toggleBookmark = async (req, res) => {
     const sess = await Session.findById(session);
     if (!sess) return res.status(404).json({ message: "Session not found" });
 
-    // Reject bookmarking if session has already ended
     if (sess.endTime && new Date(sess.endTime) < new Date()) {
       return res.status(400).json({ message: "This session has already ended" });
     }
@@ -165,7 +188,6 @@ export const toggleBookmark = async (req, res) => {
 
     if (existing) {
       existing.bookmarked = !existing.bookmarked;
-      // If not registered and no longer bookmarked, remove doc
       if (!existing.registered && !existing.bookmarked) {
         await existing.deleteOne();
         return res.json({ message: "Bookmark removed", bookmarked: false });
@@ -211,7 +233,6 @@ export const cancelRegistration = async (req, res) => {
       return res.json({ message: "Session registration cancelled" });
     }
 
-    // Cancelling expo: also remove session registrations for that expo
     await Registration.deleteMany({
       user: req.user._id,
       expo: reg.expo,

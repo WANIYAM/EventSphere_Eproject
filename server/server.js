@@ -4,6 +4,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+
 import connectDB from "./config/db.js";
 import dbCheck from "./middleware/dbCheck.js";
 import { initSocket } from "./utils/socket.js";
@@ -29,21 +32,53 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
+// Initialize Socket.IO
 initSocket(server);
 
-app.use(cors());
+// 1. Security Headers via Helmet
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allows static /uploads to be loaded by the client
+  })
+);
+
+// 2. Strict CORS Whitelist
+const clientOrigin = process.env.CLIENT_URL || "http://localhost:5173";
+app.use(
+  cors({
+    origin: clientOrigin,
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
+// 3. Static Uploads
 app.use("/uploads", express.static(path.resolve("uploads")));
 
+// 4. Rate Limiting for Sensitive Auth Routes (Brute-force protection)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Limit each IP to 20 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many authentication attempts. Please try again after 15 minutes." },
+});
+
+// Health check endpoint
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "ok",
-    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
   });
 });
 
 app.use("/api", dbCheck);
+
+// Apply rate limiting specifically to authentication endpoints
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+app.use("/api/auth/forgot-password", authLimiter);
 
 // Mounted Routes
 app.use("/api/auth", authRoutes);
@@ -65,7 +100,7 @@ app.use("/api", (req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Centralized Error Handler (CastError & ValidationError -> 400, sanitizes 500s)
+// Centralized Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack || err);
 

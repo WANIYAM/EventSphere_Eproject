@@ -39,11 +39,24 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="toast-container">
+      <div
+        className="toast-container"
+        role="region"
+        aria-label="System Notifications"
+        aria-live="polite"
+      >
         {toasts.map((toast) => (
-          <div key={toast.id} className={`toast toast-${toast.type}`}>
+          <div
+            key={toast.id}
+            className={`toast toast-${toast.type}`}
+            role="status"
+          >
             <span>{toast.message}</span>
-            <button className="toast-close" onClick={() => removeToast(toast.id)} aria-label="Close">
+            <button
+              className="toast-close"
+              onClick={() => removeToast(toast.id)}
+              aria-label="Close notification"
+            >
               Close
             </button>
           </div>

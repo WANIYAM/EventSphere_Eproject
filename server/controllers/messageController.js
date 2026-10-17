@@ -84,10 +84,34 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-// @desc    Get inbox messages for logged in user
+// @desc    Get inbox messages with optional pagination
 // @route   GET /api/messages/inbox
 export const getInbox = async (req, res) => {
   try {
+    const { page, limit } = req.query;
+
+    if (page && limit) {
+      const pageNum = parseInt(page) || 1;
+      const limitNum = parseInt(limit) || 15;
+      const skip = (pageNum - 1) * limitNum;
+
+      const [messages, total] = await Promise.all([
+        Message.find({ receiver: req.user._id })
+          .populate("sender", "name role company email")
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limitNum),
+        Message.countDocuments({ receiver: req.user._id })
+      ]);
+
+      return res.status(200).json({
+        messages,
+        total,
+        page: pageNum,
+        totalPages: Math.ceil(total / limitNum)
+      });
+    }
+
     const messages = await Message.find({ receiver: req.user._id })
       .populate("sender", "name role company email")
       .sort({ createdAt: -1 });
@@ -97,7 +121,6 @@ export const getInbox = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 // @desc    Get sent messages for logged in user
 // @route   GET /api/messages/sent
 export const getSent = async (req, res) => {

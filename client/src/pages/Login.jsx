@@ -16,7 +16,13 @@ import {
 const isRoutePermitted = (role, target) => {
   if (!target || typeof target !== "string") return false;
   if (target.startsWith("/admin") && role !== "admin") return false;
-  if (target.startsWith("/exhibitor") && role !== "exhibitor") return false;
+  if (
+    (target === "/exhibitor" ||
+      target.startsWith("/exhibitor/") ||
+      target.startsWith("/exhibitor?") ||
+      target.startsWith("/exhibitor#")) &&
+    role !== "exhibitor"
+  ) return false;
   if (target.startsWith("/schedule") && role !== "attendee") return false;
   return true;
 };
