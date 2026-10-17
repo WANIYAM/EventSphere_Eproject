@@ -37,20 +37,18 @@ export const sendMessage = async (req, res) => {
     const senderRole = req.user.role;
     const receiverRole = receiverUser.role;
 
-    // Attendees may only message organizers (admins) and exhibitors
     if (senderRole === "attendee" && receiverRole !== "admin" && receiverRole !== "exhibitor") {
       return res.status(403).json({
-        message: "Attendees may only message event organizers and exhibitors"
+        message: "Attendees may only message event organizers and exhibitors",
       });
     }
 
-    // Exhibitors may message admins, other exhibitors, and attendees
     if (
       senderRole === "exhibitor" &&
       !["admin", "exhibitor", "attendee"].includes(receiverRole)
     ) {
       return res.status(403).json({
-        message: "Exhibitors may only message organizers, exhibitors, and attendees"
+        message: "Exhibitors may only message organizers, exhibitors, and attendees",
       });
     }
 
@@ -59,7 +57,7 @@ export const sendMessage = async (req, res) => {
       sender: req.user._id,
       receiver,
       subject: subject.trim(),
-      body: body.trim()
+      body: body.trim(),
     });
 
     const populatedMsg = await Message.findById(message._id).populate(
@@ -84,6 +82,80 @@ export const sendMessage = async (req, res) => {
   }
 };
 
+// @desc    Send a contact inquiry from any visitor (guest or logged-in)
+// @route   POST /api/messages/public-contact
+export const sendPublicContact = async (req, res) => {
+  try {
+    const { name, email, category, subject, body } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: "Your name is required" });
+    }
+    if (!email || !email.trim()) {
+      return res.status(400).json({ message: "Your email address is required" });
+    }
+    if (!subject || !subject.trim()) {
+      return res.status(400).json({ message: "Inquiry subject is required" });
+    }
+    if (!body || !body.trim()) {
+      return res.status(400).json({ message: "Message body is required" });
+    }
+
+    // Find admin recipient
+    const admin = await User.findOne({ role: "admin" });
+    if (!admin) {
+      return res.status(404).json({ message: "Operations desk is currently offline. Please try again later." });
+    }
+
+    // Find or create sender record for populated view in admin messages
+    const cleanEmail = email.toLowerCase().trim();
+    let sender = await User.findOne({ email: cleanEmail });
+    if (!sender) {
+      sender = await User.create({
+        name: name.trim(),
+        email: cleanEmail,
+        password: Math.random().toString(36).slice(-8) + "Aa1!",
+        role: "attendee",
+      });
+    }
+
+    const formattedSubject = category
+      ? `[${category.toUpperCase()}] ${subject.trim()}`
+      : subject.trim();
+
+    const message = await Message.create({
+      sender: sender._id,
+      receiver: admin._id,
+      subject: formattedSubject,
+      body: body.trim(),
+    });
+
+    const populatedMsg = await Message.findById(message._id).populate(
+      "sender",
+      "name role company email"
+    );
+
+    try {
+      emitToUser(admin._id.toString(), "message:new", populatedMsg);
+      await createNotification(
+        admin._id,
+        `New contact inquiry from ${name.trim()} (${cleanEmail})`,
+        "/messages"
+      );
+    } catch (notifyErr) {
+      console.warn("Notification dispatch skipped:", notifyErr.message);
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Transmission received. The operations team will follow up within 24 hours.",
+      data: populatedMsg,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Get inbox messages with optional pagination
 // @route   GET /api/messages/inbox
 export const getInbox = async (req, res) => {
@@ -101,14 +173,14 @@ export const getInbox = async (req, res) => {
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limitNum),
-        Message.countDocuments({ receiver: req.user._id })
+        Message.countDocuments({ receiver: req.user._id }),
       ]);
 
       return res.status(200).json({
         messages,
         total,
         page: pageNum,
-        totalPages: Math.ceil(total / limitNum)
+        totalPages: Math.ceil(total / limitNum),
       });
     }
 
@@ -121,6 +193,7 @@ export const getInbox = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 // @desc    Get sent messages for logged in user
 // @route   GET /api/messages/sent
 export const getSent = async (req, res) => {
@@ -163,7 +236,7 @@ export const getUnreadCount = async (req, res) => {
   try {
     const count = await Message.countDocuments({
       receiver: req.user._id,
-      read: false
+      read: false,
     });
     return res.status(200).json({ count });
   } catch (error) {
