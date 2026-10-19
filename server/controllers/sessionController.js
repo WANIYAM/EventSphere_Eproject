@@ -20,7 +20,6 @@ export const createSession = async (req, res) => {
       return res.status(400).json({ message: "End time must be after start time" });
     }
 
-    // Overlap check for same expo AND same location
     if (location) {
       const overlap = await Session.findOne({
         expo,
@@ -55,7 +54,7 @@ export const createSession = async (req, res) => {
   }
 };
 
-// @desc    Update session
+// @desc    Update session (safe notification handling)
 // @route   PUT /api/sessions/:id
 export const updateSession = async (req, res) => {
   try {
@@ -75,7 +74,6 @@ export const updateSession = async (req, res) => {
 
     const sessionLocation = location !== undefined ? location : session.location;
 
-    // Overlap check
     if (sessionLocation) {
       const overlap = await Session.findOne({
         _id: { $ne: req.params.id },
@@ -92,7 +90,6 @@ export const updateSession = async (req, res) => {
       }
     }
 
-    // Reset reminderSent if startTime changed
     if (startTime && new Date(startTime).getTime() !== new Date(session.startTime).getTime()) {
       session.reminderSent = false;
     }
@@ -108,15 +105,19 @@ export const updateSession = async (req, res) => {
 
     emitToAll("schedule:updated", { expoId: session.expo });
 
-    // Notify all registered or bookmarked users for this session
-    const regs = await Registration.find({ session: session._id }).select("user");
-    const userIds = regs.map((r) => r.user);
-    if (userIds.length > 0) {
-      await notifyMany(
-        userIds,
-        `Session "${session.title}" was updated`,
-        `/expos/${session.expo}?tab=schedule`
-      );
+    // Safe notification dispatch: notification failure never breaks update response
+    try {
+      const regs = await Registration.find({ session: session._id }).select("user");
+      const userIds = regs.map((r) => r.user).filter(Boolean);
+      if (userIds.length > 0) {
+        await notifyMany(
+          userIds,
+          `Session "${session.title}" was updated`,
+          `/expos/${session.expo}?tab=schedule`
+        );
+      }
+    } catch (notifError) {
+      console.error("Failed to dispatch session update notifications:", notifError);
     }
 
     return res.status(200).json(session);
@@ -125,7 +126,7 @@ export const updateSession = async (req, res) => {
   }
 };
 
-// @desc    Delete session
+// @desc    Delete session (cascade delete registrations & notify deduplicated union)
 // @route   DELETE /api/sessions/:id
 export const deleteSession = async (req, res) => {
   try {
@@ -138,25 +139,37 @@ export const deleteSession = async (req, res) => {
     const sessionTitle = session.title;
     const sessionId = session._id;
 
-    // Find registered/bookmarked users for this session or expo registered users
+    // Collect deduplicated union of session registrants/bookmarkers AND expo registrants
     const sessionRegs = await Registration.find({ session: sessionId }).select("user");
-    let userIds = sessionRegs.map((r) => r.user.toString());
+    const expoRegs = await Registration.find({ expo: expoId, type: "expo", registered: true }).select("user");
 
-    if (userIds.length === 0) {
-      const expoRegs = await Registration.find({ expo: expoId, type: "expo" }).select("user");
-      userIds = expoRegs.map((r) => r.user.toString());
-    }
+    const userSet = new Set();
+    sessionRegs.forEach((r) => {
+      if (r.user) userSet.add(r.user.toString());
+    });
+    expoRegs.forEach((r) => {
+      if (r.user) userSet.add(r.user.toString());
+    });
+    const userIds = Array.from(userSet);
+
+    // Cascade delete all registration records referencing this session
+    await Registration.deleteMany({ session: sessionId });
 
     await session.deleteOne();
 
     emitToAll("schedule:updated", { expoId });
 
+    // Safe notification dispatch
     if (userIds.length > 0) {
-      await notifyMany(
-        userIds,
-        `Session "${sessionTitle}" was cancelled`,
-        `/expos/${expoId}?tab=schedule`
-      );
+      try {
+        await notifyMany(
+          userIds,
+          `Session "${sessionTitle}" was cancelled`,
+          `/expos/${expoId}?tab=schedule`
+        );
+      } catch (notifError) {
+        console.error("Failed to dispatch session cancellation notifications:", notifError);
+      }
     }
 
     return res.status(200).json({ message: "Session deleted successfully" });

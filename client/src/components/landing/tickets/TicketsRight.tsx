@@ -9,8 +9,8 @@ interface TicketsRightProps {
 
 export const TicketsRight: React.FC<TicketsRightProps> = ({
   title = "FESTIVAL TICKET",
-  tagText = "TECHSPRINT 48H • 2025 PASS",
-  venueTime = "KOMCA DPS 1, Penang • 10:00 to 18:00",
+  tagText = "TECHSPRINT 48H - 2025 PASS",
+  venueTime = "KOMCA DPS 1, Penang - 10:00 to 18:00",
 }) => {
   return (
     <div style={{

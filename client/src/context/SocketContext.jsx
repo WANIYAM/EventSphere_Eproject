@@ -10,9 +10,10 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const socketHost = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL || "http://localhost:5000";
 
     if (user && token) {
-      const newSocket = io("http://localhost:5000", {
+      const newSocket = io(socketHost, {
         auth: { token }
       });
 

@@ -28,19 +28,18 @@ const RetroTvBadge: React.FC = () => {
   }, []);
 
   return (
-    <div style={{
-      width: 44,
-      height: 44,
-      borderRadius: 8,
-      backgroundColor: "var(--color-cerulean)",
-      border: "2px solid var(--color-dark)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      boxShadow: "2px 2px 0px var(--color-dark)",
-      flexShrink: 0,
-      position: "relative"
-    }}>
+    <motion.div
+      whileHover={{ rotate: -6, scale: 1.06 }}
+      transition={{ type: "spring", stiffness: 420, damping: 22 }}
+      style={{
+        width: 44, height: 44, borderRadius: 8,
+        backgroundColor: "var(--color-cerulean)",
+        border: "2px solid var(--color-dark)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "2px 2px 0px var(--color-dark)",
+        flexShrink: 0, position: "relative",
+      }}
+    >
       <div style={{ position: "absolute", top: -7, width: 2, height: 7, backgroundColor: "var(--color-dark)", transform: "rotate(-25deg)", left: 16 }} />
       <div style={{ position: "absolute", top: -7, width: 2, height: 7, backgroundColor: "var(--color-dark)", transform: "rotate(25deg)", right: 16 }} />
       <canvas
@@ -53,7 +52,16 @@ const RetroTvBadge: React.FC = () => {
           border: "1.5px solid var(--color-dark)"
         }}
       />
-    </div>
+      <motion.span
+        animate={{ opacity: [1, 0.2, 1] }}
+        transition={{ duration: 1.8, repeat: Infinity }}
+        style={{
+          position: "absolute", bottom: 3, right: 4,
+          width: 4, height: 4, borderRadius: "50%",
+          background: "var(--color-primary)", border: "1px solid #000",
+        }}
+      />
+    </motion.div>
   );
 };
 
@@ -128,11 +136,14 @@ export const HeroTopBar: React.FC = () => {
         alignItems: "flex-end",
         gap: 8,
       }}>
-        {navItems.map((item) => (
+        {navItems.map((item, i) => (
           <motion.a
             key={item.name}
             href={item.href}
             onClick={(e) => handleSmoothScroll(e, item.href)}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.15 + i * 0.06, type: "spring", stiffness: 320, damping: 26 }}
             whileHover={{ x: -6, boxShadow: "4px 4px 0px var(--color-dark)" }}
             whileTap={{ x: -2 }}
             style={{

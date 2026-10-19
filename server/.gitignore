@@ -2,3 +2,34 @@ node_modules
 .env
 uploads/*
 !uploads/.gitkeep
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment Variables & Secrets (CRITICAL)
+.env
+server/.env
+client/.env
+client/.env.local
+
+# Production Build Output
+client/dist/
+client/build/
+
+# Logs & Temporary Files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# Test & Playwright artifacts
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# OS Specific
+.DS_Store
+Thumbs.db

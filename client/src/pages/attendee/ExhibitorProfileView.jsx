@@ -48,7 +48,7 @@ const ExhibitorProfileView = () => {
             fontWeight: 800,
           }}
         >
-          ← Back to Directory
+          Back to Directory
         </button>
       </div>
 
@@ -85,7 +85,7 @@ const ExhibitorProfileView = () => {
             {profile.logo ? (
               <img src={`${BASE}${profile.logo}`} alt={profile.company} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
-              <span style={{ fontSize: 44 }}>🏢</span>
+              <span style={{ fontSize: 12, fontWeight: 800 }}>No logo</span>
             )}
           </div>
 
@@ -97,7 +97,7 @@ const ExhibitorProfileView = () => {
                 </span>
               )}
               <span style={{ backgroundColor: "var(--color-kiwi, #abf139)", color: "#000", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontFamily: "'Satoshi', sans-serif", fontWeight: 800 }}>
-                VERIFIED EXHIBITOR
+                APPROVED EXHIBITOR
               </span>
             </div>
 
@@ -112,7 +112,7 @@ const ExhibitorProfileView = () => {
                 rel="noreferrer"
                 style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: 700, color: "var(--color-primary, #ff3e33)", textDecoration: "none", marginTop: 4, display: "inline-block" }}
               >
-                🌐 {profile.website}
+                {profile.website}
               </a>
             )}
           </div>
@@ -135,7 +135,7 @@ const ExhibitorProfileView = () => {
             cursor: "pointer",
           }}
         >
-          ✉ CONTACT EXHIBITOR / BOOK DEMO
+          CONTACT EXHIBITOR / BOOK DEMO
         </motion.button>
       </div>
 

@@ -8,7 +8,6 @@ interface RollingTextButtonProps {
   shadowColor?: string;
   link?: string;
   newTab?: boolean;
-  withArrow?: boolean;
 }
 
 export const RollingTextButton: React.FC<RollingTextButtonProps> = ({
@@ -18,7 +17,6 @@ export const RollingTextButton: React.FC<RollingTextButtonProps> = ({
   shadowColor = "5px 5px 0px 0px var(--color-dark)",
   link = "#",
   newTab = false,
-  withArrow = false,
 }) => {
   const [hovered, setHovered] = useState(false);
 
@@ -67,18 +65,6 @@ export const RollingTextButton: React.FC<RollingTextButtonProps> = ({
         </motion.div>
       </div>
 
-      {withArrow && (
-        <motion.span
-          animate={{ y: hovered ? 3 : 0, rotate: hovered ? 45 : 0 }}
-          transition={{ duration: 0.2 }}
-          style={{ display: "flex", alignItems: "center" }}
-        >
-          <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="7" y1="17" x2="17" y2="7" />
-            <polyline points="7 7 17 7 17 17" />
-          </svg>
-        </motion.span>
-      )}
     </motion.a>
   );
 };

@@ -9,18 +9,19 @@ import {
   updateMyBooth
 } from "../controllers/boothController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
+import validateObjectId from "../middleware/validateObjectId.js";
 
 const router = express.Router();
 
 // Admin routes
-router.put("/:id", protect, authorize("admin"), updateBooth);
-router.put("/:id/assign", protect, authorize("admin"), assignBooth);
-router.put("/:id/release", protect, authorize("admin"), releaseBooth);
-router.put("/:id/confirm", protect, authorize("admin"), confirmBooth);
+router.put("/:id", protect, authorize("admin"), validateObjectId, updateBooth);
+router.put("/:id/assign", protect, authorize("admin"), validateObjectId, assignBooth);
+router.put("/:id/release", protect, authorize("admin"), validateObjectId, releaseBooth);
+router.put("/:id/confirm", protect, authorize("admin"), validateObjectId, confirmBooth);
 
 // Exhibitor routes
-router.put("/:id/reserve", protect, authorize("exhibitor"), reserveBooth);
-router.put("/:id/cancel", protect, authorize("exhibitor"), cancelReservation);
-router.put("/:id/my-details", protect, authorize("exhibitor"), updateMyBooth);
+router.put("/:id/reserve", protect, authorize("exhibitor"), validateObjectId, reserveBooth);
+router.put("/:id/cancel", protect, authorize("exhibitor"), validateObjectId, cancelReservation);
+router.put("/:id/my-details", protect, authorize("exhibitor"), validateObjectId, updateMyBooth);
 
 export default router;

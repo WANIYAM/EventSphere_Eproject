@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { ArrowDownIcon } from "./Icons";
 
 interface CTAButtonProps {
   variant?: "Default" | "Scroll";
@@ -52,11 +51,6 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
       }}
     >
       <span className="style-p3" style={{ color: textColor }}>{buttonText}</span>
-      {variant === "Scroll" && (
-        <span style={{ display: "flex", transform: hover ? "translateY(2px)" : "none", transition: "transform 0.15s ease" }}>
-          <ArrowDownIcon size={18} />
-        </span>
-      )}
     </a>
   );
 };

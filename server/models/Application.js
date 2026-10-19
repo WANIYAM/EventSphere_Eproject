@@ -17,4 +17,8 @@ const applicationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Admin application review and approval filters
+applicationSchema.index({ expo: 1, status: 1 });
+applicationSchema.index({ exhibitor: 1, status: 1 });
+
 export default mongoose.model("Application", applicationSchema);

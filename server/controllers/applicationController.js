@@ -1,6 +1,7 @@
 import Application from "../models/Application.js";
 import Booth from "../models/Booth.js";
 import User from "../models/User.js";
+import mongoose from "mongoose";
 import { createNotification, notifyMany } from "../utils/notify.js";
 
 // @desc    Submit an exhibitor application for an expo with optional documents
@@ -13,7 +14,6 @@ export const createApplication = async (req, res) => {
       return res.status(400).json({ message: "Please provide expo ID and companyName" });
     }
 
-    // Block duplicates (same exhibitor + same expo)
     const existingApp = await Application.findOne({
       expo,
       exhibitor: req.user._id
@@ -23,7 +23,6 @@ export const createApplication = async (req, res) => {
       return res.status(400).json({ message: "You have already applied for this expo" });
     }
 
-    // Extract file paths if uploaded
     const documents = req.files ? req.files.map((file) => `/uploads/${file.filename}`) : [];
 
     const application = await Application.create({
@@ -35,7 +34,6 @@ export const createApplication = async (req, res) => {
       status: "pending"
     });
 
-    // Notify all admins
     const admins = await User.find({ role: "admin" }).select("_id");
     const adminIds = admins.map((a) => a._id);
     if (adminIds.length > 0) {
@@ -67,15 +65,22 @@ export const getMyApplications = async (req, res) => {
   }
 };
 
-// @desc    Get all applications (admin) with optional status & expo filters
+// @desc    Get all applications (admin) with sanitized query filters
 // @route   GET /api/applications
 export const getAllApplications = async (req, res) => {
   try {
     const { status, expo } = req.query;
     const filter = {};
 
-    if (status) filter.status = status;
-    if (expo) filter.expo = expo;
+    // Validate status against exact enum strings
+    if (status && typeof status === "string" && ["pending", "approved", "rejected"].includes(status.trim())) {
+      filter.status = status.trim();
+    }
+
+    // Validate expo ID scalar to block selector injection
+    if (expo && typeof expo === "string" && mongoose.Types.ObjectId.isValid(expo.trim())) {
+      filter.expo = expo.trim();
+    }
 
     const applications = await Application.find(filter)
       .populate("exhibitor", "name email company phone")
@@ -106,7 +111,6 @@ export const updateApplicationStatus = async (req, res) => {
 
     application.status = status;
 
-    // If rejected and a booth was assigned, release that booth
     if (status === "rejected" && application.booth) {
       const booth = await Booth.findById(application.booth);
       if (booth) {

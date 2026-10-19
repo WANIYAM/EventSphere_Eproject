@@ -1,7 +1,22 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext.jsx";
+import { CornerBrackets, ShineSweep, PulseDot, RotatingBadge, TickerStrip } from "../components/common/NeoBrutalKit.jsx";
+
+const isRoutePermitted = (role, target) => {
+  if (!target || typeof target !== "string") return false;
+  if (target.startsWith("/admin") && role !== "admin") return false;
+  if (
+    (target === "/exhibitor" ||
+      target.startsWith("/exhibitor/") ||
+      target.startsWith("/exhibitor?") ||
+      target.startsWith("/exhibitor#")) &&
+    role !== "exhibitor"
+  ) return false;
+  if (target.startsWith("/schedule") && role !== "attendee") return false;
+  return true;
+};
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +33,14 @@ const Register = () => {
 
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const searchParams = new URLSearchParams(location.search);
+  const rawTarget =
+    location.state?.from?.pathname ||
+    (typeof location.state?.from === "string" ? location.state.from : null) ||
+    searchParams.get("redirect") ||
+    null;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,28 +54,16 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
-    if (!formData.name.trim()) {
-      return setError("Full Name is required.");
-    }
-    if (!formData.email.trim()) {
-      return setError("Email address is required.");
-    }
+    if (!formData.name.trim()) return setError("Full Name is required.");
+    if (!formData.email.trim()) return setError("Email address is required.");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
-      return setError("Please enter a valid email address.");
-    }
+    if (!emailRegex.test(formData.email.trim())) return setError("Please enter a valid email address.");
     if (formData.role === "exhibitor" && !formData.company.trim()) {
       return setError("Company name is required for exhibitor registration.");
     }
-    if (!formData.password) {
-      return setError("Password is required.");
-    }
-    if (formData.password.length < 6) {
-      return setError("Password must be at least 6 characters long.");
-    }
-    if (formData.password !== formData.confirmPassword) {
-      return setError("Passwords do not match.");
-    }
+    if (!formData.password) return setError("Password is required.");
+    if (formData.password.length < 6) return setError("Password must be at least 6 characters long.");
+    if (formData.password !== formData.confirmPassword) return setError("Passwords do not match.");
 
     setSubmitting(true);
 
@@ -66,10 +77,15 @@ const Register = () => {
         company: formData.role === "exhibitor" ? formData.company.trim() : "",
       });
 
-      if (newUser.role === "exhibitor") {
-        navigate("/exhibitor");
+      const canResume = rawTarget && isRoutePermitted(newUser.role, rawTarget);
+      if (canResume) {
+        navigate(rawTarget, { replace: true });
+      } else if (newUser.role === "exhibitor") {
+        navigate("/exhibitor", { replace: true });
+      } else if (newUser.role === "admin") {
+        navigate("/admin", { replace: true });
       } else {
-        navigate("/attendee");
+        navigate("/", { replace: true });
       }
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Registration failed. Please try again.");
@@ -94,12 +110,14 @@ const Register = () => {
         position: "relative",
       }}
     >
-      {/* Return to Home link */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, backgroundColor: "var(--color-dark, #231e25)", padding: "5px 0", borderBottom: "2px solid #000", zIndex: 9 }}>
+        <TickerStrip items={["NEW EXPO ACCOUNTS", "ATTENDEE · EXHIBITOR ROLES", "JOIN EVENTSPHERE 2026"]} color="var(--color-selective-yellow, #feb804)" duration={22} />
+      </div>
       <Link
         to="/"
         style={{
           position: "absolute",
-          top: 24,
+          top: 40,
           left: 24,
           textDecoration: "none",
           color: "var(--color-dark, #231e25)",
@@ -113,13 +131,11 @@ const Register = () => {
           borderRadius: 20,
           display: "inline-flex",
           alignItems: "center",
-          gap: 6,
         }}
       >
-        <span>←</span> Back to Expo
+        Back to Expo
       </Link>
 
-      {/* Main Neo-Brutalist Registration Card */}
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -135,13 +151,9 @@ const Register = () => {
           boxSizing: "border-box",
         }}
       >
-        {/* 4 Corner Viewfinder Handles */}
-        <div style={{ position: "absolute", top: -6, left: -6, width: 12, height: 12, backgroundColor: "var(--color-kiwi, #abf139)", border: "2px solid #231e25" }} />
-        <div style={{ position: "absolute", top: -6, right: -6, width: 12, height: 12, backgroundColor: "var(--color-kiwi, #abf139)", border: "2px solid #231e25" }} />
-        <div style={{ position: "absolute", bottom: -6, left: -6, width: 12, height: 12, backgroundColor: "var(--color-kiwi, #abf139)", border: "2px solid #231e25" }} />
-        <div style={{ position: "absolute", bottom: -6, right: -6, width: 12, height: 12, backgroundColor: "var(--color-kiwi, #abf139)", border: "2px solid #231e25" }} />
-
-        {/* Top Tag Badge */}
+        <CornerBrackets color="#000" inset={8} size={12} thickness={2.5} />
+        <ShineSweep />
+        <RotatingBadge text="JOIN US" size={72} bg="var(--color-primary, #ff3e33)" color="#fff" top={-18} right={-18} duration={15} />
         <div
           style={{
             display: "inline-block",
@@ -160,7 +172,6 @@ const Register = () => {
           [ NEW REGISTRATION // 2025 ]
         </div>
 
-        {/* Headline */}
         <h2
           style={{
             fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)",
@@ -171,25 +182,14 @@ const Register = () => {
             letterSpacing: 1,
           }}
         >
-          JOIN <span style={{ color: "var(--color-primary, #ff3e33)" }}>&#123; EVENTSPHERE &#125;</span>
+          JOIN EVENTSPHERE
         </h2>
-        <p
-          style={{
-            fontFamily: "'Satoshi', sans-serif",
-            fontSize: 15,
-            color: "#6b7280",
-            margin: "0 0 24px 0",
-            fontWeight: 500,
-          }}
-        >
+        <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 15, color: "#6b7280", margin: "0 0 24px 0", fontWeight: 500 }}>
           Select your registration role to access customized trade show features.
         </p>
 
-        {/* Error Banner */}
         {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
+          <div
             style={{
               backgroundColor: "#fee2e2",
               border: "2px solid var(--color-primary, #ff3e33)",
@@ -197,340 +197,144 @@ const Register = () => {
               padding: "10px 14px",
               borderRadius: 4,
               marginBottom: 20,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
               color: "#991b1b",
               fontFamily: "'Satoshi', sans-serif",
               fontSize: 14,
               fontWeight: 700,
             }}
           >
-            <span>⚠️</span>
-            <span>{error}</span>
-          </motion.div>
+            Notice: {error}
+          </div>
         )}
 
-        {/* Form Body */}
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          {/* TACTILE ROLE SWITCHER (Replacing generic select dropdown) */}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label
-              style={{
-                fontFamily: "'Satoshi', sans-serif",
-                fontSize: 13,
-                fontWeight: 800,
-                color: "var(--color-dark, #231e25)",
-                textTransform: "uppercase",
-                letterSpacing: 0.5,
-              }}
-            >
+            <label style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, textTransform: "uppercase" }}>
               Select Your Expo Role
             </label>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setRole("attendee")}
+                whileHover={{ y: -3, rotate: -1 }}
+                whileTap={{ scale: 0.96 }}
                 style={{
                   padding: "12px 14px",
                   borderRadius: 4,
                   border: "2px solid var(--color-dark, #231e25)",
                   backgroundColor: formData.role === "attendee" ? "var(--color-selective-yellow, #feb804)" : "#f3f4f6",
-                  color: "var(--color-dark, #231e25)",
+                  color: "#000",
                   fontFamily: "'Satoshi', sans-serif",
                   fontSize: 14,
                   fontWeight: 800,
                   cursor: "pointer",
-                  boxShadow: formData.role === "attendee" ? "3px 3px 0px var(--color-dark, #231e25)" : "none",
-                  transform: formData.role === "attendee" ? "translate(-1px, -1px)" : "none",
-                  transition: "all 0.15s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
+                  boxShadow: formData.role === "attendee" ? "3px 3px 0px #000" : "none",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                <span>🎫</span> Attendee Pass
-              </button>
+                {formData.role === "attendee" && <ShineSweep opacity={0.35} />}
+                <span style={{ position: "relative", zIndex: 7, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  {formData.role === "attendee" && <PulseDot color="#000" size={8} glow={false} />}
+                  Attendee Pass
+                </span>
+              </motion.button>
 
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setRole("exhibitor")}
+                whileHover={{ y: -3, rotate: -1 }}
+                whileTap={{ scale: 0.96 }}
                 style={{
                   padding: "12px 14px",
                   borderRadius: 4,
                   border: "2px solid var(--color-dark, #231e25)",
                   backgroundColor: formData.role === "exhibitor" ? "var(--color-kiwi, #abf139)" : "#f3f4f6",
-                  color: "var(--color-dark, #231e25)",
+                  color: "#000",
                   fontFamily: "'Satoshi', sans-serif",
                   fontSize: 14,
                   fontWeight: 800,
                   cursor: "pointer",
-                  boxShadow: formData.role === "exhibitor" ? "3px 3px 0px var(--color-dark, #231e25)" : "none",
-                  transform: formData.role === "exhibitor" ? "translate(-1px, -1px)" : "none",
-                  transition: "all 0.15s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
+                  boxShadow: formData.role === "exhibitor" ? "3px 3px 0px #000" : "none",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                <span>🏢</span> Exhibitor Booth
-              </button>
+                {formData.role === "exhibitor" && <ShineSweep opacity={0.35} />}
+                <span style={{ position: "relative", zIndex: 7, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  {formData.role === "exhibitor" && <PulseDot color="#000" size={8} glow={false} />}
+                  Exhibitor Booth
+                </span>
+              </motion.button>
             </div>
           </div>
 
-          {/* Full Name & Phone Row */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label
-                htmlFor="name"
-                style={{
-                  fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  color: "var(--color-dark, #231e25)",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                }}
-              >
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="e.g. Alex Johnson"
-                style={{
-                  padding: "12px 14px",
-                  border: "2px solid var(--color-dark, #231e25)",
-                  borderRadius: 4,
-                  fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 15,
-                  fontWeight: 600,
-                  outline: "none",
-                  backgroundColor: "#f9fafb",
-                }}
-              />
+              <label htmlFor="name" style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, textTransform: "uppercase" }}>Full Name</label>
+              <input id="name" name="name" type="text" value={formData.name} onChange={handleChange} placeholder="Alex Johnson" style={{ padding: "12px 14px", border: "2px solid #000", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 600, outline: "none" }} />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label
-                htmlFor="phone"
-                style={{
-                  fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  color: "var(--color-dark, #231e25)",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                }}
-              >
-                Phone Number
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="text"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="+60 12-345 6789"
-                style={{
-                  padding: "12px 14px",
-                  border: "2px solid var(--color-dark, #231e25)",
-                  borderRadius: 4,
-                  fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 15,
-                  fontWeight: 600,
-                  outline: "none",
-                  backgroundColor: "#f9fafb",
-                }}
-              />
+              <label htmlFor="phone" style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, textTransform: "uppercase" }}>Phone Number</label>
+              <input id="phone" name="phone" type="text" value={formData.phone} onChange={handleChange} placeholder="12345678" style={{ padding: "12px 14px", border: "2px solid #000", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 600, outline: "none" }} />
             </div>
           </div>
 
-          {/* Email Address */}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label
-              htmlFor="email"
-              style={{
-                fontFamily: "'Satoshi', sans-serif",
-                fontSize: 13,
-                fontWeight: 800,
-                color: "var(--color-dark, #231e25)",
-                textTransform: "uppercase",
-                letterSpacing: 0.5,
-              }}
-            >
-              Email Address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="alex@company.com"
-              style={{
-                padding: "12px 14px",
-                border: "2px solid var(--color-dark, #231e25)",
-                borderRadius: 4,
-                fontFamily: "'Satoshi', sans-serif",
-                fontSize: 15,
-                fontWeight: 600,
-                outline: "none",
-                backgroundColor: "#f9fafb",
-              }}
-            />
+            <label htmlFor="email" style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, textTransform: "uppercase" }}>Email Address</label>
+            <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="alex@company.com" style={{ padding: "12px 14px", border: "2px solid #000", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 600, outline: "none" }} />
           </div>
 
-          {/* Dynamic Company Field for Exhibitors */}
           <AnimatePresence>
             {formData.role === "exhibitor" && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                style={{ display: "flex", flexDirection: "column", gap: 6, overflow: "hidden" }}
-              >
-                <label
-                  htmlFor="company"
-                  style={{
-                    fontFamily: "'Satoshi', sans-serif",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color: "var(--color-dark, #231e25)",
-                    textTransform: "uppercase",
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  Exhibiting Company / Brand Name
-                </label>
-                <input
-                  id="company"
-                  name="company"
-                  type="text"
-                  value={formData.company}
-                  onChange={handleChange}
-                  placeholder="e.g. Apex Industrial Robotics"
-                  style={{
-                    padding: "12px 14px",
-                    border: "2px solid var(--color-dark, #231e25)",
-                    borderRadius: 4,
-                    fontFamily: "'Satoshi', sans-serif",
-                    fontSize: 15,
-                    fontWeight: 600,
-                    outline: "none",
-                    backgroundColor: "#fef3c7",
-                  }}
-                />
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ display: "flex", flexDirection: "column", gap: 6, overflow: "hidden" }}>
+                <label htmlFor="company" style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, textTransform: "uppercase" }}>Exhibiting Company Name</label>
+                <input id="company" name="company" type="text" value={formData.company} onChange={handleChange} placeholder="Apex Industrial Robotics" style={{ padding: "12px 14px", border: "2px solid #000", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 600, outline: "none", backgroundColor: "#fef3c7" }} />
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Password & Confirm Password */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label
-                htmlFor="password"
-                style={{
-                  fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  color: "var(--color-dark, #231e25)",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                }}
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Min 6 chars"
-                style={{
-                  padding: "12px 14px",
-                  border: "2px solid var(--color-dark, #231e25)",
-                  borderRadius: 4,
-                  fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 15,
-                  fontWeight: 600,
-                  outline: "none",
-                  backgroundColor: "#f9fafb",
-                }}
-              />
+              <label htmlFor="password" style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, textTransform: "uppercase" }}>Password</label>
+              <input id="password" name="password" type="password" value={formData.password} onChange={handleChange} placeholder="Min 6 chars" style={{ padding: "12px 14px", border: "2px solid #000", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 600, outline: "none" }} />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label
-                htmlFor="confirmPassword"
-                style={{
-                  fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  color: "var(--color-dark, #231e25)",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                }}
-              >
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Repeat password"
-                style={{
-                  padding: "12px 14px",
-                  border: "2px solid var(--color-dark, #231e25)",
-                  borderRadius: 4,
-                  fontFamily: "'Satoshi', sans-serif",
-                  fontSize: 15,
-                  fontWeight: 600,
-                  outline: "none",
-                  backgroundColor: "#f9fafb",
-                }}
-              />
+              <label htmlFor="confirmPassword" style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: 800, textTransform: "uppercase" }}>Confirm Password</label>
+              <input id="confirmPassword" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} placeholder="Repeat password" style={{ padding: "12px 14px", border: "2px solid #000", borderRadius: 4, fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: 600, outline: "none" }} />
             </div>
           </div>
 
-          {/* Submit Button */}
           <motion.button
             type="submit"
             disabled={submitting}
-            whileHover={{ y: -2, boxShadow: "5px 5px 0px var(--color-dark, #231e25)" }}
-            whileTap={{ y: 2, boxShadow: "1px 1px 0px var(--color-dark, #231e25)" }}
+            whileHover={{ y: -2, boxShadow: "5px 5px 0px #000" }}
+            whileTap={{ y: 2 }}
             style={{
               marginTop: 10,
               padding: "14px",
               backgroundColor: "var(--color-kiwi, #abf139)",
-              color: "var(--color-dark, #231e25)",
-              border: "2.5px solid var(--color-dark, #231e25)",
-              boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
+              color: "#000",
+              border: "2.5px solid #000",
+              boxShadow: "3px 3px 0px #000",
               borderRadius: 4,
-              fontFamily: "var(--font-display, 'Bebas Neue', cursive, sans-serif)",
+              fontFamily: "var(--font-display)",
               fontSize: 24,
               letterSpacing: 1.5,
               cursor: submitting ? "not-allowed" : "pointer",
-              opacity: submitting ? 0.75 : 1,
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
-              gap: 8,
+              justifyContent: "center",
+              gap: 10,
             }}
           >
-            <span>{submitting ? "CREATING PASS..." : "CREATE EXPO ACCOUNT →"}</span>
+            {submitting && <PulseDot color="#000" glow={false} size={8} />}
+            {submitting ? "CREATING PASS..." : "CREATE EXPO ACCOUNT"}
           </motion.button>
         </form>
 
-        {/* Footer Login Redirect */}
         <div
           style={{
             marginTop: 24,
@@ -545,7 +349,7 @@ const Register = () => {
         >
           Already have an account?{" "}
           <Link
-            to="/login"
+            to={rawTarget ? `/login?redirect=${encodeURIComponent(rawTarget)}` : "/login"}
             style={{
               color: "var(--color-primary, #ff3e33)",
               fontWeight: 800,

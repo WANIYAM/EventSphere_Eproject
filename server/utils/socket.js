@@ -16,8 +16,14 @@ export const initSocket = (httpServer) => {
     if (!token) {
       return next(new Error("Authentication error: Token missing"));
     }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return next(new Error("Server error: JWT_SECRET not configured"));
+    }
+
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret");
+      const decoded = jwt.verify(token, secret);
       socket.user = decoded;
       next();
     } catch (err) {

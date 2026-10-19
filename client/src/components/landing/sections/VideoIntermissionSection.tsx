@@ -147,7 +147,7 @@ export const VideoIntermissionSection: React.FC = () => {
             transition: "background-color 0.2s ease, color 0.2s ease",
           }}
         >
-          <span>{muted ? "🔇" : "🔊"}</span>
+          <span>{muted ? "Unmute" : "Mute"}</span>
           <span>{muted ? "UNMUTE AUDIO" : "MUTE AUDIO"}</span>
         </motion.button>
       </div>

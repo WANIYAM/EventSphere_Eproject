@@ -23,4 +23,10 @@ const boothSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// High-frequency floor plan query index
+boothSchema.index({ expo: 1, status: 1 });
+
+// Prevent duplicate booth numbers in the same expo
+boothSchema.index({ expo: 1, boothNumber: 1 }, { unique: true });
+
 export default mongoose.model("Booth", boothSchema);
