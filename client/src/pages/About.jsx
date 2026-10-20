@@ -5,6 +5,142 @@ import { Navigation } from "../components/landing/navigation/Navigation";
 import { CustomCursor } from "../components/landing/common/CustomCursor";
 import { CornerBrackets, ShineSweep, PulseDot, RotatingBadge } from "../components/common/NeoBrutalKit.jsx";
 
+// ── Built-in Neo-Brutalist Vector Avatars (Guaranteed to render offline & online) ──
+const TeamAvatar = ({ type }) => {
+  if (type === "waniya") {
+    // Female Tech Lead
+    return (
+      <svg viewBox="0 0 120 120" style={{ width: "100%", height: "100%" }}>
+        {/* Background Aura */}
+        <circle cx="60" cy="60" r="50" fill="#ffd8d8" stroke="#000" strokeWidth="2.5" />
+        {/* Long Back Hair */}
+        <path d="M34 50 Q30 95 44 110 L76 110 Q90 95 86 50 Z" fill="#231e25" />
+        {/* Body / Blazer */}
+        <path d="M28 115 Q60 90 92 115 Z" fill="var(--color-primary, #ff3e33)" stroke="#000" strokeWidth="2.5" />
+        <path d="M52 100 L60 115 L68 100 Z" fill="#ffffff" stroke="#000" strokeWidth="2" />
+        {/* Neck */}
+        <rect x="53" y="70" width="14" height="15" fill="#fcd5b8" stroke="#000" strokeWidth="2" />
+        {/* Face */}
+        <ellipse cx="60" cy="54" rx="22" ry="24" fill="#fcd5b8" stroke="#000" strokeWidth="2.5" />
+        {/* Front Hair */}
+        <path d="M38 52 Q42 32 60 32 Q78 32 82 52 Q72 40 60 42 Q48 40 38 52 Z" fill="#231e25" stroke="#000" strokeWidth="2" />
+        {/* Eyes & Lashes */}
+        <circle cx="51" cy="53" r="2.8" fill="#000" />
+        <path d="M48 49 Q51 47 54 49" stroke="#000" strokeWidth="1.8" fill="none" />
+        <circle cx="69" cy="53" r="2.8" fill="#000" />
+        <path d="M66 49 Q69 47 72 49" stroke="#000" strokeWidth="1.8" fill="none" />
+        {/* Cheeks */}
+        <ellipse cx="46" cy="59" rx="3.5" ry="2" fill="#ff9999" opacity="0.6" />
+        <ellipse cx="74" cy="59" rx="3.5" ry="2" fill="#ff9999" opacity="0.6" />
+        {/* Smile */}
+        <path d="M54 62 Q60 67 66 62" stroke="#000" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+        {/* Gold Leader Star Clip */}
+        <polygon points="40,36 43,42 49,43 45,47 46,53 40,50 34,53 35,47 31,43 37,42" fill="var(--color-selective-yellow, #feb804)" stroke="#000" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+
+  if (type === "wasiq") {
+    // Male Full-Stack Engineer
+    return (
+      <svg viewBox="0 0 120 120" style={{ width: "100%", height: "100%" }}>
+        {/* Background Aura */}
+        <circle cx="60" cy="60" r="50" fill="#fff0be" stroke="#000" strokeWidth="2.5" />
+        {/* Body / Dark Hoodie */}
+        <path d="M26 115 Q60 88 94 115 Z" fill="#231e25" stroke="#000" strokeWidth="2.5" />
+        {/* Hoodie Drawstrings */}
+        <line x1="55" y1="98" x2="55" y2="112" stroke="var(--color-selective-yellow, #feb804)" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="65" y1="98" x2="65" y2="112" stroke="var(--color-selective-yellow, #feb804)" strokeWidth="2.5" strokeLinecap="round" />
+        {/* Neck */}
+        <rect x="52" y="72" width="16" height="14" fill="#f7caa4" stroke="#000" strokeWidth="2" />
+        {/* Face */}
+        <ellipse cx="60" cy="55" rx="22" ry="24" fill="#f7caa4" stroke="#000" strokeWidth="2.5" />
+        {/* Short Textured Hair */}
+        <path d="M38 48 Q37 28 60 28 Q83 28 82 48 Q76 34 60 34 Q44 34 38 48 Z" fill="#1b171d" stroke="#000" strokeWidth="2.2" />
+        <path d="M42 33 L45 26 L52 30 L58 25 L65 30 L72 26 L76 32" stroke="#000" strokeWidth="2" fill="#1b171d" />
+        {/* Developer Glasses */}
+        <rect x="44" y="48" width="13" height="10" rx="2" fill="rgba(255,255,255,0.7)" stroke="#000" strokeWidth="2.5" />
+        <rect x="63" y="48" width="13" height="10" rx="2" fill="rgba(255,255,255,0.7)" stroke="#000" strokeWidth="2.5" />
+        <line x1="57" y1="53" x2="63" y2="53" stroke="#000" strokeWidth="2.5" />
+        {/* Eyes inside glasses */}
+        <circle cx="50" cy="53" r="2.5" fill="#000" />
+        <circle cx="70" cy="53" r="2.5" fill="#000" />
+        {/* Eyebrows */}
+        <line x1="44" y1="45" x2="56" y2="45" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="64" y1="45" x2="76" y2="45" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+        {/* Clean Beard / Stubble Line */}
+        <path d="M48 68 Q60 74 72 68" stroke="#1b171d" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        {/* Confident Smile */}
+        <path d="M54 64 Q60 69 66 64" stroke="#000" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (type === "fatima") {
+    // Female UI/UX Designer
+    return (
+      <svg viewBox="0 0 120 120" style={{ width: "100%", height: "100%" }}>
+        {/* Background Aura */}
+        <circle cx="60" cy="60" r="50" fill="#eddfff" stroke="#000" strokeWidth="2.5" />
+        {/* Wavy Bob Hair Back */}
+        <path d="M32 50 Q28 85 45 92 L75 92 Q92 85 88 50 Z" fill="#3a274c" />
+        {/* Creative Purple Sweater */}
+        <path d="M28 115 Q60 92 92 115 Z" fill="var(--color-purple-mimosa, #a67eff)" stroke="#000" strokeWidth="2.5" />
+        {/* Designer Scarf/Neckline */}
+        <circle cx="60" cy="98" r="7" fill="#ffffff" stroke="#000" strokeWidth="2" />
+        {/* Neck */}
+        <rect x="53" y="70" width="14" height="15" fill="#fedac2" stroke="#000" strokeWidth="2" />
+        {/* Face */}
+        <ellipse cx="60" cy="54" rx="21" ry="23" fill="#fedac2" stroke="#000" strokeWidth="2.5" />
+        {/* Front Wavy Hair */}
+        <path d="M37 50 Q44 31 60 31 Q76 31 83 50 Q75 38 60 40 Q45 38 37 50 Z" fill="#3a274c" stroke="#000" strokeWidth="2" />
+        {/* Chic Round Designer Glasses */}
+        <circle cx="50" cy="53" r="8" fill="rgba(255,255,255,0.6)" stroke="#000" strokeWidth="2.2" />
+        <circle cx="70" cy="53" r="8" fill="rgba(255,255,255,0.6)" stroke="#000" strokeWidth="2.2" />
+        <line x1="58" y1="53" x2="62" y2="53" stroke="#000" strokeWidth="2.2" />
+        {/* Eyes */}
+        <circle cx="50" cy="53" r="2.5" fill="#000" />
+        <circle cx="70" cy="53" r="2.5" fill="#000" />
+        {/* Smile */}
+        <path d="M54 63 Q60 68 66 63" stroke="#000" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+        {/* Cheeks */}
+        <circle cx="43" cy="59" r="3" fill="#ff8da1" opacity="0.6" />
+        <circle cx="77" cy="59" r="3" fill="#ff8da1" opacity="0.6" />
+      </svg>
+    );
+  }
+
+  // Bisma Asif: Female QA & Database Systems
+  return (
+    <svg viewBox="0 0 120 120" style={{ width: "100%", height: "100%" }}>
+      {/* Background Aura */}
+      <circle cx="60" cy="60" r="50" fill="#e8fbd4" stroke="#000" strokeWidth="2.5" />
+      {/* Sleek High Ponytail */}
+      <path d="M68 32 Q92 28 88 64 Q84 76 80 82" stroke="#1f1c24" strokeWidth="7" fill="none" strokeLinecap="round" />
+      <circle cx="73" cy="36" r="4" fill="var(--color-kiwi, #abf139)" stroke="#000" strokeWidth="1.5" />
+      {/* Kiwi QA Jacket */}
+      <path d="M28 115 Q60 90 92 115 Z" fill="var(--color-kiwi, #abf139)" stroke="#000" strokeWidth="2.5" />
+      <line x1="60" y1="96" x2="60" y2="115" stroke="#000" strokeWidth="2.5" />
+      {/* Neck */}
+      <rect x="53" y="70" width="14" height="15" fill="#fcd7bc" stroke="#000" strokeWidth="2" />
+      {/* Face */}
+      <ellipse cx="60" cy="54" rx="21" ry="23" fill="#fcd7bc" stroke="#000" strokeWidth="2.5" />
+      {/* Sleek Front Hair */}
+      <path d="M38 52 Q44 32 60 32 Q76 32 82 52 Q70 40 60 40 Q46 40 38 52 Z" fill="#1f1c24" stroke="#000" strokeWidth="2" />
+      {/* Focused Eyes */}
+      <circle cx="51" cy="53" r="2.6" fill="#000" />
+      <circle cx="69" cy="53" r="2.6" fill="#000" />
+      <path d="M47 48 Q51 46 55 48" stroke="#000" strokeWidth="2" fill="none" />
+      <path d="M65 48 Q69 46 73 48" stroke="#000" strokeWidth="2" fill="none" />
+      {/* Confident Smile */}
+      <path d="M54 63 Q60 67 66 63" stroke="#000" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      {/* Cheeks */}
+      <circle cx="45" cy="59" r="3" fill="#ffa099" opacity="0.5" />
+      <circle cx="75" cy="59" r="3" fill="#ffa099" opacity="0.5" />
+    </svg>
+  );
+};
+
 export default function About() {
   const teamMembers = [
     {
@@ -13,8 +149,7 @@ export default function About() {
       badge: "👑 LEADER",
       accent: "var(--color-primary, #ff3e33)",
       accentText: "#ffffff",
-      avatarBg: "#ffeaeb",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=WaniyaMustafa&top=longHairStraight,longHairBob,longHairCurvy&clothing=collarAndSweater,graphicShirt&eyes=happy,default",
+      avatarType: "waniya",
       bio: "Orchestrating end-to-end platform architecture, multi-role auth workflows, and core feature integrations across EventSphere.",
       email: "waniya.mustafa@example.com",
       phone: "+92 300 0000001",
@@ -30,8 +165,7 @@ export default function About() {
       badge: "⚡ DEVELOPER",
       accent: "var(--color-selective-yellow, #feb804)",
       accentText: "#000000",
-      avatarBg: "#fff9e5",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=MuhammadWasiq&top=shortHairShortFlat,shortHairShortWaved&facialHair=beardLight,moustacheFancy&clothing=hoodie,blazerAndShirt",
+      avatarType: "wasiq",
       bio: "Leading backend API design, WebSockets implementation, real-time attendee messaging, and expo session management.",
       email: "muhammad.wasiq@example.com",
       phone: "+92 300 0000002",
@@ -47,8 +181,7 @@ export default function About() {
       badge: "🎨 DEVELOPER",
       accent: "var(--color-purple-mimosa, #a67eff)",
       accentText: "#ffffff",
-      avatarBg: "#f5efff",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=FatimaBukhari&top=longHairCurvy,longHairStraightStrand&clothing=overall,shirtScoopNeck&accessories=round",
+      avatarType: "fatima",
       bio: "Crafting high-impact neo-brutalist user interfaces, responsive layouts, and interactive expo directory floor plans.",
       email: "fatima.bukhari@example.com",
       phone: "+92 300 0000003",
@@ -64,8 +197,7 @@ export default function About() {
       badge: "🔍 DEVELOPER",
       accent: "var(--color-kiwi, #abf139)",
       accentText: "#000000",
-      avatarBg: "#f3fde2",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=BismaAsif&top=longHairBob,longHairStraight&clothing=blazerAndSweater,graphicShirt&mouth=smile",
+      avatarType: "bisma",
       bio: "Managing database schema validation, data seeding pipelines, system test coverage, and platform reliability.",
       email: "bisma.asif@example.com",
       phone: "+92 300 0000004",
@@ -250,12 +382,12 @@ export default function About() {
                 <ShineSweep duration={1.6} delay={idx * 0.12} opacity={0.25} />
 
                 <div>
-                  {/* Avatar Illustration Box */}
+                  {/* Built-in Vector Avatar */}
                   <div
                     style={{
                       width: "100%",
                       height: 190,
-                      backgroundColor: member.avatarBg,
+                      backgroundColor: "var(--color-light, #fff8eb)",
                       border: "2px solid #000",
                       boxShadow: "3px 3px 0px #000",
                       borderRadius: 4,
@@ -267,16 +399,7 @@ export default function About() {
                       overflow: "hidden",
                     }}
                   >
-                    <img
-                      src={member.avatar}
-                      alt={member.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        padding: "8px",
-                      }}
-                    />
+                    <TeamAvatar type={member.avatarType} />
                   </div>
 
                   {/* Role Badge */}
