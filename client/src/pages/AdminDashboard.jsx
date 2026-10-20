@@ -141,7 +141,7 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  /* ── Quick links — enriched with icon, sub-stat and accent ── */
+  /* ── Quick links — core admin workspaces ── */
   const quickLinks = [
     {
       to: "/admin/expos",
@@ -204,18 +204,6 @@ const AdminDashboard = () => {
       icon: "⭐",
       stat: "Community",
       badge: "MODERATE",
-    },
-    {
-      to: "/feedback",
-      tag: "INTERNAL",
-      bg: "var(--color-cerulean, #14a6ea)",
-      textColor: "#ffffff",
-      handleColor: "#ffffff",
-      title: "SUBMIT SUGGESTION",
-      desc: "Send feedback about EventSphere or suggest improvements.",
-      icon: "💡",
-      stat: "Send to crew",
-      badge: "INTERNAL",
     },
   ];
 
@@ -1248,14 +1236,14 @@ const AdminDashboard = () => {
             );
           })}
 
-          {/* System status card — fills last row, spans 2 cols */}
+          {/* System status card — cleanly spans all 3 columns across the row */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
             style={{
-              gridColumn: "span 2",
+              gridColumn: "span 3",
               backgroundColor: "var(--color-dark, #231e25)",
               color: "#fff",
               border: "3px solid #000",
@@ -1268,7 +1256,7 @@ const AdminDashboard = () => {
               flexWrap: "wrap",
               position: "relative",
               overflow: "hidden",
-              minHeight: 130,
+              minHeight: 120,
             }}
           >
             <CornerBrackets color="#fff" inset={9} size={11} thickness={2} />
@@ -1395,7 +1383,7 @@ const AdminDashboard = () => {
             }}
           >
             <PulseDot color="var(--color-kiwi, #abf139)" size={6} />
-            NEED A HAND?
+            COMMUNITY & SUPPORT
           </div>
           <p
             style={{
@@ -1407,7 +1395,7 @@ const AdminDashboard = () => {
               lineHeight: 1,
             }}
           >
-            SUBMIT A SUGGESTION OR REPORT AN ISSUE
+            REVIEW ATTENDEE & EXHIBITOR FEEDBACK
           </p>
         </div>
 
@@ -1418,7 +1406,7 @@ const AdminDashboard = () => {
           style={{ position: "relative", zIndex: 2 }}
         >
           <Link
-            to="/feedback"
+            to="/admin/feedback"
             style={{
               backgroundColor: "var(--color-kiwi, #abf139)",
               color: "#000",
@@ -1435,7 +1423,7 @@ const AdminDashboard = () => {
               gap: 8,
             }}
           >
-            OPEN FEEDBACK LOG →
+            MODERATE FEEDBACK LOG →
           </Link>
         </motion.div>
       </motion.div>

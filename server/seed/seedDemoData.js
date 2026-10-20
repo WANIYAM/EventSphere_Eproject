@@ -94,7 +94,7 @@ const rotateIndex = (offset, k, length) => (offset + k) % length;
 const EXHIBITORS = [
   {
     company: "Bush Babe Displays",
-    email: "bushbabe@demo.com",
+    email: "exhibitor1@demo.com",
     category: "Exhibition Technology",
     website: "https://bushbabe-displays.com",
     description: "Their packaging design for our ziplock bags and adorable print collaterals have our customers falling in love!",
