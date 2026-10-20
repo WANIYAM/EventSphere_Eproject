@@ -6,6 +6,77 @@ import { CustomCursor } from "../components/landing/common/CustomCursor";
 import { CornerBrackets, ShineSweep, PulseDot, RotatingBadge } from "../components/common/NeoBrutalKit.jsx";
 
 export default function About() {
+  const teamMembers = [
+    {
+      name: "Waniya Mustafa",
+      role: "GROUP LEADER & FULL STACK ARCHITECT",
+      badge: "👑 LEADER",
+      accent: "var(--color-primary, #ff3e33)",
+      accentText: "#ffffff",
+      avatarBg: "#ffeaeb",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=WaniyaMustafa&top=longHairStraight,longHairBob,longHairCurvy&clothing=collarAndSweater,graphicShirt&eyes=happy,default",
+      bio: "Orchestrating end-to-end platform architecture, multi-role auth workflows, and core feature integrations across EventSphere.",
+      email: "waniya.mustafa@example.com",
+      phone: "+92 300 0000001",
+      socials: [
+        { label: "GitHub", url: "https://github.com/WANIYAM" },
+        { label: "LinkedIn", url: "#" },
+        { label: "Portfolio", url: "#" },
+      ],
+    },
+    {
+      name: "Muhammad Wasiq",
+      role: "FULL STACK & REALTIME SYSTEMS",
+      badge: "⚡ DEVELOPER",
+      accent: "var(--color-selective-yellow, #feb804)",
+      accentText: "#000000",
+      avatarBg: "#fff9e5",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=MuhammadWasiq&top=shortHairShortFlat,shortHairShortWaved&facialHair=beardLight,moustacheFancy&clothing=hoodie,blazerAndShirt",
+      bio: "Leading backend API design, WebSockets implementation, real-time attendee messaging, and expo session management.",
+      email: "muhammad.wasiq@example.com",
+      phone: "+92 300 0000002",
+      socials: [
+        { label: "GitHub", url: "#" },
+        { label: "LinkedIn", url: "#" },
+        { label: "Portfolio", url: "#" },
+      ],
+    },
+    {
+      name: "Fatima Bukhari",
+      role: "UI/UX & FRONTEND ENGINEER",
+      badge: "🎨 DEVELOPER",
+      accent: "var(--color-purple-mimosa, #a67eff)",
+      accentText: "#ffffff",
+      avatarBg: "#f5efff",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=FatimaBukhari&top=longHairCurvy,longHairStraightStrand&clothing=overall,shirtScoopNeck&accessories=round",
+      bio: "Crafting high-impact neo-brutalist user interfaces, responsive layouts, and interactive expo directory floor plans.",
+      email: "fatima.bukhari@example.com",
+      phone: "+92 300 0000003",
+      socials: [
+        { label: "GitHub", url: "#" },
+        { label: "LinkedIn", url: "#" },
+        { label: "Portfolio", url: "#" },
+      ],
+    },
+    {
+      name: "Bisma Asif",
+      role: "DATABASE & QA SYSTEMS",
+      badge: "🔍 DEVELOPER",
+      accent: "var(--color-kiwi, #abf139)",
+      accentText: "#000000",
+      avatarBg: "#f3fde2",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=BismaAsif&top=longHairBob,longHairStraight&clothing=blazerAndSweater,graphicShirt&mouth=smile",
+      bio: "Managing database schema validation, data seeding pipelines, system test coverage, and platform reliability.",
+      email: "bisma.asif@example.com",
+      phone: "+92 300 0000004",
+      socials: [
+        { label: "GitHub", url: "#" },
+        { label: "LinkedIn", url: "#" },
+        { label: "Portfolio", url: "#" },
+      ],
+    },
+  ];
+
   return (
     <div className="landing-page-root" style={{ minHeight: "100vh", backgroundColor: "var(--color-light, #fff8eb)", paddingBottom: 120 }}>
       <CustomCursor />
@@ -35,22 +106,22 @@ export default function About() {
             <span>ABOUT EVENTSPHERE MANAGEMENT</span>
           </div>
 
-            <div style={{ position: "relative", display: "inline-block" }}>
-              <h1
-                className="style-display"
-                style={{
-                  fontSize: "clamp(54px, 8.5vw, 116px)",
-                  color: "var(--color-dark, #231e25)",
-                  margin: 0,
-                  lineHeight: 0.9,
-                  letterSpacing: 2,
-                }}
-              >
-                EXPO & TRADE SHOW <br />
-                <span style={{ color: "var(--color-primary, #ff3e33)" }}>MANAGEMENT</span>
-              </h1>
-              <RotatingBadge text="ABOUT" size={100} bg="var(--color-kiwi, #abf139)" color="#000" top={-20} right={-20} duration={18} />
-            </div>
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <h1
+              className="style-display"
+              style={{
+                fontSize: "clamp(54px, 8.5vw, 116px)",
+                color: "var(--color-dark, #231e25)",
+                margin: 0,
+                lineHeight: 0.9,
+                letterSpacing: 2,
+              }}
+            >
+              EXPO & TRADE SHOW <br />
+              <span style={{ color: "var(--color-primary, #ff3e33)" }}>MANAGEMENT</span>
+            </h1>
+            <RotatingBadge text="ABOUT" size={100} bg="var(--color-kiwi, #abf139)" color="#000" top={-20} right={-20} duration={18} />
+          </div>
         </div>
 
         {/* 2-Column Manifesto Story */}
@@ -116,7 +187,220 @@ export default function About() {
           </motion.div>
         </div>
 
-        {/* 3 Pillar Cards */}
+        {/* ═══════════════════════ TEAMMATES SECTION ═══════════════════════ */}
+        <div style={{ marginBottom: 90 }}>
+          <div style={{ textAlign: "center", marginBottom: 38 }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                backgroundColor: "var(--color-purple-mimosa, #a67eff)",
+                color: "#ffffff",
+                padding: "4px 14px",
+                borderRadius: 4,
+                fontSize: 12,
+                fontFamily: "'Satoshi', sans-serif",
+                fontWeight: 800,
+                marginBottom: 12,
+                border: "1.5px solid #000",
+                boxShadow: "2px 2px 0 #000",
+              }}
+            >
+              <PulseDot color="#ffffff" size={7} glow={false} />
+              <span>DEVELOPMENT CREW</span>
+            </div>
+
+            <h2 className="style-display" style={{ fontSize: "clamp(36px, 5.5vw, 68px)", margin: 0, color: "var(--color-dark, #231e25)" }}>
+              MEET THE TEAM
+            </h2>
+            <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16, color: "#4b5563", marginTop: 8, fontWeight: 500, maxWidth: 620, marginLeft: "auto", marginRight: "auto" }}>
+              The software engineers behind EventSphere Management, building scalable trade show architecture, automated booth bookings, and interactive directories.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: 24,
+            }}
+          >
+            {teamMembers.map((member, idx) => (
+              <motion.div
+                key={member.name}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: idx * 0.08 }}
+                whileHover={{ y: -8, boxShadow: "8px 8px 0px var(--color-dark, #231e25)" }}
+                style={{
+                  backgroundColor: "#ffffff",
+                  border: "3px solid var(--color-dark, #231e25)",
+                  boxShadow: "5px 5px 0px var(--color-dark, #231e25)",
+                  padding: "24px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <CornerBrackets color="#000" inset={8} size={11} thickness={2.5} />
+                <ShineSweep duration={1.6} delay={idx * 0.12} opacity={0.25} />
+
+                <div>
+                  {/* Avatar Illustration Box */}
+                  <div
+                    style={{
+                      width: "100%",
+                      height: 190,
+                      backgroundColor: member.avatarBg,
+                      border: "2px solid #000",
+                      boxShadow: "3px 3px 0px #000",
+                      borderRadius: 4,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 18,
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img
+                      src={member.avatar}
+                      alt={member.name}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        padding: "8px",
+                      }}
+                    />
+                  </div>
+
+                  {/* Role Badge */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+                    <span
+                      style={{
+                        backgroundColor: member.accent,
+                        color: member.accentText,
+                        padding: "3px 10px",
+                        borderRadius: 3,
+                        fontSize: 10,
+                        fontWeight: 900,
+                        fontFamily: "'Satoshi', sans-serif",
+                        letterSpacing: 0.6,
+                        border: "1.5px solid #000",
+                      }}
+                    >
+                      {member.role}
+                    </span>
+                    <span
+                      style={{
+                        backgroundColor: "#000",
+                        color: "#fff",
+                        padding: "2px 8px",
+                        borderRadius: 2,
+                        fontSize: 9.5,
+                        fontWeight: 900,
+                        fontFamily: "'Satoshi', sans-serif",
+                      }}
+                    >
+                      {member.badge}
+                    </span>
+                  </div>
+
+                  {/* Teammate Name */}
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: 32,
+                      margin: "4px 0 10px 0",
+                      color: "var(--color-dark, #231e25)",
+                      lineHeight: 1,
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    {member.name}
+                  </h3>
+
+                  {/* Bio */}
+                  <p
+                    style={{
+                      fontFamily: "'Satoshi', sans-serif",
+                      fontSize: 13.5,
+                      lineHeight: 1.5,
+                      color: "#4b5563",
+                      margin: "0 0 16px 0",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {member.bio}
+                  </p>
+                </div>
+
+                <div>
+                  {/* Contact Info */}
+                  <div
+                    style={{
+                      borderTop: "1.5px dashed #000",
+                      paddingTop: 12,
+                      marginBottom: 14,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 4,
+                      fontFamily: "'Satoshi', sans-serif",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#374151",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span>✉️</span>
+                      <span style={{ wordBreak: "break-all" }}>{member.email}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span>📞</span>
+                      <span>{member.phone}</span>
+                    </div>
+                  </div>
+
+                  {/* Social Handles */}
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {member.socials.map((s) => (
+                      <a
+                        key={s.label}
+                        href={s.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          backgroundColor: "#000000",
+                          color: "#ffffff",
+                          border: "1.5px solid #000000",
+                          padding: "4px 10px",
+                          borderRadius: 3,
+                          fontSize: 11,
+                          fontFamily: "'Satoshi', sans-serif",
+                          fontWeight: 800,
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {s.label} <span style={{ fontSize: 9 }}>↗</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* ═══════════════════════ PLATFORM FEATURES ═══════════════════════ */}
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <h2 className="style-display" style={{ fontSize: "clamp(36px, 5vw, 64px)", margin: 0 }}>
             PLATFORM FEATURES
