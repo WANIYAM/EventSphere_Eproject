@@ -2,50 +2,49 @@
 
 - Target Duration: 7 minutes (420 seconds)
 - Video Format: 1080p Full HD, 60 FPS
-- Audio Style: Clear, professional narrative voiceover
-- Pre-requisites: Execute `npm run seed:demo` prior to recording to ensure full data hydration.
+- Audio Style: Clear, professional narration
+- Pre-requisites: From the `server` folder, run `npm run seed:demo` against a dedicated demo database. This seed script clears and recreates demo data. Start the server and client with their documented `npm run dev` commands. Configure a registered or bookmarked demo session to start within 30 minutes of recording if demonstrating its automated reminder.
 
 ---
 
 ### Scene Breakdown & Timing
 
-#### Scene 1: Introduction & Architecture (0:00 - 0:45)
-- Visual: Open browser to http://localhost:5173. Scroll down the public landing page showcasing the kinetic typography, smooth scrolling, and the stage recordings video wall.
+#### Scene 1: Introduction and Public Landing Page (0:00 - 0:30)
+- Visual: Open `http://localhost:5173/`. Show the landing page and navigation, then open the public expos directory and exhibitor directory.
 - Narration:
-  "Welcome to EventSphere Management, a real-time event operating system built on the MERN stack with Socket.IO. Traditional trade shows suffer from manual queues, static floor plans, and double-booked booths. EventSphere connects organizers, exhibitors, and attendees into a unified platform. Let us explore the system across its primary roles."
+  "Welcome to EventSphere Management, an event and expo management application built with MongoDB, Express, React, Node.js, and Socket.IO. Visitors can browse public expos, schedules, floor plans, exhibitors, and contact information before creating an account."
 
-#### Scene 2: Visitor Discovery & Public Directories (0:45 - 1:40)
-- Visual: Click Expos in navigation. Filter by city. Click View Details on an upcoming expo. Switch between the Schedule, Exhibitors, and Floor Plan tabs. Open /exhibitors and demonstrate live search filtering by typing "cloud".
+#### Scene 2: Registration and Password Recovery (0:30 - 1:20)
+- Visual: Open Register Pass and show attendee and exhibitor options. Demonstrate attendee registration with a new demo identity, then open Forgot Password and show the reset-link flow using a seeded account. Do not expose real credentials in the recording.
 - Narration:
-  "Unauthenticated visitors have immediate access to public event dossiers. The directory organizes expos by region. Inside an expo, visitors can inspect multi-day timetables, search participating commercial brands, and view the architectural floor plan with color-coded booth availability. Notice that public responses are sanitized to protect corporate emails."
+  "Visitors can create attendee or exhibitor accounts. Password recovery currently generates a reset link for display in the application; it does not send email. Reset tokens expire after 15 minutes, and the current link display is not gated by the DEMO_MODE environment variable."
 
-#### Scene 3: Attendee Pass Registration & Personal Timetable (1:40 - 2:50)
-- Visual: Click Login. Click the Attendee 1-click demo button. Log in as attendee1@demo.com. Open an expo. Register for the event pass. Switch to the Schedule tab, register for an active keynote, and bookmark a workshop. Navigate to My Schedule (/schedule).
+#### Scene 3: Admin Expo Setup and Booth Generation (1:20 - 2:15)
+- Visual: Log in as Admin and open `/admin/expos`. Create a demo expo and show the generated booth spaces. Open an existing expo's Edit action and identify the Delete action without deleting live data.
 - Narration:
-  "Logging in as an attendee unlocks event participation. We claim our expo pass with a single click, receiving an instant confirmation. When registering for conference keynotes, the system checks for scheduling collisions and provides non-blocking overlap warnings. In My Schedule, attendees have a personalized itinerary tracking registered passes and bookmarked sessions."
+  "The admin workspace supports expo creation, editing, and deletion. Creating an expo can generate its initial booth grid. Expo deletion also removes associated records, so this action should only be demonstrated in the disposable demo database."
 
-#### Scene 4: Exhibitor Application & Booth Reservation (2:50 - 4:15)
-- Visual: Log out. Log in as an exhibitor (bushbabe@demo.com). Open /exhibitor/expos. Click Apply for Expo. Attach a sample PDF document and submit. Open /exhibitor/applications to view pending state.
+#### Scene 4: Booth Reservation and Exhibitor Roster (2:15 - 3:10)
+- Visual: Log in as an exhibitor with an approved application. Open `/exhibitor/booths`, select an available booth, choose Reserve Booth Space, then show the exhibitor booth details and staff roster.
 - Narration:
-  "Switching to an exhibitor account, commercial partners can register for upcoming expos. The application modal accepts compliance paperwork with strict MIME type and file size validation. Applications are logged in pending status until reviewed by administrators."
+  "An exhibitor with an approved application can reserve an available booth. The booth changes to Reserved until confirmed by an administrator. Exhibitors can also maintain their booth description and staff roster."
 
-#### Scene 5: Real-Time Multi-Window Synchronization (4:15 - 5:30)
-- Visual: Arrange two browser windows side-by-side:
-  - Left Window: Admin logged into /admin/applications and /admin/expos/:id/sessions.
-  - Right Window: Attendee viewing the expo schedule at http://localhost:5173/expos/:id.
-  - Left Window: Admin approves an application, then edits a keynote session title to include "[LIVE UPDATED]".
-  - Right Window: Observe the session title in the attendee window update immediately without page refresh.
-  - Left Window: Admin assigns an exhibitor to Booth A4.
-  - Right Window: Observe Booth A4 on the floor plan transition from green (available) to red (booked) in real time.
+#### Scene 5: Exhibitor Profile and Attendee Messaging (3:10 - 4:10)
+- Visual: Open `/exhibitor/profile`, update the demo company profile and upload a permitted JPG, JPEG, PNG, or WEBP logo. Then sign in as an attendee, open an exhibitor profile, send a message, and show it in the exhibitor inbox.
 - Narration:
-  "Here we demonstrate EventSphere's real-time synchronization over WebSockets. In the left window, the organizer updates a keynote title. Instantly, without refreshing the browser on the right, the attendee's timetable updates. Next, the organizer allocates an available booth space. Connected clients immediately see the floor plan reflect the new booking status."
+  "Exhibitors can update their public company profile and logo. Attendees can contact exhibitors through the messaging interface. Incoming messages use the `message:new` Socket.IO event to update the recipient's navigation badge."
 
-#### Scene 6: Admin Operations, Analytics & Feedback (5:30 - 6:30)
-- Visual: Expand Admin window. Open /admin/analytics. Highlight the four metric cards, the attendance bar chart, and the floor plan occupancy donut chart. Open /admin/feedback to view user feedback logs.
+#### Scene 6: Attendee Registration, Reminder, and Feedback (4:10 - 5:20)
+- Visual: As the attendee, register for an expo and a session, bookmark another session, and open My Schedule. For the reminder demonstration, use a registered or bookmarked session whose start time is within the next 30 minutes; wait for the scheduler poll and show the notification bell. Submit a feedback item.
 - Narration:
-  "The administrator console provides oversight of the entire ecosystem. The analytics dashboard compiles floor occupancy rates, attendee reach, and session engagement through interactive charts. Organizers can also monitor user feedback logs and dispatch direct messages to any registered user."
+  "Attendees can register for expos and sessions, bookmark sessions, and review their personal schedule. The server polls every 60 seconds and creates an in-app reminder 30 minutes before a registered or bookmarked session. Feedback can be submitted as a suggestion or an issue."
 
-#### Scene 7: Mobile Responsiveness & Conclusion (6:30 - 7:00)
-- Visual: Open browser developer tools and toggle Device Toolbar (iPhone 14 / 375 px width). Click the Menu button to reveal the mobile navigation drawer. Close drawer and scroll smoothly through card layouts.
+#### Scene 7: Analytics and Role Guards (5:20 - 6:20)
+- Visual: Log in as Admin and open `/admin/analytics`. Show the metric cards and both charts, then identify which values are measured counts and which chart categories use simulated or fallback values. Separately, log in as an attendee and attempt to open `/admin` to demonstrate the role guard.
 - Narration:
-  "EventSphere is responsive across mobile, tablet, and desktop viewports, ensuring attendees can navigate venues directly from handheld devices. This concludes the EventSphere demonstration. Source code and documentation are available in the project repository."
+  "The admin analytics page reports expo, booth, attendee, exhibitor, registration, and session counts. Attendance-category chart values are simulated from fixed proportions, and some booth chart values use fallbacks; the system does not measure booth traffic or session popularity. Role-protected workspaces restrict access by account type."
+
+#### Scene 8: Responsive Layout and Closing (6:20 - 7:00)
+- Visual: Use the browser's device emulation to show the public landing page and expo directory at mobile width. Open and close the mobile navigation, then return to the landing page.
+- Narration:
+  "The interface includes responsive layouts and mobile navigation. Browser compatibility, accessibility conformance, and performance targets remain to be verified. This concludes the EventSphere Management demonstration."

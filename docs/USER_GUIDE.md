@@ -5,15 +5,17 @@
 EventSphere Management is a full-stack MERN (MongoDB, Express, React, Node.js) web application designed for organizing, managing, and attending trade shows, expositions, and conferences. The system supports four user profiles:
 
 1. Visitor: An unauthenticated public guest browsing upcoming expos, schedules, exhibitors, and floor plans.
-2. Attendee: A registered visitor who claims event passes, registers for keynotes and workshops, bookmarks sessions into a personal timetable, receives in-app notifications and reminders, and messages exhibitors.
-3. Exhibitor: A corporate partner who submits booth participation applications with compliance documents, selects and reserves floor plan booths, configures booth staff and showcase details, and communicates with event organizers.
-4. Admin / Organizer: An operations lead who creates and maintains expos, generates booth grids, reviews and approves exhibitor applications, schedules speaker sessions with room conflict detection, monitors attendance analytics, and reviews user feedback.
+2. Attendee: A registered visitor who claims event passes, registers for keynotes and workshops, bookmarks sessions into a personal timetable, receives in-app notifications and reminders, and messages organizers or exhibitors.
+3. Exhibitor: A corporate partner who submits booth participation applications with documents, selects and reserves floor plan booths, configures booth staff and showcase details, and messages organizers or other exhibitors.
+4. Admin / Organizer: An operations lead who creates, edits, and deletes expos, manages booth grids, reviews exhibitor applications, schedules sessions, reviews analytics and feedback, and uses the messages inbox.
 
 ### Opening the Application
 
 To access EventSphere Management locally:
 - Frontend Web Interface: http://localhost:5173
 - Backend REST API and WebSocket Gateway: http://localhost:5000
+
+For local development, start the server with `npm run dev` from `server/` and the client with `npm run dev` from `client/`. To prepare demo data, run `npm run seed:demo` from `server/`; this script clears and recreates demo data, so use a dedicated database.
 
 ### Demo Accounts
 
@@ -69,11 +71,13 @@ The database seed engine (server/seed/seedDemoData.js) initializes realistic acc
 1. On the login screen, click Forgot Password?.
 2. Enter your registered email address and click Generate Reset Link.
 3. Behavior details:
-   - When the backend environment variable DEMO_MODE is set to true, the password reset link is displayed directly on the screen in a notification container to facilitate testing without an SMTP email service.
-   - When DEMO_MODE is false or unset, the system returns a standard confirmation message: "If an account exists, a reset link has been generated."
-   - In non-production environments, the reset link is also printed to the server terminal.
+   - No email is sent. The current server response includes the reset link for a known account and the server logs it.
+   - The page labels a returned link "Demo Mode Reset Link". The current code does not use `DEMO_MODE` to gate the link; that variable is present in `server/.env.example` only.
+   - For an unknown email, the server returns a generic confirmation without a link.
 4. Click the reset link or open http://localhost:5173/reset-password/<token>.
 5. Enter a new password (minimum 6 characters), confirm it, and submit. The reset token is single-use and expires after 15 minutes.
+
+Password-reset email delivery and production-safe reset-link handling are not implemented. Do not expose this demo reset-link behavior in a production deployment.
 
 [Screenshot: 03-password-recovery.png - Password recovery interface displaying demo mode reset link]
 
@@ -88,6 +92,8 @@ Click the Logout button located in the top navigation bar. Your authentication t
 ### 3.1 Visitor (Unauthenticated Guest)
 
 Visitors can explore public trade show directories without creating an account.
+
+[Screenshot: 25-landing-page.png - Public landing page at /]
 
 #### Tutorial 1: Browsing Upcoming Expos
 1. Click Expos in the navigation menu.
@@ -139,6 +145,7 @@ Visitors can explore public trade show directories without creating an account.
 2. To claim a seat in a session, click + Register.
    - The button updates immediately to Cancel Registration.
    - If the new session overlaps in time with an existing registered session in your timetable, registration succeeds and a warning toast displays: "This session overlaps with <Title>".
+   - If the session has reached its configured capacity, registration is rejected.
 3. To bookmark a session without registering, click Bookmark. The button toggles to Bookmarked.
 4. Sessions whose end time has elapsed display an "Ended" badge and cannot be registered or bookmarked.
 
@@ -192,7 +199,7 @@ Visitors can explore public trade show directories without creating an account.
 4. Fill in the commercial details:
    - Company Name: Prefilled from your profile.
    - Showcased Products / Services: Overview of items displayed at your booth.
-   - Upload Compliance Documents: Attach up to 3 files (PDF, DOC, DOCX, PNG, JPG; max 5 MB each).
+   - Upload documents: Attach up to 3 files (PDF, DOC, DOCX, JPG, JPEG, PNG, or WEBP; max 5 MB each).
 5. Click Submit Application. The application enters "Pending" status and alerts event administrators.
 
 [Screenshot: 14-exhibitor-apply-modal.png - Exhibitor application modal with document upload inputs]
@@ -208,28 +215,34 @@ Visitors can explore public trade show directories without creating an account.
 
 #### Tutorial 3: Self-Service Booth Reservation on the Floor Plan
 1. Once your application is Approved, navigate to My Booth & Map (/exhibitor/booths).
-2. Select your expo from the dropdown. The floor plan displays Zone A (6x6 m, $1,200), Zone B (3x6 m, $800), and Zone C (3x3 m, $500).
-3. Click any green Available booth to open the Booth Inspector.
-4. Click Reserve Booth Space. The booth status transitions atomically to Reserved (Yellow), preventing concurrent double-booking.
-5. If you change your mind prior to administrative confirmation, click Cancel Reservation to release the space back to Available.
+2. Select an approved expo from the Approved Expo dropdown. Seeded demo data uses Zone A (6x6 m, $1,200), Zone B (3x6 m, $800), and Zone C (3x3 m, $500); admin-created expos use the configured booth size and price.
+3. Click an available green booth tile and confirm the browser prompt to reserve it. The server changes its status to Reserved; an administrator must confirm the reservation before it is Booked.
+4. If you change your mind before administrative confirmation, click Cancel Reservation and confirm the browser prompt.
 
-[Screenshot: 16-exhibitor-booth-reservation.png - Interactive floor plan with booth inspector open for reservation]
+[Screenshot: 16-exhibitor-booth-reservation.png - Approved expo floor plan with an available booth tile ready to select]
 
 #### Tutorial 4: Managing Booth Showcase and Staff Roster
-1. In /exhibitor/booths, open the My Assigned Booth tab.
-2. In the Booth Showcase Description field, enter details regarding live product demonstrations.
-3. In the Staff Roster section, click + Add Staff Member. Enter the representative name and role (e.g., "Sales Director", "Technical Specialist").
-4. Click Save Booth Telemetry. The public floor plan reflects your staff and showcase notes.
+1. In `/exhibitor/booths`, select the approved expo. The page shows your reserved or confirmed booth details below the floor plan.
+2. Enter a description in Booth Description & Special Requirements.
+3. In On-Site Booth Staff Roster, add a name and role, then choose `+ ADD STAFF`. Repeat as needed.
+4. Choose `SAVE BOOTH INFO & STAFF ROSTER`. The booth details are saved for the booth.
 
-[Screenshot: 17-exhibitor-staff-management.png - Booth management form with staff roster rows]
+[Screenshot: 17-exhibitor-staff-management.png - Booth details form with description and staff roster]
 
 #### Tutorial 5: Updating Company Profile and Uploading Brand Logo
 1. Navigate to /exhibitor/profile.
 2. Update corporate metadata: Company Name, Category, Website URL, Description, and Phone.
-3. Under Brand Logo, click Choose File, select an image (JPG, PNG, WEBP; max 5 MB), and click Upload Logo.
+3. Under Brand Logo, click Choose File, select an image (JPG, JPEG, PNG, or WEBP; max 5 MB), and click Upload Logo.
 4. The logo updates across all public directories and interactive floor plan cards.
 
 [Screenshot: 18-exhibitor-profile-edit.png - Exhibitor profile editor with logo preview and upload controls]
+
+#### Tutorial 6: Messaging Organizers and Other Exhibitors
+1. Open an organizer or exhibitor profile and choose its message/contact action.
+2. In Messages, confirm the recipient is preselected, enter a subject and message body, and send.
+3. Use Inbox and Sent to review messages and reply. The message API also permits an exhibitor recipient ID for an attendee, but the current UI does not provide an attendee directory or general attendee-recipient picker.
+
+[Screenshot: 27-exhibitor-peer-messaging.png - Exhibitor message composition to another exhibitor]
 
 ---
 
@@ -283,11 +296,11 @@ Visitors can explore public trade show directories without creating an account.
 
 [Screenshot: 22-admin-session-scheduler.png - Admin schedule manager with room conflict validation]
 
-#### Tutorial 5: Executive Analytics and Telemetry
+#### Tutorial 5: Analytics Overview
 1. Click Analytics in the admin navigation (/admin/analytics).
 2. Review four primary metric cards: Total Expos, Floor Occupancy Rate, Attendee Reach, and Exhibitor Partners.
-3. Inspect the Attendee Registrations per Expo bar chart.
-4. Inspect the Overall Booth Status Breakdown donut chart showing booked versus available ratios.
+3. Inspect the attendance-category bar chart and booth-status donut chart.
+4. Total expos, booths, booked/reserved booths, attendees, exhibitors, registrations, and sessions are database counts. Attendance categories use fixed proportions and sample fallbacks; booth-status chart data also uses fallbacks when counts are zero. These values are not measured demographics, booth traffic, or session popularity. If analytics data cannot be loaded, the client has a static fallback dataset.
 
 [Screenshot: 23-admin-analytics-dashboard.png - Executive analytics view displaying metric cards and Recharts visualizations]
 
@@ -298,16 +311,38 @@ Visitors can explore public trade show directories without creating an account.
 
 [Screenshot: 24-admin-feedback-inbox.png - Admin user feedback log sorted chronologically]
 
+#### Tutorial 7: Reviewing the Admin Dashboard
+1. Choose Overview in the admin navigation or visit `/admin`.
+2. Review the dashboard overview and use its links to open expo management, approvals, booth and session tools, analytics, and feedback.
+
+[Screenshot: 26-admin-dashboard.png - Admin dashboard landing screen]
+
+#### Tutorial 8: Editing and Deleting an Expo
+1. Open Manage Expos (`/admin/expos`).
+2. Use Edit on an existing expo to change its details and save.
+3. Use Delete only when the expo and its related records may be removed; confirm the action in the interface.
+
+[Screenshot: 29-admin-edit-delete-expo.png - Manage Expos row with edit and delete actions]
+
+#### Tutorial 9: Using the Admin Messages Inbox
+1. Choose Messages from the admin navigation.
+2. Review Inbox and Sent, open a message to mark it read, or start a new message by choosing a recipient.
+3. Admins can send messages to other user accounts; the Messages page uses the same inbox, sent, and compose interface for authenticated roles.
+
+[Screenshot: 28-admin-messages-inbox.png - Admin message inbox and compose controls]
+
 ---
 
 ## 4. Real-Time Capabilities
 
 EventSphere incorporates a Socket.IO WebSocket bus that synchronizes state across client browser windows without requiring manual page reloads (F5):
 
-1. Floor Plan Booth Allocations: When an exhibitor reserves a booth or an admin assigns/releases one, the server broadcasts booth:updated. All clients viewing that expo's floor plan update booth colors and labels immediately.
-2. Conference Schedules: When an admin creates, edits, or deletes a session, the server broadcasts schedule:updated. Attendee timetables and expo schedule tabs re-fetch and render updates in real time.
-3. Peer Messaging: When a message is sent, the server pushes message:new to the recipient's personal socket room, incrementing the unread badge counter in their navigation bar.
-4. Notification Alerts: System notifications (booth confirmations, application decisions, session reminders) emit notification:new, popping in-app alert toasts and updating the notification bell counter.
+1. Floor Plan Booth Allocations: When an exhibitor reserves a booth or an admin assigns/releases one, the server broadcasts `booth:updated`. Connected floor plan views subscribe to this event and refresh booth data.
+2. Conference Schedules: When an admin creates, edits, or deletes a session, the server broadcasts `schedule:updated`. Connected schedule views refresh session data.
+3. Messaging: When a message is sent, the server emits `message:new` to the recipient's personal socket room; navigation listeners update the unread message count.
+4. Notification Alerts: The server emits `notification` (not `notification:new`) for in-app alerts; the notification bell and toast context listen for it.
+
+The server also emits `expo:updated`, but no client listener for that event was identified. Notifications are presented through the navigation bell dropdown. A `Notifications.jsx` component exists in the source tree, but it is not registered as an application route.
 
 ---
 
@@ -317,7 +352,7 @@ EventSphere incorporates a Socket.IO WebSocket bus that synchronizes state acros
 1. Q: Who can register for an account on EventSphere?  
    A: Any visitor can register for an Attendee Pass or an Exhibitor Booth. Administrator accounts cannot be registered from the public form and must be seeded by server administrators.
 2. Q: What happens if I forget my password?  
-   A: Use the Forgot Password link on the login page. In demo mode (DEMO_MODE=true), the system displays the reset link on your screen. The reset token is single-use and valid for 15 minutes.
+   A: Use the Forgot Password link on the login page. The current API returns a reset link for a known account and the page displays it; no email is sent, and the link is not gated by `DEMO_MODE`. The reset token is single-use and valid for 15 minutes.
 3. Q: Can I change my role after registration?  
    A: Roles (admin, exhibitor, attendee) are immutable through the profile UI to preserve data integrity and permissions.
 4. Q: How long does my login session remain active?  
@@ -336,8 +371,8 @@ EventSphere incorporates a Socket.IO WebSocket bus that synchronizes state acros
    A: Deleting an expo cascades deletion to all associated booths, exhibitor applications, scheduled sessions, and attendee registrations.
 
 ### Exhibitor Applications
-10. Q: What documents are required when an exhibitor applies for an expo?  
-    A: Exhibitors can upload up to 3 compliance documents in PDF, DOC, DOCX, PNG, or JPG formats under 5 MB each.
+10. Q: What files can I upload when applying or updating a profile?<br>
+    A: Document fields accept PDF, DOC, DOCX, JPG, JPEG, PNG, and WEBP; image fields accept JPG, JPEG, PNG, and WEBP. Files must be no larger than 5 MB. Application submission accepts up to 3 documents.
 11. Q: Can an exhibitor submit multiple applications for the same expo?  
     A: No. The server rejects duplicate applications from the same exhibitor for the same expo.
 12. Q: Can an exhibitor select a booth before their application is approved?  
@@ -373,22 +408,14 @@ EventSphere incorporates a Socket.IO WebSocket bus that synchronizes state acros
 24. Q: Why does the screen display "Service Temporarily Unavailable"?  
     A: The application includes a database connection monitor. If MongoDB Atlas drops connection, the client displays an outage notice with a Retry button rather than logging you out.
 25. Q: Why did my upload fail?  
-    A: Uploads must be image files (JPG, PNG, WEBP) or document files (PDF, DOC, DOCX) and must not exceed 5 MB in size.
+    A: Document and logo upload fields accept PDF, DOC, DOCX, JPG, JPEG, PNG, and WEBP. The banner `image` field accepts JPG, JPEG, PNG, and WEBP and also checks that the MIME type is an image. Files must be no larger than 5 MB.
 
 ---
 
 ## 6. Accessibility and Browser Compatibility
 
 ### Browser Support
-EventSphere is built with standard web APIs and CSS Grid/Flexbox bundled through Vite. It functions across:
-- Google Chrome (version 110+)
-- Mozilla Firefox (version 110+)
-- Microsoft Edge (version 110+)
-- Apple Safari (version 16+)
+The interface is designed for modern desktop and mobile browsers. Chrome, Firefox, Edge, and Safari compatibility has not been verified; cross-browser testing remains pending.
 
 ### Accessibility Provisions
-The codebase implements the following baseline accessibility features:
-- Contrast: The high-contrast color palette (dark text on light cream, white text on dark surfaces) provides contrast ratios exceeding 7:1, satisfying WCAG AAA requirements.
-- Focus Indicators: Interactive inputs and buttons provide distinct outline styling on focus (:focus-visible).
-- Form Labels: Form fields provide textual labels and placeholder instructions.
-- Screen Reader Notifications: Toast notification containers include ARIA live region declarations (role="region", aria-live="polite", role="status") to announce updates to assistive technologies.
+Some interface elements include focus styling, labels, and ARIA live regions. Contrast ratios, keyboard flow, screen-reader behavior, and WCAG conformance have not been verified.

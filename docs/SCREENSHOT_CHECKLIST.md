@@ -19,8 +19,8 @@ This checklist enumerates every screenshot placeholder referenced across the pro
 | 13 | `13-attendee-feedback-form.png` | Attendee (`attendee1@demo.com`) | `/feedback` | User feedback form with Category Type buttons (Suggestion vs Issue). |
 | 14 | `14-exhibitor-apply-modal.png` | Exhibitor (`bushbabe@demo.com`) | `/exhibitor/expos` | Application modal with company prefill, products text area, and document file input. |
 | 15 | `15-exhibitor-applications-list.png` | Exhibitor (`bushbabe@demo.com`) | `/exhibitor/applications` | Exhibitor applications table displaying Pending, Approved, and Rejected status badges. |
-| 16 | `16-exhibitor-booth-reservation.png` | Exhibitor (`bushbabe@demo.com`) | `/exhibitor/booths` | Interactive floor plan with booth inspector open showing Reserve Booth Space button. |
-| 17 | `17-exhibitor-staff-management.png` | Exhibitor (`bushbabe@demo.com`) | `/exhibitor/booths` | My Assigned Booth tab displaying showcase description and staff roster rows. |
+| 16 | `16-exhibitor-booth-reservation.png` | Exhibitor (`bushbabe@demo.com`) | `/exhibitor/booths` | Approved expo floor plan with an available booth tile ready to select; reservation uses a browser confirmation prompt. |
+| 17 | `17-exhibitor-staff-management.png` | Exhibitor (`bushbabe@demo.com`) | `/exhibitor/booths` | Selected approved expo with the exhibitor's booth details form, description field, and on-site staff roster. |
 | 18 | `18-exhibitor-profile-edit.png` | Exhibitor (`bushbabe@demo.com`) | `/exhibitor/profile` | Profile management page displaying company information fields and logo upload. |
 | 19 | `19-admin-create-expo.png` | Admin (`admin@eventsphere.com`) | `/admin/expos` | Create Expo modal displaying dates, venue, booth generator counts, and image URL. |
 | 20 | `20-admin-application-review.png` | Admin (`admin@eventsphere.com`) | `/admin/applications` | Applications review table with document download links, Approve, and Reject buttons. |
@@ -28,3 +28,8 @@ This checklist enumerates every screenshot placeholder referenced across the pro
 | 22 | `22-admin-session-scheduler.png` | Admin (`admin@eventsphere.com`) | `/admin/expos/:id/sessions` | Schedule builder form with room and time inputs and collision detection alerts. |
 | 23 | `23-admin-analytics-dashboard.png` | Admin (`admin@eventsphere.com`) | `/admin/analytics` | Executive analytics view showing 4 metric cards, Recharts bar chart, and donut chart. |
 | 24 | `24-admin-feedback-inbox.png` | Admin (`admin@eventsphere.com`) | `/admin/feedback` | Admin feedback log displaying categorized user suggestions and issues. |
+| 25 | `25-landing-page.png` | Visitor (Unauthenticated) | `/` | Public home page with its main landing content and navigation. |
+| 26 | `26-admin-dashboard.png` | Admin (`admin@eventsphere.com`) | `/admin` | Admin dashboard overview and links to management areas. |
+| 27 | `27-exhibitor-peer-messaging.png` | Exhibitor (`bushbabe@demo.com`) | `/messages` | Compose view with another exhibitor selected as recipient, plus subject and message body. |
+| 28 | `28-admin-messages-inbox.png` | Admin (`admin@eventsphere.com`) | `/messages` | Admin inbox and Sent/Compose controls. |
+| 29 | `29-admin-edit-delete-expo.png` | Admin (`admin@eventsphere.com`) | `/admin/expos` | Manage Expos view showing the edit and delete controls for an expo. |
