@@ -6,6 +6,8 @@ import { useAuth } from "../context/AuthContext.jsx";
 import Loading from "../components/Loading.jsx";
 import { CornerBrackets, ShineSweep, PulseDot, TickerStrip, RotatingBadge } from "../components/common/NeoBrutalKit.jsx";
 
+const ITEMS_PER_PAGE = 5;
+
 const Messages = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -21,6 +23,10 @@ const Messages = () => {
   const [success, setSuccess] = useState("");
 
   const [selectedMessage, setSelectedMessage] = useState(null);
+
+  // Pagination states
+  const [inboxPage, setInboxPage] = useState(1);
+  const [sentPage, setSentPage] = useState(1);
 
   const [usersList, setUsersList] = useState([]);
   const [adminContact, setAdminContact] = useState(null);
@@ -39,8 +45,8 @@ const Messages = () => {
         api.get("/messages/inbox"),
         api.get("/messages/sent"),
       ]);
-      setInbox(inboxRes.data);
-      setSent(sentRes.data);
+      setInbox(inboxRes.data || []);
+      setSent(sentRes.data || []);
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to load messages");
     } finally {
@@ -108,6 +114,7 @@ const Messages = () => {
       const defaultReceiver = adminContact ? adminContact._id : "";
       setComposeData({ receiver: defaultReceiver, subject: "", body: "" });
       setActiveTab("sent");
+      setSentPage(1);
       fetchMessages();
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to send message");
@@ -128,6 +135,13 @@ const Messages = () => {
   };
 
   const unreadCount = inbox.filter((m) => !m.read).length;
+
+  // Pagination slice logic
+  const totalInboxPages = Math.ceil(inbox.length / ITEMS_PER_PAGE) || 1;
+  const currentInbox = inbox.slice((inboxPage - 1) * ITEMS_PER_PAGE, inboxPage * ITEMS_PER_PAGE);
+
+  const totalSentPages = Math.ceil(sent.length / ITEMS_PER_PAGE) || 1;
+  const currentSent = sent.slice((sentPage - 1) * ITEMS_PER_PAGE, sentPage * ITEMS_PER_PAGE);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28, padding: "10px 0" }}>
@@ -215,7 +229,9 @@ const Messages = () => {
         <Loading message="Synchronizing messages..." />
       ) : (
         <>
-          {/* INBOX TAB */}
+          {/* =========================================================
+              INBOX TAB WITH PAGINATION
+          ========================================================== */}
           {activeTab === "inbox" && !selectedMessage && (
             <div
               style={{
@@ -230,61 +246,126 @@ const Messages = () => {
                   Your inbox is clean. No incoming messages.
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {inbox.map((msg) => (
-                    <motion.div
-                      key={msg._id}
-                      onClick={() => handleOpenMessage(msg, true)}
-                      whileHover={{ x: 4 }}
-                      style={{
-                        backgroundColor: msg.read ? "#ffffff" : "var(--color-light, #fff8eb)",
-                        border: "2px solid var(--color-dark, #231e25)",
-                        borderLeft: msg.read ? "2px solid var(--color-dark, #231e25)" : "6px solid var(--color-primary, #ff3e33)",
-                        boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
-                        padding: "16px 20px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        cursor: "pointer",
-                        gap: 16,
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <strong style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16 }}>
-                            {msg.sender?.name || "User"}
-                          </strong>
-                          <span style={{ fontSize: 11, backgroundColor: "#f3f4f6", border: "1px solid #000", padding: "1px 6px", borderRadius: 2, textTransform: "uppercase", fontWeight: 700 }}>
-                            {msg.sender?.role || "Member"}
-                          </span>
-                        </div>
-                        <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: msg.read ? 500 : 800, color: "var(--color-dark)", margin: "4px 0 0 0" }}>
-                          {msg.subject || "(No Subject)"}
-                        </p>
-                      </div>
-
-                      <div style={{ textAlign: "right" }}>
-                        <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
-                          {new Date(msg.createdAt).toLocaleDateString()}
-                        </span>
+                <>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {currentInbox.map((msg) => (
+                      <motion.div
+                        key={msg._id}
+                        onClick={() => handleOpenMessage(msg, true)}
+                        whileHover={{ x: 4 }}
+                        style={{
+                          backgroundColor: msg.read ? "#ffffff" : "var(--color-light, #fff8eb)",
+                          border: "2px solid var(--color-dark, #231e25)",
+                          borderLeft: msg.read ? "2px solid var(--color-dark, #231e25)" : "6px solid var(--color-primary, #ff3e33)",
+                          boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
+                          padding: "16px 20px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          cursor: "pointer",
+                          gap: 16,
+                        }}
+                      >
                         <div>
-                          {!msg.read ? (
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--color-primary, #ff3e33)", fontSize: 12, fontWeight: 800 }}>
-                              <PulseDot color="var(--color-primary, #ff3e33)" size={7} glow={false} /> New
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <strong style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16 }}>
+                              {msg.sender?.name || "User"}
+                            </strong>
+                            <span style={{ fontSize: 11, backgroundColor: "#f3f4f6", border: "1px solid #000", padding: "1px 6px", borderRadius: 2, textTransform: "uppercase", fontWeight: 700 }}>
+                              {msg.sender?.role || "Member"}
                             </span>
-                          ) : (
-                            <span style={{ color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800 }}>Read</span>
-                          )}
+                          </div>
+                          <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: msg.read ? 500 : 800, color: "var(--color-dark)", margin: "4px 0 0 0" }}>
+                            {msg.subject || "(No Subject)"}
+                          </p>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
+                            {new Date(msg.createdAt).toLocaleDateString()}
+                          </span>
+                          <div>
+                            {!msg.read ? (
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--color-primary, #ff3e33)", fontSize: 12, fontWeight: 800 }}>
+                                <PulseDot color="var(--color-primary, #ff3e33)" size={7} glow={false} /> New
+                              </span>
+                            ) : (
+                              <span style={{ color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800 }}>Read</span>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Inbox Pagination Controls */}
+                  {totalInboxPages > 1 && (
+                    <div style={{ marginTop: 24, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <button
+                        onClick={() => setInboxPage((p) => Math.max(1, p - 1))}
+                        disabled={inboxPage === 1}
+                        style={{
+                          backgroundColor: inboxPage === 1 ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                          color: inboxPage === 1 ? "#9ca3af" : "#fff",
+                          border: "2px solid #000",
+                          padding: "6px 14px",
+                          borderRadius: 4,
+                          fontFamily: "var(--font-display)",
+                          fontSize: 16,
+                          cursor: inboxPage === 1 ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        ← PREV
+                      </button>
+
+                      {Array.from({ length: totalInboxPages }, (_, i) => i + 1).map((num) => (
+                        <button
+                          key={num}
+                          onClick={() => setInboxPage(num)}
+                          style={{
+                            minWidth: 36,
+                            height: 36,
+                            backgroundColor: inboxPage === num ? "var(--color-primary, #ff3e33)" : "#ffffff",
+                            color: inboxPage === num ? "#ffffff" : "#000000",
+                            border: "2px solid #000",
+                            boxShadow: inboxPage === num ? "2px 2px 0 #000" : "none",
+                            borderRadius: 4,
+                            fontFamily: "var(--font-display)",
+                            fontSize: 18,
+                            fontWeight: 900,
+                            cursor: "pointer",
+                          }}
+                        >
+                          {num}
+                        </button>
+                      ))}
+
+                      <button
+                        onClick={() => setInboxPage((p) => Math.min(totalInboxPages, p + 1))}
+                        disabled={inboxPage === totalInboxPages}
+                        style={{
+                          backgroundColor: inboxPage === totalInboxPages ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                          color: inboxPage === totalInboxPages ? "#9ca3af" : "#fff",
+                          border: "2px solid #000",
+                          padding: "6px 14px",
+                          borderRadius: 4,
+                          fontFamily: "var(--font-display)",
+                          fontSize: 16,
+                          cursor: inboxPage === totalInboxPages ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        NEXT →
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
 
-          {/* SENT TAB */}
+          {/* =========================================================
+              SENT ARCHIVE TAB WITH PAGINATION
+          ========================================================== */}
           {activeTab === "sent" && !selectedMessage && (
             <div
               style={{
@@ -299,52 +380,115 @@ const Messages = () => {
                   No dispatched sent messages.
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {sent.map((msg) => (
-                    <motion.div
-                      key={msg._id}
-                      onClick={() => handleOpenMessage(msg, false)}
-                      whileHover={{ x: 4 }}
-                      style={{
-                        backgroundColor: "#ffffff",
-                        border: "2px solid var(--color-dark, #231e25)",
-                        boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
-                        padding: "16px 20px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        cursor: "pointer",
-                        gap: 16,
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 700 }}>To:</span>
-                          <strong style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16 }}>
-                            {msg.receiver?.name || "Recipient"}
-                          </strong>
-                          <span style={{ fontSize: 11, backgroundColor: "#f3f4f6", border: "1px solid #000", padding: "1px 6px", borderRadius: 2, textTransform: "uppercase", fontWeight: 700 }}>
-                            {msg.receiver?.role || "Member"}
-                          </span>
-                        </div>
-                        <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: 600, color: "var(--color-dark)", margin: "4px 0 0 0" }}>
-                          {msg.subject || "(No Subject)"}
-                        </p>
-                      </div>
-
-                      <div style={{ textAlign: "right" }}>
-                        <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
-                          {new Date(msg.createdAt).toLocaleDateString()}
-                        </span>
+                <>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {currentSent.map((msg) => (
+                      <motion.div
+                        key={msg._id}
+                        onClick={() => handleOpenMessage(msg, false)}
+                        whileHover={{ x: 4 }}
+                        style={{
+                          backgroundColor: "#ffffff",
+                          border: "2px solid var(--color-dark, #231e25)",
+                          boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
+                          padding: "16px 20px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          cursor: "pointer",
+                          gap: 16,
+                        }}
+                      >
                         <div>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800 }}>
-                            ↗ View Details
-                          </span>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 700 }}>To:</span>
+                            <strong style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 16 }}>
+                              {msg.receiver?.name || "Recipient"}
+                            </strong>
+                            <span style={{ fontSize: 11, backgroundColor: "#f3f4f6", border: "1px solid #000", padding: "1px 6px", borderRadius: 2, textTransform: "uppercase", fontWeight: 700 }}>
+                              {msg.receiver?.role || "Member"}
+                            </span>
+                          </div>
+                          <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: 600, color: "var(--color-dark)", margin: "4px 0 0 0" }}>
+                            {msg.subject || "(No Subject)"}
+                          </p>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
+                            {new Date(msg.createdAt).toLocaleDateString()}
+                          </span>
+                          <div>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--color-dark, #231e25)", fontSize: 12, fontWeight: 800 }}>
+                              View Details →
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Sent Archive Pagination Controls */}
+                  {totalSentPages > 1 && (
+                    <div style={{ marginTop: 24, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <button
+                        onClick={() => setSentPage((p) => Math.max(1, p - 1))}
+                        disabled={sentPage === 1}
+                        style={{
+                          backgroundColor: sentPage === 1 ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                          color: sentPage === 1 ? "#9ca3af" : "#fff",
+                          border: "2px solid #000",
+                          padding: "6px 14px",
+                          borderRadius: 4,
+                          fontFamily: "var(--font-display)",
+                          fontSize: 16,
+                          cursor: sentPage === 1 ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        ← PREV
+                      </button>
+
+                      {Array.from({ length: totalSentPages }, (_, i) => i + 1).map((num) => (
+                        <button
+                          key={num}
+                          onClick={() => setSentPage(num)}
+                          style={{
+                            minWidth: 36,
+                            height: 36,
+                            backgroundColor: sentPage === num ? "var(--color-primary, #ff3e33)" : "#ffffff",
+                            color: sentPage === num ? "#ffffff" : "#000000",
+                            border: "2px solid #000",
+                            boxShadow: sentPage === num ? "2px 2px 0 #000" : "none",
+                            borderRadius: 4,
+                            fontFamily: "var(--font-display)",
+                            fontSize: 18,
+                            fontWeight: 900,
+                            cursor: "pointer",
+                          }}
+                        >
+                          {num}
+                        </button>
+                      ))}
+
+                      <button
+                        onClick={() => setSentPage((p) => Math.min(totalSentPages, p + 1))}
+                        disabled={sentPage === totalSentPages}
+                        style={{
+                          backgroundColor: sentPage === totalSentPages ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                          color: sentPage === totalSentPages ? "#9ca3af" : "#fff",
+                          border: "2px solid #000",
+                          padding: "6px 14px",
+                          borderRadius: 4,
+                          fontFamily: "var(--font-display)",
+                          fontSize: 16,
+                          cursor: sentPage === totalSentPages ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        NEXT →
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -367,7 +511,7 @@ const Messages = () => {
                   onClick={() => setSelectedMessage(null)}
                   style={{ background: "#ffffff", border: "2px solid #000", padding: "6px 14px", borderRadius: 4, cursor: "pointer", fontFamily: "'Satoshi', sans-serif", fontWeight: 800, fontSize: 13 }}
                 >
-                  Back to Messages List
+                  ← Back to Messages List
                 </button>
                 <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, color: "#6b7280" }}>
                   Sent: {new Date(selectedMessage.createdAt).toLocaleString()}
@@ -405,7 +549,7 @@ const Messages = () => {
                     onClick={() => handleReply(selectedMessage)}
                     style={{ backgroundColor: "var(--color-primary, #ff3e33)", color: "#fff", border: "2px solid #000", boxShadow: "2px 2px 0px #000", padding: "10px 22px", fontFamily: "var(--font-display)", fontSize: 20, cursor: "pointer" }}
                   >
-                    Reply to Message
+                    Reply to Message →
                   </button>
                 </div>
               )}

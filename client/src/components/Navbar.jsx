@@ -102,7 +102,7 @@ const Navbar = () => {
         padding: "10px clamp(14px, 2.5vw, 28px)",
         position: "sticky",
         top: 0,
-        zIndex: 100,
+        zIndex: 1000,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -218,6 +218,7 @@ const Navbar = () => {
       </button>
 
       {/* ═══════════ NAV LINKS + UTILITIES ═══════════ */}
+      {/* ✅ Fixed: overflow is now "visible" so dropdown cards can expand downwards freely */}
       <div
         className={`nav-links ${mobileOpen ? "open" : ""}`}
         style={{
@@ -228,19 +229,8 @@ const Navbar = () => {
           minWidth: 0,
           justifyContent: "flex-end",
           flexWrap: "nowrap",
-          overflowX: "auto",
-          overflowY: "hidden",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-          /* ── FIX: pad the scroll container vertically so badges
-             that sit outside the button bounds are not clipped,
-             then cancel with negative margins to keep layout height. */
-          paddingTop: 10,
-          paddingBottom: 10,
-          paddingRight: 10,
-          marginTop: -10,
-          marginBottom: -10,
-          marginRight: -10,
+          overflow: "visible",
+          position: "relative",
         }}
       >
         {/* ── Admin links ── */}
@@ -306,6 +296,8 @@ const Navbar = () => {
               paddingLeft: 8,
               marginLeft: 0,
               borderLeft: "2px dashed rgba(35,30,37,0.2)",
+              position: "relative",
+              overflow: "visible",
             }}
           >
             {/* ── Messages — icon pill with badge ── */}
@@ -377,20 +369,6 @@ const Navbar = () => {
                 >
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </motion.span>
-              )}
-
-              {unreadCount > 0 && (
-                <motion.span
-                  animate={{ scale: [1, 1.5, 1.6], opacity: [0.5, 0.15, 0] }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-                  style={{
-                    position: "absolute",
-                    inset: -2,
-                    borderRadius: "50%",
-                    border: "2px solid var(--color-primary, #ff3e33)",
-                    pointerEvents: "none",
-                  }}
-                />
               )}
             </Link>
 
@@ -496,10 +474,8 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* ═══════════ Responsive + scrollbar hiding ═══════════ */}
+      {/* ═══════════ Responsive styles ═══════════ */}
       <style>{`
-        .nav-links::-webkit-scrollbar { display: none; }
-
         @media (min-width: 1101px) {
           .mobile-menu-button { display: none !important; }
         }
@@ -518,11 +494,6 @@ const Navbar = () => {
             gap: 8px !important;
             overflow: visible !important;
             justify-content: flex-start !important;
-            /* reset desktop scroll paddings in mobile drawer */
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
           }
           .nav-links.open { display: flex !important; }
           .nav-links > a { justify-content: flex-start !important; width: 100%; }

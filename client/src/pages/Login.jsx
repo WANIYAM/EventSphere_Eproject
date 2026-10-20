@@ -490,16 +490,7 @@ export const Login = () => {
               <ShineSweep duration={1.8} delay={0.4} opacity={0.2} />
             </div>
 
-            <RotatingBadge
-              text="SECURE LOGIN"
-              size={92}
-              bg="var(--color-kiwi, #abf139)"
-              color="#000"
-              top={-22}
-              right={-22}
-              duration={16}
-              tilt={6}
-            />
+            
 
             <div
               style={{

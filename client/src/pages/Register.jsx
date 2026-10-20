@@ -153,7 +153,6 @@ const Register = () => {
       >
         <CornerBrackets color="#000" inset={8} size={12} thickness={2.5} />
         <ShineSweep />
-        <RotatingBadge text="JOIN US" size={72} bg="var(--color-primary, #ff3e33)" color="#fff" top={-18} right={-18} duration={15} />
         <div
           style={{
             display: "inline-block",

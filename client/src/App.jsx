@@ -55,8 +55,6 @@ const AttendeeExhibitorRedirect = () => {
   return <Navigate to={`/exhibitors/${id}`} replace />;
 };
 
-// Inside client/src/App.jsx
-
 function AppContent() {
   const { user } = useAuth();
   const location = useLocation();
@@ -66,6 +64,7 @@ function AppContent() {
     "/register",
     "/forgot-password",
   ].includes(location.pathname) || location.pathname.startsWith("/reset-password");
+
   const isPublicPage = [
     "/",
     "/expos",
@@ -101,8 +100,9 @@ function AppContent() {
         </>
       )}
 
+      {/* ✅ Allows auth pages to be full-bleed edge-to-edge */}
       <main
-        className={isPublicPage ? "landing-wrapper" : "main-content"}
+        className={(isPublicPage || isAuthPage) ? "landing-wrapper" : "main-content"}
         style={{
           paddingTop:
             !isPublicPage && !showWorkspaceNavbar && !isAuthPage
@@ -120,13 +120,13 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route
-              path="/messages"
-              element={
-                <ProtectedRoute allowedRoles={["admin", "exhibitor", "attendee"]}>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
+            path="/messages"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "exhibitor", "attendee"]}>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Auth Pages */}
           <Route path="/login" element={<Login />} />

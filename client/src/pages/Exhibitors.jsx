@@ -14,6 +14,7 @@ import {
 } from "../components/common/NeoBrutalKit.jsx";
 
 const BASE = "http://localhost:5000";
+const ITEMS_PER_PAGE = 6;
 
 export default function Exhibitors() {
   const [exhibitors, setExhibitors] = useState([]);
@@ -23,6 +24,9 @@ export default function Exhibitors() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [hoveredCard, setHoveredCard] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchExhibitors = async () => {
     try {
@@ -35,6 +39,7 @@ export default function Exhibitors() {
       const res = await api.get("/public/exhibitors", { params });
       const data = res.data || [];
       setExhibitors(data);
+      setCurrentPage(1); // Reset to page 1 on new filter/search
 
       if (selectedCategory === "All categories" && !search.trim()) {
         const found = Array.from(
@@ -67,6 +72,18 @@ export default function Exhibitors() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchExhibitors();
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(exhibitors.length / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentExhibitors = exhibitors.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 380, behavior: "smooth" });
+    }
   };
 
   return (
@@ -180,15 +197,6 @@ export default function Exhibitors() {
               locations across all trade shows.
             </p>
           </div>
-
-          <RotatingBadge
-            text="LIVE DIRECTORY"
-            size={108}
-            bg="var(--color-kiwi, #abf139)"
-            color="#000"
-            duration={16}
-            tilt={6}
-          />
         </motion.div>
 
         {/* ───────────────────── SEARCH + FILTER BAR ───────────────────── */}
@@ -490,6 +498,9 @@ export default function Exhibitors() {
                   {String(exhibitors.length).padStart(2, "0")}
                 </span>
                 PARTNER{exhibitors.length !== 1 ? "S" : ""} LISTED
+                <span style={{ fontSize: 13, fontFamily: "'Satoshi', sans-serif", fontWeight: 700, color: "#6b7280" }}>
+                  (SHOWING {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, exhibitors.length)})
+                </span>
               </span>
 
               <TickerStrip
@@ -501,7 +512,7 @@ export default function Exhibitors() {
               />
             </div>
 
-            {/* Grid */}
+            {/* Paginated Grid */}
             <div
               style={{
                 display: "grid",
@@ -510,7 +521,7 @@ export default function Exhibitors() {
               }}
             >
               <AnimatePresence mode="popLayout">
-                {exhibitors.map((ex, idx) => {
+                {currentExhibitors.map((ex, idx) => {
                   const isHovered = hoveredCard === (ex._id || idx);
                   const accentColors = [
                     "var(--color-purple-mimosa, #a67eff)",
@@ -534,7 +545,7 @@ export default function Exhibitors() {
                         type: "spring",
                         stiffness: 240,
                         damping: 24,
-                        delay: idx * 0.06,
+                        delay: idx * 0.05,
                       }}
                       whileHover={{
                         y: -8,
@@ -569,7 +580,6 @@ export default function Exhibitors() {
 
                       {/* Card body */}
                       <div style={{ padding: "22px 22px 18px 22px", flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
-
                         {/* Top row: category + booth */}
                         <div
                           style={{
@@ -795,7 +805,7 @@ export default function Exhibitors() {
                       </div>
 
                       {/* Rotating badge on first verified exhibitor */}
-                      {idx === 0 && (
+                      {idx === 0 && currentPage === 1 && (
                         <RotatingBadge
                           text="FEATURED"
                           size={78}
@@ -812,6 +822,105 @@ export default function Exhibitors() {
                 })}
               </AnimatePresence>
             </div>
+
+            {/* ───────────────────── PAGINATION CONTROLS ───────────────────── */}
+            {totalPages > 1 && (
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  marginTop: 48,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
+                {/* Previous Button */}
+                <motion.button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  whileHover={currentPage === 1 ? {} : { y: -2, boxShadow: "4px 4px 0 #000" }}
+                  whileTap={currentPage === 1 ? {} : { y: 1 }}
+                  style={{
+                    backgroundColor: currentPage === 1 ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === 1 ? "#9ca3af" : "var(--color-light, #fff8eb)",
+                    border: "2px solid #000",
+                    boxShadow: currentPage === 1 ? "none" : "2.5px 2.5px 0 #000",
+                    padding: "8px 18px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 18,
+                    letterSpacing: 1,
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  ← PREV
+                </motion.button>
+
+                {/* Page Number Pills */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                  const isActive = currentPage === pageNum;
+                  return (
+                    <motion.button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      whileHover={{ y: -2, boxShadow: "3px 3px 0 #000" }}
+                      whileTap={{ scale: 0.95 }}
+                      style={{
+                        minWidth: 40,
+                        height: 40,
+                        backgroundColor: isActive
+                          ? "var(--color-primary, #ff3e33)"
+                          : "#ffffff",
+                        color: isActive ? "#ffffff" : "var(--color-dark, #231e25)",
+                        border: "2px solid #000",
+                        boxShadow: isActive ? "3px 3px 0 #000" : "2px 2px 0 #000",
+                        borderRadius: 4,
+                        fontFamily: "var(--font-display)",
+                        fontSize: 20,
+                        fontWeight: 900,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {pageNum}
+                    </motion.button>
+                  );
+                })}
+
+                {/* Next Button */}
+                <motion.button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  whileHover={currentPage === totalPages ? {} : { y: -2, boxShadow: "4px 4px 0 #000" }}
+                  whileTap={currentPage === totalPages ? {} : { y: 1 }}
+                  style={{
+                    backgroundColor: currentPage === totalPages ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === totalPages ? "#9ca3af" : "var(--color-light, #fff8eb)",
+                    border: "2px solid #000",
+                    boxShadow: currentPage === totalPages ? "none" : "2.5px 2.5px 0 #000",
+                    padding: "8px 18px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 18,
+                    letterSpacing: 1,
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  NEXT →
+                </motion.button>
+              </motion.div>
+            )}
           </>
         )}
 
@@ -920,7 +1029,7 @@ export default function Exhibitors() {
         )}
       </main>
 
-      {/* Global spin keyframe reused */}
+      {/* Global spin keyframe */}
       <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
     </div>
   );
