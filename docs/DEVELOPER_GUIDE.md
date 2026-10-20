@@ -2,29 +2,32 @@
 
 ## 1. System Overview & Technology Stack
 
-EventSphere Management is an enterprise expo operating system constructed on the MERN stack. It decouples high-performance React UI rendering from an Express REST API and a real-time Socket.IO WebSocket bus backed by MongoDB Atlas.
+EventSphere Management is a MERN application with a React/Vite client, an Express REST API, MongoDB persistence, and Socket.IO events. The repository does not pin a Node.js or npm version, and the database may be local or hosted.
 
-### Package Versions (from package.json)
+### Declared Package Versions (from package.json)
 
-| Component | Package Name | Version | Role in Architecture |
+The entries below are the declared semver ranges in the client and server manifests, not a claim about the versions installed at runtime. Node.js and npm versions are not declared in those manifests.
+
+| Component | Package Name | Declared Version | Role in Architecture |
 | :--- | :--- | :--- | :--- |
-| Runtime | Node.js | >= 18.0.0 | JavaScript runtime |
-| Backend Framework | express | 5.2.1 | HTTP routing and REST endpoints |
-| Database ODM | mongoose | 9.10.3 | Schema definition, validation, and queries |
-| Real-Time Server | socket.io | 4.8.4 | WebSocket server and room dispatch |
-| Real-Time Client | socket.io-client | 4.8.4 | WebSocket client connection |
-| Authentication | jsonwebtoken | 9.0.3 | Stateless JWT signing and verification |
-| Cryptography | bcryptjs | 3.0.3 | Password hashing with salt rounds |
-| File Handling | multer | 2.4.0 | Multipart form-data parser and file storage |
-| CORS Management | cors | 2.8.6 | Cross-origin request headers |
-| Environment | dotenv | 18.0.4 | Environment variable loading |
-| Frontend Library | react / react-dom | 19.2.8 | User interface components and hooks |
-| Bundler & Dev Server | vite | 8.3.0 | Modern ESM frontend bundler |
-| Client Routing | react-router-dom | 7.18.4 | Single-page application route management |
-| HTTP Client | axios | 1.20.0 | REST client with request/response interceptors |
-| Animation Physics | framer-motion | 13.5.0 | Spring physics and layout transitions |
-| Smooth Scrolling | lenis | 1.3.26 | Momentum scrolling engine |
-| Data Visualisation | recharts | 3.10.1 | SVG charts for analytics dashboards |
+| Backend Framework | express | `^5.2.1` | HTTP routing and REST endpoints |
+| Database ODM | mongoose | `^9.10.3` | Schema definition, validation, and queries |
+| Real-Time Server | socket.io | `^4.8.4` | WebSocket server and room dispatch |
+| Authentication | jsonwebtoken | `^9.0.3` | JWT signing and verification |
+| Password Hashing | bcryptjs | `^3.0.3` | Password hashing |
+| File Handling | multer | `^2.4.0` | Multipart form-data parsing and local file storage |
+| Security Headers | helmet | `^8.3.0` | HTTP security headers |
+| Authentication Rate Limiting | express-rate-limit | `^8.7.1` | Limits selected authentication endpoints |
+| CORS Management | cors | `^2.8.6` | Cross-origin request headers |
+| Environment | dotenv | `^18.0.4` | Environment variable loading |
+| Frontend Library | react / react-dom | `^19.2.8` | User interface components and hooks |
+| Bundler & Dev Server | vite | `^8.3.0` | Frontend bundler and development server |
+| Client Routing | react-router-dom | `^7.18.4` | Single-page application route management |
+| HTTP Client | axios | `^1.20.0` | REST client |
+| Animation | framer-motion | `^13.5.0` | Interface animations |
+| Smooth Scrolling | lenis | `^1.3.26` | Scrolling behavior |
+| Data Visualisation | recharts | `^3.10.1` | Charts on the analytics screen |
+| Socket.IO Client | socket.io-client | `^4.8.4` | Browser Socket.IO client |
 
 ---
 
@@ -79,11 +82,11 @@ graph TD
 1. Client Dispatch: User action in a React component executes an asynchronous call through `client/src/services/api.js`.
 2. Interceptor: The Axios request interceptor checks `localStorage.getItem("token")` and attaches `Authorization: Bearer <token>` if present.
 3. Database Shield (`dbCheck.js`): Verifies `mongoose.connection.readyState === 1`. If disconnected, halts request immediately with HTTP 503.
-4. Parameter Validation (`validateObjectId.js`): Validates any `:id` or `:*Id` route parameters. If invalid, halts request with HTTP 400 `{ message: "Invalid id" }`.
+4. Route Middleware: Each route applies its configured middleware in order. Selected routes use `validateObjectId.js` to reject malformed IDs with HTTP 400; protected routes use `protect` and, where required, `authorize`.
 5. Authentication Guard (`authMiddleware.js` - protect): Decodes and verifies the Bearer JWT against `process.env.JWT_SECRET`. Attaches sanitized user record (`req.user`) omitting password.
 6. Role Authorization (`authMiddleware.js` - authorize): Asserts `allowedRoles.includes(req.user.role)`. If unauthorized, halts with HTTP 403.
-7. Controller: Executes business logic, enforces entity ownership, queries Mongoose, and triggers live socket broadcasts via `emitToAll` or `emitToUser`.
-8. Global Error Handler (`server.js`): Catches unhandled rejections, converts `CastError` and `ValidationError` to HTTP 400, sanitizes unexpected 500 exceptions, and returns `{ message }`.
+7. Controller: Executes business logic, applies route-specific ownership checks where implemented, queries Mongoose, and may emit Socket.IO events.
+8. Global Error Handler (`server.js`): Handles errors propagated through Express, converts `CastError` and `ValidationError` to HTTP 400, and returns a generic message for unexpected 500 responses.
 
 ---
 
@@ -101,15 +104,7 @@ EventSphere_Eproject/
 │       ├── main.jsx                   # React root mount point
 │       ├── App.jsx                    # Route dispatcher and layout coordinator
 │       ├── index.css                  # Global styles, variables, and responsive media rules
-│       ├── components/
-│       │   ├── Navbar.jsx             # Admin and exhibitor horizontal workspace navigation
-│       │   ├── NotificationBell.jsx   # Live alerts dropdown and unread counter
-│       │   ├── ProtectedRoute.jsx     # Client-side RBAC route guard and session recovery
-│       │   ├── ServerStatusBanner.jsx # Database outage warning bar
-│       │   └── landing/               # Public exhibition and festival UI components
-│       │       ├── common/            # CustomCursor, GlobalBackground, RetroTvLogo
-│       │       ├── navigation/        # Navigation.tsx (Floating pills navbar)
-│       │       └── sections/          # HeroSection, AgendaSection, FloorPlanSection, etc.
+│   ├── components/                # Shared UI, navigation, status, and landing sections
 │       ├── context/
 │       │   ├── AuthContext.jsx        # JWT state, user profile, login, and registration
 │       │   ├── SocketContext.jsx      # Socket.IO client singleton connection
@@ -140,7 +135,7 @@ EventSphere_Eproject/
 └── server/                            # Node.js Express backend
     ├── server.js                      # HTTP server initialization and middleware mounting
     ├── package.json                   # Server dependency definitions
-    ├── .env                           # Environment configuration (ignored in production)
+    ├── .env                           # Local environment configuration
     ├── .env.example                   # Environment variable template
     ├── config/
     │   └── db.js                      # MongoDB connection loop and retry handler
@@ -169,8 +164,7 @@ EventSphere_Eproject/
 ## 4. Setup, Installation & Seeding Guide
 
 ### Prerequisites
-- Node.js version 18.0.0 or higher
-- npm version 9.0.0 or higher
+- Node.js and npm versions compatible with the dependencies declared in the manifests. The repository does not specify a supported version range.
 - MongoDB instance: Local MongoDB daemon (`mongodb://127.0.0.1:27017/eventsphere`) or a MongoDB Atlas connection string.
 
 ### Environment Configuration (`server/.env`)
@@ -179,8 +173,8 @@ Create `server/.env` based on `server/.env.example`:
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/eventsphere
-JWT_SECRET=your_jwt_secret_key_minimum_32_characters
+MONGO_URI=your_mongodb_uri_here
+JWT_SECRET=your_jwt_secret_key_here
 CLIENT_URL=http://localhost:5173
 DEMO_MODE=true
 ```
@@ -188,10 +182,12 @@ DEMO_MODE=true
 | Variable Name | Required | Default | Technical Purpose |
 | :--- | :---: | :--- | :--- |
 | `PORT` | Yes | `5000` | Port on which the Express HTTP and WebSocket server listens. |
-| `MONGO_URI` | Yes | `mongodb://127.0.0.1:27017/eventsphere` | Connection string for MongoDB (local or Atlas cluster). |
+| `MONGO_URI` | Yes | None | Connection string for MongoDB (local or hosted cluster); the example file contains a placeholder and the server has no fallback. |
 | `JWT_SECRET` | Yes | None | Secret key used to sign and verify HMAC-SHA256 JWT tokens. |
-| `CLIENT_URL` | No | `http://localhost:5173` | Allowed CORS origin and password reset base URL. |
-| `DEMO_MODE` | No | `false` | When `"true"`, includes resetToken and resetLink in forgot-password API responses. |
+| `CLIENT_URL` | No | `http://localhost:5173` | Configures the Express CORS origin. |
+| `DEMO_MODE` | No | `true` in `server/.env.example` | Present in the example file, but not read by the current server or client code. |
+
+Password recovery currently has no email delivery. The forgot-password controller returns a reset token and a `http://localhost:5173` reset link in its response for any known account, and also logs the link. The link is not gated by `DEMO_MODE` or `CLIENT_URL`; this is a limitation to address before production use. Reset tokens expire after 15 minutes. JWTs expire after 7 days, bcryptjs hashes passwords with cost 10, and registration/reset passwords require at least 6 characters.
 
 ### Installation Steps
 
@@ -211,8 +207,8 @@ DEMO_MODE=true
 The project provides two seed scripts in `server/package.json`:
 - `npm run seed:admin`: Creates or updates the default Super Admin user (`admin@eventsphere.com` / `Admin@123`).
 - `npm run seed:demo`: Executes `server/seed/seedDemoData.js`.
-  - Deletion scope: Completely wipes existing Expos, Booths, Applications, Sessions, Registrations, Messages, Feedback, Notifications, and non-admin Users.
-  - Creation scope: Deterministically generates 24 Exhibitor companies, 40 Attendees, 6 multi-day Expos, over 100 Booths with realistic booking distributions, non-overlapping Keynote schedules, threaded Messages, Feedback, and Notifications.
+  - Destructive behavior: Clears demo data (including expos, booths, applications, sessions, registrations, messages, feedback, notifications, and non-admin users) before recreating it. Do not run against data that must be retained.
+  - Creation scope: Generates demo users, multiple expos and booths, sessions, applications, registrations, messages, feedback, and notifications.
 
 ### Launching the Application
 - Start Backend Server (Terminal 1):
@@ -239,7 +235,7 @@ The project provides two seed scripts in `server/package.json`:
 | Field | Type | Required | Default | Notes / Constraints |
 | :--- | :--- | :---: | :--- | :--- |
 | `name` | String | Yes | None | User's full name or representative title |
-| `email` | String | Yes | None | Unique constraint; lowercased and indexed |
+| `email` | String | Yes | None | Unique constraint; no schema-level lowercase normalization |
 | `password` | String | Yes | None | Hashed with bcrypt (salt 10) in pre-save hook |
 | `role` | String | Yes | `"attendee"` | Enum: `["admin", "exhibitor", "attendee"]` |
 | `phone` | String | No | None | Contact telephone |
@@ -263,6 +259,7 @@ The project provides two seed scripts in `server/package.json`:
 | `startDate` | Date | No | None | Opening date |
 | `endDate` | Date | No | None | Closing date; validated >= startDate |
 | `image` | String | No | `""` | Banner image URL or upload path |
+| `capacity` | Number | No | `1000` | Expo registration limit |
 | `createdBy` | ObjectId | No | None | Reference to User (`admin`) |
 
 #### Booth Model (`server/models/Booth.js`)
@@ -272,7 +269,7 @@ The project provides two seed scripts in `server/package.json`:
 | `expo` | ObjectId | Yes | None | Reference to parent Expo |
 | `boothNumber` | String | Yes | None | Identifier (e.g., A1, B4); unique per expo |
 | `size` | String | No | None | Dimensions (e.g., 3x3 m, 6x6 m) |
-| `price` | Number | No | None | Rental price in USD |
+| `price` | Number | No | None | Booth price; currency is not encoded in the schema |
 | `status` | String | Yes | `"available"` | Enum: `["available", "reserved", "booked"]` |
 | `exhibitor` | ObjectId | No | None | Reference to User (`exhibitor`) |
 | `details` | String | No | None | Showcase and demo description |
@@ -301,6 +298,7 @@ The project provides two seed scripts in `server/package.json`:
 | `location` | String | No | None | Stage or room name |
 | `startTime` | Date | No | None | Scheduled start timestamp |
 | `endTime` | Date | No | None | Scheduled end timestamp; validated > start |
+| `capacity` | Number | No | `100` | Seat limit checked when registering for a session |
 | `reminderSent` | Boolean | No | `false` | Flag tracking automated reminder dispatch |
 
 #### Registration Model (`server/models/Registration.js`)
@@ -339,8 +337,10 @@ The project provides two seed scripts in `server/package.json`:
 | Field | Type | Required | Default | Notes / Constraints |
 | :--- | :--- | :---: | :--- | :--- |
 | `user` | ObjectId | Yes | None | Reference to submitting User |
-| `type` | String | Yes | None | Enum: `["suggestion", "issue"]` |
-| `message` | String | Yes | None | Feedback text (min 5 characters) |
+| `type` | String | No | None | Enum: `["suggestion", "issue"]` |
+| `message` | String | Yes | None | Feedback text; controller enforces a minimum length |
+
+The nine collections are `User`, `Expo`, `Booth`, `Application`, `Session`, `Registration`, `Message`, `Notification`, and `Feedback`. There is no separate Exhibitor collection; exhibitor accounts are `User` documents with company/profile fields.
 
 ### 5.2 Database Indexes
 
@@ -383,7 +383,7 @@ applicationSchema.index({ exhibitor: 1, status: 1 });
 erDiagram
     USER ||--o{ EXPO : "creates (Admin)"
     USER ||--o{ APPLICATION : "submits (Exhibitor)"
-    USER ||--o{ BOOTH : "assigned to (Exhibitor)"
+    USER ||--o{ BOOTH : "associated with (Exhibitor)"
     USER ||--o{ REGISTRATION : "claims (Attendee)"
     USER ||--o{ MESSAGE : "sends/receives"
     USER ||--o{ NOTIFICATION : "receives"
@@ -394,7 +394,7 @@ erDiagram
     EXPO ||--o{ APPLICATION : "receives"
     EXPO ||--o{ REGISTRATION : "registered for"
 
-    BOOTH ||--o| APPLICATION : "allocated to"
+    BOOTH ||--o| APPLICATION : "referenced by"
     SESSION ||--o{ REGISTRATION : "registered/bookmarked"
 ```
 
@@ -402,7 +402,18 @@ erDiagram
 
 ## 6. Use Cases
 
-### 6.1 Use Case Diagram
+### 6.1 Role-Permission Summary
+
+| Profile | Implemented access |
+| :--- | :--- |
+| Visitor (unauthenticated) | Browse public expos, expo details, booth plans and schedules, exhibitor directory/profiles, landing page, About, and Contact. Registration, login, password recovery, and reset are public. Messaging and attendee/exhibitor/admin workspaces require authentication. |
+| Attendee | Visitor access plus expo and session registration, bookmarks, personal schedule, feedback submission, and messaging admins or exhibitors. |
+| Exhibitor | Visitor access plus exhibitor profile/logo, expo applications, booth reservation and booth details/staff management, and messaging admins or other exhibitors through the current UI. The API also permits an attendee recipient ID, but the UI does not provide an attendee directory or general recipient picker. |
+| Admin / Organizer | Manage expos, booths, applications, and sessions; view analytics and feedback; use the authenticated messages inbox and sent view. |
+
+The use-case identifiers UC1 to UC23 below are guide-local identifiers. Their mapping to SRS use-case identifiers cannot be confirmed because the source SRS PDF was not available in the workspace.
+
+### 6.2 Use Case Diagram
 
 ```mermaid
 flowchart LR
@@ -499,8 +510,8 @@ All routes are mounted under `/api` in `server/server.js`.
 | :--- | :--- | :---: | :---: | :--- | :--- | :--- |
 | GET | `/` | No | Any | List all expos | None | `200: [ Expo ]` sorted by `startDate: 1` |
 | POST | `/` | Yes | Admin | Create expo | `title, startDate, endDate, location, description, theme, boothCount, boothPrice, boothSize, image` (or file) | `201: Expo` |
-| GET | `/:id` | No | Any | Get single expo | None | `200: { ...expo, booths, sessions, exhibitors }` |
-| GET | `/:id/public` | No | Any | Public expo details | None | `200: { ...expo, booths, sessions, exhibitors }` |
+| GET | `/:id` | No | Any | Get expo details | None | Public expo response |
+| GET | `/:id/public` | No | Any | Get public expo details | None | Public expo response |
 | PUT | `/:id` | Yes | Admin | Update expo | `title, description, theme, location, startDate, endDate, image` (or file) | `200: Expo` |
 | DELETE | `/:id` | Yes | Admin | Delete expo | None | `200: { message: "Expo and all related booths, applications, sessions, and registrations deleted" }` |
 | GET | `/:expoId/booths` | No | Any | Get booths for expo | None | `200: [ Booth ]` |
@@ -541,7 +552,7 @@ All routes are mounted under `/api` in `server/server.js`.
 | Method | Path | Auth Required | Roles | Purpose | Request Body | Response Payload |
 | :--- | :--- | :---: | :---: | :--- | :--- | :--- |
 | POST | `/` | Yes | Attendee | Register expo pass | `expo` | `201: Registration` |
-| POST | `/session` | Yes | Attendee | Register session | `session` | `201: Registration (with warning if overlapping)` |
+| POST | `/session` | Yes | Attendee | Register session | `session` | `201: Registration`; overlap may return a warning; full sessions are rejected |
 | PUT | `/bookmark` | Yes | Attendee | Toggle bookmark | `session` | `200: Registration` or `200: { message: "Bookmark removed" }` |
 | GET | `/my` | Yes | Attendee | List my timetable | None | `200: [ Registration ]` |
 | DELETE | `/:id` | Yes | Attendee | Cancel registration | None | `200: { message }` |
@@ -575,7 +586,7 @@ All routes are mounted under `/api` in `server/server.js`.
 - Exhibitors (`/api/exhibitors`): `GET /` (logged-in list), `GET /categories`, `GET /:id`.
 - Feedback (`/api/feedback`): `POST /` (submit feedback), `GET /` (admin review).
 - Notifications (`/api/notifications`): `GET /` (history), `GET /unread-count`, `PUT /read-all`, `PUT /:id/read`.
-- Analytics (`/api/analytics`): `GET /admin` (admin executive dashboard).
+- Analytics (`/api/analytics`): `GET /admin` and `GET /` (admin executive dashboard; both routes use the same handler).
 - Infrastructure: `GET /api/health` (health check returning `{ status, database }`).
 
 ---
@@ -600,9 +611,11 @@ The server verifies the JWT token. Upon connection:
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `booth:updated` | Server -> Client | `boothController.js` | `ExpoDetails.jsx`, `AdminBooths.jsx`, `ExhibitorBooths.jsx` | `{ expoId }` | Re-fetches floor plan layout instantly when a booth is reserved, assigned, or released. |
 | `schedule:updated` | Server -> Client | `sessionController.js` | `ExpoDetails.jsx`, `AdminSessions.jsx`, `MySchedule.jsx` | `{ expoId }` | Re-fetches conference timetables when sessions are added, edited, or deleted. |
-| `expo:updated` | Server -> Client | `expoController.js` | `Expos.jsx`, `ExpoDetails.jsx` | `{ expoId, action }` | Broadcasts expo creation, updates, and deletions across directories. |
-| `message:new` | Server -> Client | `messageController.js` | `Navbar.jsx`, `Navigation.tsx`, `Messages.jsx` | `Message` | Increments unread message counter badge in navigation and delivers chat message to recipient. |
+| `expo:updated` | Server -> Client | `expoController.js` | No client listener identified | `{ expoId, action }` | Emitted when an expo is created, updated, or deleted; current client pages do not subscribe to it. |
+| `message:new` | Server -> Client | `messageController.js` | `Navbar.jsx`, `Navigation.tsx` | `Message` | Updates the navigation unread-message badge for the recipient. |
 | `notification` | Server -> Client | `notify.js` | `NotificationBell.jsx`, `ToastContext.jsx` | `Notification` | Triggers alert toast notification and increments notification bell badge. |
+
+The notification event is named `notification` (not `notification:new`).
 
 ---
 
@@ -629,10 +642,10 @@ File uploads are managed by Multer in `server/middleware/upload.js`.
 - Destination: Files are stored on local disk in `server/uploads/`.
 - Static Serving: Exposed at `http://localhost:5000/uploads/*` via `app.use("/uploads", express.static(path.resolve("uploads")))` in `server/server.js`.
 - Size Ceiling: 5 MB (`limits: { fileSize: 5 * 1024 * 1024 }`).
-- File Naming: Naming collisions and path traversal attacks are prevented using timestamped randomized hashes: `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`.
+- File Naming: Stored names include a timestamp and random numeric suffix: `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`.
 - Extension Whitelist:
-  - Banners & Logos: `.jpeg`, `.jpg`, `.png`, `.webp` (asserts `mimetype.startsWith("image/")`).
-  - Documents: `.jpeg`, `.jpg`, `.png`, `.webp`, `.pdf`, `.doc`, `.docx`.
+  - Image uploads: `.jpeg`, `.jpg`, `.png`, `.webp`; uploads on the `image` field also require an image MIME type.
+  - Other upload fields: `.jpeg`, `.jpg`, `.png`, `.webp`, `.pdf`, `.doc`, `.docx`. These fields are filtered by file extension.
   - Executable extensions (`.exe`, `.sh`, `.php`, `.js`, `.html`) are rejected with an error.
 
 ---
@@ -640,12 +653,12 @@ File uploads are managed by Multer in `server/middleware/upload.js`.
 ## 11. Security Implementation Review
 
 1. Password Cryptography: Salted hashing via `bcryptjs` with cost factor 10 in Mongoose pre-save middleware. Raw passwords are never stored or logged.
-2. Token Security: Signed 7-day HMAC-SHA256 tokens. The server terminates immediately on boot if `JWT_SECRET` is unset.
-3. Anti-IDOR Authorization: Every mutating endpoint verifies that `req.user._id` matches the document's owner or that `req.user.role === "admin"`.
+2. Token Security: Signed 7-day JWTs. `JWT_SECRET` must be configured for successful token verification; the application does not explicitly terminate at startup when it is absent.
+3. Ownership and Role Checks: User-scoped handlers and admin/exhibitor routes include ownership and role checks. Review each state-changing controller and route before deployment; do not infer universal coverage from this summary.
 4. Role Matrix Enforcement: Server-side messaging restrictions prevent attendees from messaging other attendees; only organizers and exhibitors are valid recipients.
-5. Parameter Sanitization: `validateObjectId.js` intercepts all route parameters ending in `Id` or named `id` and rejects malformed hex strings with HTTP 400.
+5. ObjectId Validation: Routes that attach `validateObjectId.js` reject malformed route parameters named `id` or ending in `Id` with HTTP 400. The middleware is not applied to every route.
 6. Public Output Scrubbing: Public expo and exhibitor endpoints strip user email addresses, phone numbers, and password reset tokens.
-7. Reset Token Protection: Passwords reset tokens are generated via `crypto.randomBytes(20)` and stored exclusively as SHA-256 hashes in MongoDB. Plaintext reset links are disclosed only when `DEMO_MODE=true` is set.
+7. Reset Token Protection: Reset tokens are generated via `crypto.randomBytes(20)` and stored as SHA-256 hashes in MongoDB. The current forgot-password response and server log disclose the plaintext reset link without checking `DEMO_MODE`; email delivery is not implemented.
 8. ReDoS Protection: Search inputs in `exhibitorController.js` are escaped with `replace(/[.*+?^${}()|[\]\\]/g, "\\$&")` before regular expression compilation.
 
 ---
@@ -654,16 +667,23 @@ File uploads are managed by Multer in `server/middleware/upload.js`.
 
 | Metric | Brief Requirement | Implementation Status | Implementation Evidence & Technical Notes |
 | :--- | :--- | :---: | :--- |
-| Security | Data encryption, secure auth, role control | Implemented | Bcrypt salt 10, JWT, server-side RBAC, sanitized public projections, validateObjectId. |
-| Performance | 1 to 2 second response times | Partially Implemented | Fast sub-second response on current seed data. Compound indexes added; cursor pagination is not yet implemented on list endpoints. |
-| Availability | 99% uptime target, health checks | Partially Implemented | `/api/health` endpoint and automatic MongoDB reconnection while-loop with 503 outage guard. Automated cloud backup script is not implemented. |
+| Security | Password hashing, authentication, and role control | Partially Implemented | Bcrypt cost 10, JWT, route role checks, selected ObjectId validation, and sanitized public projections are present. Encryption at rest, TLS configuration, and comprehensive control coverage have not been verified. |
+| Performance | 1 to 2 second response times | To be verified | Some compound indexes are defined. No response-time benchmark is documented; performance targets have not been verified. |
+| Availability | 99% uptime target, health checks | Partially Implemented | `/api/health` endpoint and MongoDB reconnection handling with a 503 database guard are implemented. No uptime or backup evidence is available. |
 | Usability | Intuitive UI, responsive design | Implemented | High-contrast Neo-Brutalist design system, fluid `clamp()` fonts, mobile navigation drawers, and active route indicators. |
-| Accessibility | WCAG adherence | Partially Implemented | High contrast ratios exceeding 7:1; inputs feature `:focus-visible` outline rings; ARIA live regions implemented on toast notifications. |
-| Compatibility | Cross-browser & mobile responsive | Implemented | Tested across Chromium, Gecko, and WebKit; viewport meta set; touch targets >= 44 px. |
+| Accessibility | Accessibility and assistive technology support | Partially Implemented | Some focus styling and ARIA live regions are present. Contrast, keyboard flow, screen-reader behavior, and WCAG conformance have not been verified. |
+| Compatibility | Cross-browser & responsive behavior | To be verified | Responsive styling is present. Chrome, Firefox, Edge, and Safari testing has not been evidenced. |
 | Scalability | Horizontal scaling capability | Partially Implemented | Stateless JWT auth; local uploads and single-process WebSocket bus would require S3 and Redis pub/sub for multi-instance scaling. |
 | Monitoring | Logging and monitoring tools | Partially Implemented | Console logging and server-side stack trace capture; structured cloud logging (e.g., Winston, Pino) is not integrated. |
-| Testing | Unit, integration, and E2E coverage | Partially Implemented | Comprehensive manual test matrix documented in `docs/TEST_CASES.md`; automated test runner not integrated into repository. |
-| Documentation | User, developer, and video guides | Implemented | Detailed user guide, developer guide, test specifications, and demo video script provided in `docs/`. |
+| Testing | Unit, integration, and E2E coverage | Not Executed | Playwright E2E configuration and test files exist, and manual test specifications are in `docs/TEST_CASES.md`. Results are not asserted here. |
+| Documentation | User, developer, and video guides | Partially Implemented | Markdown guides and test specifications are present. The requested source SRS PDF and original Word document were not present, so the Word deliverable and SRS traceability remain incomplete. |
+| Privacy | NFR-PRV-01/02: GDPR and consent | Not implemented | No consent capture, privacy route/policy, data export, or account deletion flow was identified. |
+| Concurrent-user load testing | SRS load requirement | Not Executed | No concurrent-user load-test results are available. |
+| Penetration testing | SRS security verification | Not Executed | No penetration-test results are available. |
+
+Authentication rate limiting is implemented for `/api/auth/login`, `/api/auth/register`, and `/api/auth/forgot-password`: 20 requests per IP per 15 minutes in `server/server.js`. This documents the control, not test evidence.
+
+The analytics controller does not calculate booth-traffic or session-popularity metrics (SRS FR-ANA-01). Attendance categories are estimated using hard-coded proportions, and booth chart values use hard-coded fallback values when counts are zero; these chart values are not fully measured analytics.
 
 ---
 
@@ -673,7 +693,7 @@ File uploads are managed by Multer in `server/middleware/upload.js`.
 1. In-App Only Reminders: The reminder worker dispatches in-app notifications and WebSocket alerts. Email delivery via SMTP (SendGrid, Mailgun, Nodemailer) is not implemented.
 2. Local Disk Storage: Uploaded exhibitor documents and logos are stored in `server/uploads/` on the local file system rather than Amazon S3 or Cloudinary.
 3. No Automated Test Runner: There are no unit or integration test runners (Vitest, Jest) configured in `package.json`.
-4. Simulated Analytics Multipliers: Attendee category breakdowns in `analyticsController.js` use proportional multipliers rather than dedicated demographic database models.
+4. Simulated Analytics: Attendance categories and some booth chart values in `analyticsController.js` use hard-coded proportional/fallback values. Booth traffic and session popularity are not measured.
 5. In-Memory Socket Adapter: Sockets run in a single Node process without a Redis pub/sub adapter.
 
 ### Future Scope
