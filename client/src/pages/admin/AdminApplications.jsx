@@ -6,6 +6,8 @@ import {
   CornerBrackets, ShineSweep, PulseDot, RotatingBadge, TickerStrip, GrainOverlay, TickStrip,
 } from "../../components/common/NeoBrutalKit.jsx";
 
+const ITEMS_PER_PAGE = 6;
+
 const AdminApplications = () => {
   const [applications, setApplications] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
@@ -13,13 +15,15 @@ const AdminApplications = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [pendingId, setPendingId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchApplications = async () => {
     try {
       setLoading(true);
       const url = statusFilter ? `/applications?status=${statusFilter}` : "/applications";
       const res = await api.get(url);
-      setApplications(res.data);
+      setApplications(res.data || []);
+      setCurrentPage(1);
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to load applications");
     } finally { setLoading(false); }
@@ -51,6 +55,9 @@ const AdminApplications = () => {
     rejected: { bg: "var(--color-primary, #ff3e33)", fg: "#fff" },
     pending: { bg: "var(--color-selective-yellow, #feb804)", fg: "#000" },
   };
+
+  const totalPages = Math.ceil(applications.length / ITEMS_PER_PAGE) || 1;
+  const currentApplications = applications.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22, paddingBottom: 40 }}>
@@ -125,96 +132,159 @@ const AdminApplications = () => {
         ) : applications.length === 0 ? (
           <div style={{ padding: "40px 20px", textAlign: "center", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, color: "#6b7280", position: "relative", zIndex: 2 }}>No applications found.</div>
         ) : (
-          <div style={{ overflowX: "auto", borderRadius: 4, border: "2px solid #000", boxShadow: "4px 4px 0 #000", position: "relative", zIndex: 2 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'Satoshi', sans-serif", fontSize: 12.5, minWidth: 1180 }}>
-              <thead>
-                <tr style={{ background: "var(--color-dark, #231e25)", color: "#fff", textAlign: "left" }}>
-                  {["EXHIBITOR", "COMPANY", "TARGET EXPO", "PRODUCTS & DOCS", "STATUS", "ASSIGNED BOOTH", "DECISION"].map((h) => (
-                    <th key={h} style={{ padding: "12px 14px", borderRight: "1.5px solid #000", letterSpacing: 1, fontSize: 10.5, textTransform: "uppercase" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence>
-                  {applications.map((app, idx) => {
-                    const sc = statusColors[app.status] || statusColors.pending;
-                    const rowPending = pendingId === app._id;
-                    return (
-                      <motion.tr key={app._id}
-                        initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ delay: idx * 0.03 }}
-                        whileHover={{ background: "rgba(254,184,4,0.06)" }}
-                        style={{ borderBottom: idx < applications.length - 1 ? "1.5px solid #000" : "none", opacity: rowPending ? 0.6 : 1 }}>
-                        <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <span style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--color-dark, #231e25)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 14, flexShrink: 0 }}>
-                              {(app.exhibitor?.name || "?").charAt(0).toUpperCase()}
-                            </span>
-                            <div>
-                              <strong>{app.exhibitor?.name}</strong>
-                              <div style={{ fontSize: 11, color: "#6b7280" }}>{app.exhibitor?.email}</div>
+          <>
+            <div style={{ overflowX: "auto", borderRadius: 4, border: "2px solid #000", boxShadow: "4px 4px 0 #000", position: "relative", zIndex: 2 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'Satoshi', sans-serif", fontSize: 12.5, minWidth: 1180 }}>
+                <thead>
+                  <tr style={{ background: "var(--color-dark, #231e25)", color: "#fff", textAlign: "left" }}>
+                    {["EXHIBITOR", "COMPANY", "TARGET EXPO", "PRODUCTS & DOCS", "STATUS", "ASSIGNED BOOTH", "DECISION"].map((h) => (
+                      <th key={h} style={{ padding: "12px 14px", borderRight: "1.5px solid #000", letterSpacing: 1, fontSize: 10.5, textTransform: "uppercase" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence>
+                    {currentApplications.map((app, idx) => {
+                      const sc = statusColors[app.status] || statusColors.pending;
+                      const rowPending = pendingId === app._id;
+                      return (
+                        <motion.tr key={app._id}
+                          initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ delay: idx * 0.03 }}
+                          whileHover={{ background: "rgba(254,184,4,0.06)" }}
+                          style={{ borderBottom: idx < currentApplications.length - 1 ? "1.5px solid #000" : "none", opacity: rowPending ? 0.6 : 1 }}>
+                          <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--color-dark, #231e25)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 14, flexShrink: 0 }}>
+                                {(app.exhibitor?.name || "?").charAt(0).toUpperCase()}
+                              </span>
+                              <div>
+                                <strong>{app.exhibitor?.name}</strong>
+                                <div style={{ fontSize: 11, color: "#6b7280" }}>{app.exhibitor?.email}</div>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000", fontWeight: 700 }}>
-                          {app.companyName || app.exhibitor?.company || "N/A"}
-                        </td>
-                        <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000", fontWeight: 600, color: "#4b5563" }}>
-                          {app.expo?.title || "N/A"}
-                        </td>
-                        <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000", maxWidth: 240 }}>
-                          <div style={{ fontWeight: 600 }}>{app.products || "N/A"}</div>
-                          {app.documents && app.documents.length > 0 && (
-                            <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 6 }}>
-                              {app.documents.map((docPath, i) => (
-                                <a key={i} href={`http://localhost:5000${docPath}`} target="_blank" rel="noreferrer"
-                                  style={{ background: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "3px 8px", borderRadius: 3, fontSize: 10, textDecoration: "none", fontWeight: 800, border: "1.5px solid #000", boxShadow: "1.5px 1.5px 0 #000" }}>
-                                  📄 DOC {i + 1}
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                        </td>
-                        <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000" }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: sc.bg, color: sc.fg, border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "4px 10px", borderRadius: 3, fontWeight: 900, fontSize: 10.5, letterSpacing: 0.6, textTransform: "uppercase" }}>
-                            <PulseDot color={sc.fg} size={5} glow={false} />
-                            {app.status}
-                          </span>
-                        </td>
-                        <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000" }}>
-                          {app.booth ? (
-                            <span style={{ background: "#000", color: "#fff", padding: "3px 8px", borderRadius: 3, fontWeight: 800, fontSize: 11, border: "1.5px solid #000", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                              <PulseDot color="var(--color-primary, #ff3e33)" size={5} glow={false} />
-                              BOOTH {app.booth.boothNumber}
+                          </td>
+                          <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000", fontWeight: 700 }}>
+                            {app.companyName || app.exhibitor?.company || "N/A"}
+                          </td>
+                          <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000", fontWeight: 600, color: "#4b5563" }}>
+                            {app.expo?.title || "N/A"}
+                          </td>
+                          <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000", maxWidth: 240 }}>
+                            <div style={{ fontWeight: 600 }}>{app.products || "N/A"}</div>
+                            {app.documents && app.documents.length > 0 && (
+                              <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 6 }}>
+                                {app.documents.map((docPath, i) => (
+                                  <a key={i} href={`http://localhost:5000${docPath}`} target="_blank" rel="noreferrer"
+                                    style={{ background: "var(--color-cerulean, #14a6ea)", color: "#fff", padding: "3px 8px", borderRadius: 3, fontSize: 10, textDecoration: "none", fontWeight: 800, border: "1.5px solid #000", boxShadow: "1.5px 1.5px 0 #000" }}>
+                                    📄 DOC {i + 1}
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                          <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: sc.bg, color: sc.fg, border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "4px 10px", borderRadius: 3, fontWeight: 900, fontSize: 10.5, letterSpacing: 0.6, textTransform: "uppercase" }}>
+                              <PulseDot color={sc.fg} size={5} glow={false} />
+                              {app.status}
                             </span>
-                          ) : (
-                            <span style={{ color: "#9ca3af", fontWeight: 700, fontSize: 11 }}>Unassigned</span>
-                          )}
-                        </td>
-                        <td style={{ padding: "12px 14px" }}>
-                          <div style={{ display: "flex", gap: 5 }}>
-                            {app.status !== "approved" && (
-                              <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} disabled={rowPending} onClick={() => handleStatusUpdate(app._id, "approved")}
-                                style={{ background: "var(--color-kiwi, #abf139)", color: "#000", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: rowPending ? "not-allowed" : "pointer", fontWeight: 900, fontSize: 10.5, letterSpacing: 0.4, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                                {rowPending && <PulseDot color="#000" size={5} glow={false} />}
-                                APPROVE
-                              </motion.button>
+                          </td>
+                          <td style={{ padding: "12px 14px", borderRight: "1.5px solid #000" }}>
+                            {app.booth ? (
+                              <span style={{ background: "#000", color: "#fff", padding: "3px 8px", borderRadius: 3, fontWeight: 800, fontSize: 11, border: "1.5px solid #000", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                                <PulseDot color="var(--color-primary, #ff3e33)" size={5} glow={false} />
+                                BOOTH {app.booth.boothNumber}
+                              </span>
+                            ) : (
+                              <span style={{ color: "#9ca3af", fontWeight: 700, fontSize: 11 }}>Unassigned</span>
                             )}
-                            {app.status !== "rejected" && (
-                              <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} disabled={rowPending} onClick={() => handleStatusUpdate(app._id, "rejected")}
-                                style={{ background: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: rowPending ? "not-allowed" : "pointer", fontWeight: 900, fontSize: 10.5, letterSpacing: 0.4, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                                {rowPending && <PulseDot color="#fff" size={5} glow={false} />}
-                                REJECT
-                              </motion.button>
-                            )}
-                          </div>
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
+                          </td>
+                          <td style={{ padding: "12px 14px" }}>
+                            <div style={{ display: "flex", gap: 5 }}>
+                              {app.status !== "approved" && (
+                                <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} disabled={rowPending} onClick={() => handleStatusUpdate(app._id, "approved")}
+                                  style={{ background: "var(--color-kiwi, #abf139)", color: "#000", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: rowPending ? "not-allowed" : "pointer", fontWeight: 900, fontSize: 10.5, letterSpacing: 0.4, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                                  {rowPending && <PulseDot color="#000" size={5} glow={false} />}
+                                  APPROVE
+                                </motion.button>
+                              )}
+                              {app.status !== "rejected" && (
+                                <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} disabled={rowPending} onClick={() => handleStatusUpdate(app._id, "rejected")}
+                                  style={{ background: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: rowPending ? "not-allowed" : "pointer", fontWeight: 900, fontSize: 10.5, letterSpacing: 0.4, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                                  {rowPending && <PulseDot color="#fff" size={5} glow={false} />}
+                                  REJECT
+                                </motion.button>
+                              )}
+                            </div>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ marginTop: 20, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    backgroundColor: currentPage === 1 ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === 1 ? "#9ca3af" : "#fff",
+                    border: "2px solid #000",
+                    padding: "6px 14px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 16,
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  ← PREV
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setCurrentPage(num)}
+                    style={{
+                      minWidth: 36,
+                      height: 36,
+                      backgroundColor: currentPage === num ? "var(--color-selective-yellow, #feb804)" : "#ffffff",
+                      color: currentPage === num ? "#000000" : "#231e25",
+                      border: "2px solid #000",
+                      boxShadow: currentPage === num ? "2px 2px 0 #000" : "none",
+                      borderRadius: 4,
+                      fontFamily: "var(--font-display)",
+                      fontSize: 18,
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {num}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    backgroundColor: currentPage === totalPages ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === totalPages ? "#9ca3af" : "#fff",
+                    border: "2px solid #000",
+                    padding: "6px 14px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 16,
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  }}
+                >
+                  NEXT →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </motion.div>
     </div>

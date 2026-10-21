@@ -8,6 +8,8 @@ import {
   CornerBrackets, ShineSweep, PulseDot, RotatingBadge, TickerStrip, Scanline, GrainOverlay, TickStrip,
 } from "../../components/common/NeoBrutalKit.jsx";
 
+const ITEMS_PER_PAGE = 6;
+
 const AdminSessions = () => {
   const { id: expoId } = useParams();
   const { socket } = useSocket();
@@ -17,6 +19,7 @@ const AdminSessions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -32,7 +35,8 @@ const AdminSessions = () => {
         api.get(`/expos/${expoId}/sessions`),
       ]);
       setExpo(expoRes.data);
-      setSessions(sessionsRes.data);
+      setSessions(sessionsRes.data || []);
+      setCurrentPage(1);
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to load session data");
     } finally { setLoading(false); }
@@ -108,6 +112,9 @@ const AdminSessions = () => {
       }
     }
   };
+
+  const totalPages = Math.ceil(sessions.length / ITEMS_PER_PAGE) || 1;
+  const currentSessions = sessions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const inputStyle = (name) => ({
     width: "100%", padding: "10px 12px",
@@ -242,56 +249,119 @@ const AdminSessions = () => {
         ) : sessions.length === 0 ? (
           <div style={{ padding: "40px 20px", textAlign: "center", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, color: "#6b7280" }}>No sessions scheduled for this expo.</div>
         ) : (
-          <div style={{ overflowX: "auto", borderRadius: 4, border: "2px solid #000", boxShadow: "4px 4px 0 #000", position: "relative", zIndex: 2 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'Satoshi', sans-serif", fontSize: 13, minWidth: 820 }}>
-              <thead>
-                <tr style={{ background: "var(--color-dark, #231e25)", color: "#fff", textAlign: "left" }}>
-                  {["TITLE", "SPEAKER & TOPIC", "ROOM", "TIME SCHEDULE", "ACTIONS"].map((h) => (
-                    <th key={h} style={{ padding: "12px 14px", borderRight: "1.5px solid #000", letterSpacing: 1, fontSize: 11, textTransform: "uppercase" }}>{h}</th>
+          <>
+            <div style={{ overflowX: "auto", borderRadius: 4, border: "2px solid #000", boxShadow: "4px 4px 0 #000", position: "relative", zIndex: 2 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'Satoshi', sans-serif", fontSize: 13, minWidth: 820 }}>
+                <thead>
+                  <tr style={{ background: "var(--color-dark, #231e25)", color: "#fff", textAlign: "left" }}>
+                    {["TITLE", "SPEAKER & TOPIC", "ROOM", "TIME SCHEDULE", "ACTIONS"].map((h) => (
+                      <th key={h} style={{ padding: "12px 14px", borderRight: "1.5px solid #000", letterSpacing: 1, fontSize: 11, textTransform: "uppercase" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentSessions.map((sess, idx) => (
+                    <motion.tr key={sess._id}
+                      initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.03 }}
+                      whileHover={{ background: "rgba(166,126,255,0.06)" }}
+                      style={{ borderBottom: idx < currentSessions.length - 1 ? "1.5px solid #000" : "none" }}>
+                      <td style={{ padding: "14px", borderRight: "1.5px solid #000" }}>
+                        <strong style={{ fontFamily: "var(--font-display)", fontSize: 18, letterSpacing: 0.3 }}>{sess.title}</strong>
+                      </td>
+                      <td style={{ padding: "14px", borderRight: "1.5px solid #000" }}>
+                        <strong>{sess.speaker || "N/A"}</strong>
+                        {sess.topic && <div style={{ fontSize: 11, color: "#6b7280", marginTop: 3, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                          <PulseDot color="var(--color-purple-mimosa, #a67eff)" size={5} glow={false} /> {sess.topic}
+                        </div>}
+                      </td>
+                      <td style={{ padding: "14px", borderRight: "1.5px solid #000", fontWeight: 700 }}>
+                        <span style={{ background: "#f9fafb", border: "1.5px solid #000", padding: "3px 8px", borderRadius: 3, fontSize: 11.5, fontWeight: 800 }}>
+                          📍 {sess.location || "TBA"}
+                        </span>
+                      </td>
+                      <td style={{ padding: "14px", borderRight: "1.5px solid #000", fontWeight: 600, color: "#4b5563" }}>
+                        🕐 {new Date(sess.startTime).toLocaleString()}<br />
+                        <span style={{ color: "#9ca3af" }}>→</span> {new Date(sess.endTime).toLocaleTimeString()}
+                      </td>
+                      <td style={{ padding: "14px" }}>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => handleEdit(sess)}
+                            style={{ background: "var(--color-selective-yellow, #feb804)", color: "#000", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>
+                            EDIT
+                          </motion.button>
+                          <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => handleDelete(sess._id)}
+                            style={{ background: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>
+                            DELETE
+                          </motion.button>
+                        </div>
+                      </td>
+                    </motion.tr>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sessions.map((sess, idx) => (
-                  <motion.tr key={sess._id}
-                    initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.03 }}
-                    whileHover={{ background: "rgba(166,126,255,0.06)" }}
-                    style={{ borderBottom: idx < sessions.length - 1 ? "1.5px solid #000" : "none" }}>
-                    <td style={{ padding: "14px", borderRight: "1.5px solid #000" }}>
-                      <strong style={{ fontFamily: "var(--font-display)", fontSize: 17, letterSpacing: 0.3 }}>{sess.title}</strong>
-                    </td>
-                    <td style={{ padding: "14px", borderRight: "1.5px solid #000" }}>
-                      <strong>{sess.speaker || "N/A"}</strong>
-                      {sess.topic && <div style={{ fontSize: 11, color: "#6b7280", marginTop: 3, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                        <PulseDot color="var(--color-purple-mimosa, #a67eff)" size={5} glow={false} /> {sess.topic}
-                      </div>}
-                    </td>
-                    <td style={{ padding: "14px", borderRight: "1.5px solid #000", fontWeight: 700 }}>
-                      <span style={{ background: "#f9fafb", border: "1.5px solid #000", padding: "3px 8px", borderRadius: 3, fontSize: 11.5, fontWeight: 800 }}>
-                        📍 {sess.location || "TBA"}
-                      </span>
-                    </td>
-                    <td style={{ padding: "14px", borderRight: "1.5px solid #000", fontWeight: 600, color: "#4b5563" }}>
-                      🕐 {new Date(sess.startTime).toLocaleString()}<br />
-                      <span style={{ color: "#9ca3af" }}>→</span> {new Date(sess.endTime).toLocaleTimeString()}
-                    </td>
-                    <td style={{ padding: "14px" }}>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => handleEdit(sess)}
-                          style={{ background: "var(--color-selective-yellow, #feb804)", color: "#000", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>
-                          EDIT
-                        </motion.button>
-                        <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => handleDelete(sess._id)}
-                          style={{ background: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>
-                          DELETE
-                        </motion.button>
-                      </div>
-                    </td>
-                  </motion.tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ marginTop: 20, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    backgroundColor: currentPage === 1 ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === 1 ? "#9ca3af" : "#fff",
+                    border: "2px solid #000",
+                    padding: "6px 14px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 16,
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  ← PREV
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setCurrentPage(num)}
+                    style={{
+                      minWidth: 36,
+                      height: 36,
+                      backgroundColor: currentPage === num ? "var(--color-purple-mimosa, #a67eff)" : "#ffffff",
+                      color: currentPage === num ? "#ffffff" : "#231e25",
+                      border: "2px solid #000",
+                      boxShadow: currentPage === num ? "2px 2px 0 #000" : "none",
+                      borderRadius: 4,
+                      fontFamily: "var(--font-display)",
+                      fontSize: 18,
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {num}
+                  </button>
                 ))}
-              </tbody>
-            </table>
-          </div>
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    backgroundColor: currentPage === totalPages ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === totalPages ? "#9ca3af" : "#fff",
+                    border: "2px solid #000",
+                    padding: "6px 14px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 16,
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  }}
+                >
+                  NEXT →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </motion.div>
     </div>

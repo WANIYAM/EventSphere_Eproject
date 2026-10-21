@@ -14,11 +14,14 @@ import {
   TickStrip,
 } from "../../components/common/NeoBrutalKit.jsx";
 
+const ITEMS_PER_PAGE = 5;
+
 const AdminExpos = () => {
   const [expos, setExpos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -32,7 +35,8 @@ const AdminExpos = () => {
     try {
       setLoading(true);
       const res = await api.get("/expos");
-      setExpos(res.data);
+      setExpos(res.data || []);
+      setCurrentPage(1);
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to load expos");
     } finally { setLoading(false); }
@@ -115,6 +119,9 @@ const AdminExpos = () => {
       }
     }
   };
+
+  const totalPages = Math.ceil(expos.length / ITEMS_PER_PAGE) || 1;
+  const currentExpos = expos.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const inputStyle = (name, extra = {}) => ({
     width: "100%",
@@ -323,66 +330,129 @@ const AdminExpos = () => {
             No expos created yet. Use the form above to create your first event.
           </div>
         ) : (
-          <div style={{ overflowX: "auto", borderRadius: 4, border: "2px solid #000", boxShadow: "4px 4px 0 #000", position: "relative", zIndex: 2 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'Satoshi', sans-serif", fontSize: 13.5, minWidth: 780 }}>
-              <thead>
-                <tr style={{ background: "var(--color-dark, #231e25)", color: "#fff", textAlign: "left" }}>
-                  {["EXPO TITLE", "DATES", "LOCATION", "OPERATIONS"].map((h) => (
-                    <th key={h} style={{ padding: "12px 14px", borderRight: "1.5px solid #000", letterSpacing: 1, fontSize: 11, textTransform: "uppercase" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {expos.map((expo, idx) => (
-                  <motion.tr key={expo._id}
-                    initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.03 }}
-                    whileHover={{ background: "rgba(255,62,51,0.06)" }}
-                    style={{ borderBottom: idx < expos.length - 1 ? "1.5px solid #000" : "none" }}>
-                    <td style={{ padding: "14px", borderRight: "1.5px solid #000" }}>
-                      <strong style={{ fontFamily: "var(--font-display)", fontSize: 18, letterSpacing: 0.4 }}>{expo.title}</strong>
-                      {expo.theme && (
-                        <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                          <PulseDot color="var(--color-primary, #ff3e33)" size={5} glow={false} />
-                          {expo.theme}
+          <>
+            <div style={{ overflowX: "auto", borderRadius: 4, border: "2px solid #000", boxShadow: "4px 4px 0 #000", position: "relative", zIndex: 2 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'Satoshi', sans-serif", fontSize: 13.5, minWidth: 780 }}>
+                <thead>
+                  <tr style={{ background: "var(--color-dark, #231e25)", color: "#fff", textAlign: "left" }}>
+                    {["EXPO TITLE", "DATES", "LOCATION", "OPERATIONS"].map((h) => (
+                      <th key={h} style={{ padding: "12px 14px", borderRight: "1.5px solid #000", letterSpacing: 1, fontSize: 11, textTransform: "uppercase" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentExpos.map((expo, idx) => (
+                    <motion.tr key={expo._id}
+                      initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.03 }}
+                      whileHover={{ background: "rgba(255,62,51,0.06)" }}
+                      style={{ borderBottom: idx < currentExpos.length - 1 ? "1.5px solid #000" : "none" }}>
+                      <td style={{ padding: "14px", borderRight: "1.5px solid #000" }}>
+                        <strong style={{ fontFamily: "var(--font-display)", fontSize: 18, letterSpacing: 0.4 }}>{expo.title}</strong>
+                        {expo.theme && (
+                          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                            <PulseDot color="var(--color-primary, #ff3e33)" size={5} glow={false} />
+                            {expo.theme}
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: "14px", borderRight: "1.5px solid #000", fontWeight: 700, color: "#4b5563" }}>
+                        {new Date(expo.startDate).toLocaleDateString()}<br />
+                        <span style={{ color: "#9ca3af" }}>→</span> {new Date(expo.endDate).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: "14px", borderRight: "1.5px solid #000", fontWeight: 700 }}>
+                        {expo.location || "TBA"}
+                      </td>
+                      <td style={{ padding: "14px" }}>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          <motion.div whileHover={{ y: -2 }}>
+                            <Link to={`/admin/expos/${expo._id}/booths`}
+                              style={{ background: "var(--color-cerulean, #14a6ea)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, textDecoration: "none", fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, display: "inline-block" }}>
+                              BOOTHS
+                            </Link>
+                          </motion.div>
+                          <motion.div whileHover={{ y: -2 }}>
+                            <Link to={`/admin/expos/${expo._id}/sessions`}
+                              style={{ background: "var(--color-purple-mimosa, #a67eff)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, textDecoration: "none", fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, display: "inline-block" }}>
+                              SESSIONS
+                            </Link>
+                          </motion.div>
+                          <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => handleEdit(expo)}
+                            style={{ background: "var(--color-selective-yellow, #feb804)", color: "#000", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>
+                            EDIT
+                          </motion.button>
+                          <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => handleDelete(expo._id)}
+                            style={{ background: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>
+                            DELETE
+                          </motion.button>
                         </div>
-                      )}
-                    </td>
-                    <td style={{ padding: "14px", borderRight: "1.5px solid #000", fontWeight: 700, color: "#4b5563" }}>
-                      {new Date(expo.startDate).toLocaleDateString()}<br />
-                      <span style={{ color: "#9ca3af" }}>→</span> {new Date(expo.endDate).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: "14px", borderRight: "1.5px solid #000", fontWeight: 700 }}>
-                      {expo.location || "TBA"}
-                    </td>
-                    <td style={{ padding: "14px" }}>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        <motion.div whileHover={{ y: -2 }}>
-                          <Link to={`/admin/expos/${expo._id}/booths`}
-                            style={{ background: "var(--color-cerulean, #14a6ea)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, textDecoration: "none", fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, display: "inline-block" }}>
-                            BOOTHS
-                          </Link>
-                        </motion.div>
-                        <motion.div whileHover={{ y: -2 }}>
-                          <Link to={`/admin/expos/${expo._id}/sessions`}
-                            style={{ background: "var(--color-purple-mimosa, #a67eff)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, textDecoration: "none", fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, display: "inline-block" }}>
-                            SESSIONS
-                          </Link>
-                        </motion.div>
-                        <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => handleEdit(expo)}
-                          style={{ background: "var(--color-selective-yellow, #feb804)", color: "#000", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>
-                          EDIT
-                        </motion.button>
-                        <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => handleDelete(expo._id)}
-                          style={{ background: "var(--color-primary, #ff3e33)", color: "#fff", border: "1.5px solid #000", boxShadow: "2px 2px 0 #000", padding: "5px 10px", borderRadius: 3, cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>
-                          DELETE
-                        </motion.button>
-                      </div>
-                    </td>
-                  </motion.tr>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ marginTop: 20, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    backgroundColor: currentPage === 1 ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === 1 ? "#9ca3af" : "#fff",
+                    border: "2px solid #000",
+                    padding: "6px 14px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 16,
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  ← PREV
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setCurrentPage(num)}
+                    style={{
+                      minWidth: 36,
+                      height: 36,
+                      backgroundColor: currentPage === num ? "var(--color-primary, #ff3e33)" : "#ffffff",
+                      color: currentPage === num ? "#ffffff" : "#000000",
+                      border: "2px solid #000",
+                      boxShadow: currentPage === num ? "2px 2px 0 #000" : "none",
+                      borderRadius: 4,
+                      fontFamily: "var(--font-display)",
+                      fontSize: 18,
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {num}
+                  </button>
                 ))}
-              </tbody>
-            </table>
-          </div>
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    backgroundColor: currentPage === totalPages ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === totalPages ? "#9ca3af" : "#fff",
+                    border: "2px solid #000",
+                    padding: "6px 14px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 16,
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  }}
+                >
+                  NEXT →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </motion.div>
 

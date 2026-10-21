@@ -5,17 +5,21 @@ import api from "../services/api.js";
 import Loading from "../components/Loading.jsx";
 import { CornerBrackets, ShineSweep, PulseDot, TickerStrip, RotatingBadge } from "../components/common/NeoBrutalKit.jsx";
 
+const ITEMS_PER_PAGE = 6;
+
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
   const fetchNotifications = async () => {
     try {
       setLoading(true);
       const res = await api.get("/notifications");
-      setNotifications(res.data);
+      setNotifications(res.data || []);
+      setCurrentPage(1);
     } catch (err) {
       setError(err.userMessage || err.response?.data?.message || "Failed to load notifications");
     } finally { setLoading(false); }
@@ -39,6 +43,9 @@ const Notifications = () => {
     }
     if (notif.link) navigate(notif.link);
   };
+
+  const totalPages = Math.ceil(notifications.length / ITEMS_PER_PAGE) || 1;
+  const currentNotifs = notifications.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   if (loading) return <Loading message="Loading notifications..." />;
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -85,35 +92,98 @@ const Notifications = () => {
             No notifications available.
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <AnimatePresence>
-              {notifications.map((notif) => (
-                <motion.div key={notif._id} onClick={() => handleItemClick(notif)}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ x: 4, boxShadow: "5px 5px 0px var(--color-dark, #231e25)" }}
+          <>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <AnimatePresence>
+                {currentNotifs.map((notif) => (
+                  <motion.div key={notif._id} onClick={() => handleItemClick(notif)}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ x: 4, boxShadow: "5px 5px 0px var(--color-dark, #231e25)" }}
+                    style={{
+                      position: "relative", overflow: "hidden",
+                      backgroundColor: notif.read ? "#ffffff" : "var(--color-light, #fff8eb)",
+                      border: "2px solid var(--color-dark, #231e25)",
+                      borderLeft: notif.read ? "2px solid var(--color-dark, #231e25)" : "6px solid var(--color-primary, #ff3e33)",
+                      boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
+                      padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", gap: 16,
+                    }}>
+                    {!notif.read && <ShineSweep duration={1.8} delay={0} opacity={0.25} />}
+                    <div>
+                      <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: notif.read ? 600 : 800, color: "var(--color-dark)", margin: 0 }}>
+                        {notif.message}
+                      </p>
+                      <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
+                        {new Date(notif.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    {!notif.read && <PulseDot color="var(--color-primary, #ff3e33)" size={10} />}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ marginTop: 24, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
                   style={{
-                    position: "relative", overflow: "hidden",
-                    backgroundColor: notif.read ? "#ffffff" : "var(--color-light, #fff8eb)",
-                    border: "2px solid var(--color-dark, #231e25)",
-                    borderLeft: notif.read ? "2px solid var(--color-dark, #231e25)" : "6px solid var(--color-primary, #ff3e33)",
-                    boxShadow: "3px 3px 0px var(--color-dark, #231e25)",
-                    padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", gap: 16,
-                  }}>
-                  {!notif.read && <ShineSweep duration={1.8} delay={0} opacity={0.25} />}
-                  <div>
-                    <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 15, fontWeight: notif.read ? 600 : 800, color: "var(--color-dark)", margin: 0 }}>
-                      {notif.message}
-                    </p>
-                    <span style={{ fontSize: 12, fontFamily: "'Satoshi', sans-serif", color: "#6b7280" }}>
-                      {new Date(notif.createdAt).toLocaleString()}
-                    </span>
-                  </div>
-                  {!notif.read && <PulseDot color="var(--color-primary, #ff3e33)" size={10} />}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+                    backgroundColor: currentPage === 1 ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === 1 ? "#9ca3af" : "#fff",
+                    border: "2px solid #000",
+                    padding: "6px 14px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 16,
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  ← PREV
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setCurrentPage(num)}
+                    style={{
+                      minWidth: 36,
+                      height: 36,
+                      backgroundColor: currentPage === num ? "var(--color-primary, #ff3e33)" : "#ffffff",
+                      color: currentPage === num ? "#ffffff" : "#000000",
+                      border: "2px solid #000",
+                      boxShadow: currentPage === num ? "2px 2px 0 #000" : "none",
+                      borderRadius: 4,
+                      fontFamily: "var(--font-display)",
+                      fontSize: 18,
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {num}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    backgroundColor: currentPage === totalPages ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                    color: currentPage === totalPages ? "#9ca3af" : "#fff",
+                    border: "2px solid #000",
+                    padding: "6px 14px",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 16,
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  }}
+                >
+                  NEXT →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

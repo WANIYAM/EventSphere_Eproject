@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import api from "../../services/api.js";
 
 const BASE = "http://localhost:5000";
+const ITEMS_PER_PAGE = 4;
 
 const ExhibitorProfileView = () => {
   const { id } = useParams();
@@ -11,6 +12,7 @@ const ExhibitorProfileView = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -29,6 +31,10 @@ const ExhibitorProfileView = () => {
   if (loading) return <p style={{ padding: 40, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>Loading exhibitor showcase...</p>;
   if (error) return <div style={{ backgroundColor: "#fee2e2", border: "2px solid red", padding: 16 }}>{error}</div>;
   if (!profile) return <p style={{ padding: 40, fontFamily: "'Satoshi', sans-serif", fontWeight: 700 }}>Exhibitor profile not found.</p>;
+
+  const exposList = profile.expos || [];
+  const totalPages = Math.ceil(exposList.length / ITEMS_PER_PAGE) || 1;
+  const currentExpos = exposList.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28, padding: "10px 0" }}>
@@ -179,7 +185,7 @@ const ExhibitorProfileView = () => {
         </div>
       )}
 
-      {/* Participating Expos & Booths Table */}
+      {/* Participating Expos & Booths Table with Pagination */}
       {profile.expos?.length > 0 && (
         <div
           style={{
@@ -202,7 +208,7 @@ const ExhibitorProfileView = () => {
                 </tr>
               </thead>
               <tbody>
-                {profile.expos.map((e, i) => (
+                {currentExpos.map((e, i) => (
                   <tr key={i}>
                     <td style={{ padding: "12px 14px", border: "1.5px solid var(--color-dark)" }}>
                       <strong>{e.expo?.title || "Expo"}</strong>
@@ -220,6 +226,67 @@ const ExhibitorProfileView = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Table Pagination */}
+          {totalPages > 1 && (
+            <div style={{ marginTop: 20, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  backgroundColor: currentPage === 1 ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                  color: currentPage === 1 ? "#9ca3af" : "#fff",
+                  border: "2px solid #000",
+                  padding: "6px 14px",
+                  borderRadius: 4,
+                  fontFamily: "var(--font-display)",
+                  fontSize: 16,
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                }}
+              >
+                ← PREV
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setCurrentPage(num)}
+                  style={{
+                    minWidth: 36,
+                    height: 36,
+                    backgroundColor: currentPage === num ? "var(--color-primary, #ff3e33)" : "#ffffff",
+                    color: currentPage === num ? "#ffffff" : "#000000",
+                    border: "2px solid #000",
+                    boxShadow: currentPage === num ? "2px 2px 0 #000" : "none",
+                    borderRadius: 4,
+                    fontFamily: "var(--font-display)",
+                    fontSize: 18,
+                    fontWeight: 900,
+                    cursor: "pointer",
+                  }}
+                >
+                  {num}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  backgroundColor: currentPage === totalPages ? "#e5e7eb" : "var(--color-dark, #231e25)",
+                  color: currentPage === totalPages ? "#9ca3af" : "#fff",
+                  border: "2px solid #000",
+                  padding: "6px 14px",
+                  borderRadius: 4,
+                  fontFamily: "var(--font-display)",
+                  fontSize: 16,
+                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                }}
+              >
+                NEXT →
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
